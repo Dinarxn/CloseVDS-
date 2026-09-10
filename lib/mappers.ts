@@ -74,25 +74,30 @@ export interface BackendEmailMessage {
   lead?: BackendLead;
 }
 
+export function mapBackendStatusToLeadStatus(rawStatus?: string): LeadStatus {
+  if (!rawStatus) return 'discovered';
+  const statusStr = rawStatus.toUpperCase();
+  if (statusStr === 'DISCOVERED') return 'discovered';
+  if (statusStr === 'AUDITING' || statusStr === 'RESEARCHED') return 'analyzing';
+  if (statusStr === 'QUALIFIED') return 'qualified';
+  if (statusStr === 'DISQUALIFIED') return 'disqualified';
+  if (statusStr === 'OUTREACH_READY') return 'outreach_ready';
+  if (statusStr === 'CONTACTED') return 'contacted';
+  if (statusStr === 'IN_FOLLOWUP') return 'in_followup';
+  if (statusStr === 'REPLIED') return 'replied';
+  if (statusStr === 'MEETING_BOOKED') return 'meeting_booked';
+  if (statusStr === 'OPT_OUT') return 'opted_out';
+  if (statusStr === 'CLOSED_WON') return 'closed_won';
+  if (statusStr === 'CLOSED_LOST') return 'closed_lost';
+  return 'discovered';
+}
+
 export function mapBackendLeadToFrontend(bLead: BackendLead): Lead {
   const primaryContact = bLead.contacts?.find((c) => c.isPrimary) || bLead.contacts?.[0];
   const score = bLead.leadScore;
   const audit = bLead.websiteAudits?.[0] || bLead.websiteAudit;
 
-  let mappedStatus: LeadStatus = 'discovered';
-  const statusStr = bLead.status.toUpperCase();
-  if (statusStr === 'DISCOVERED') mappedStatus = 'discovered';
-  else if (statusStr === 'AUDITING' || statusStr === 'RESEARCHED') mappedStatus = 'analyzing';
-  else if (statusStr === 'QUALIFIED') mappedStatus = 'qualified';
-  else if (statusStr === 'DISQUALIFIED') mappedStatus = 'disqualified';
-  else if (statusStr === 'OUTREACH_READY') mappedStatus = 'outreach_ready';
-  else if (statusStr === 'CONTACTED') mappedStatus = 'contacted';
-  else if (statusStr === 'IN_FOLLOWUP') mappedStatus = 'in_followup';
-  else if (statusStr === 'REPLIED') mappedStatus = 'replied';
-  else if (statusStr === 'MEETING_BOOKED') mappedStatus = 'meeting_booked';
-  else if (statusStr === 'OPT_OUT') mappedStatus = 'opted_out';
-  else if (statusStr === 'CLOSED_WON') mappedStatus = 'closed_won';
-  else if (statusStr === 'CLOSED_LOST') mappedStatus = 'closed_lost';
+  const mappedStatus: LeadStatus = mapBackendStatusToLeadStatus(bLead.status);
 
   let qualStatus: QualificationStatus = 'unqualified';
   if (score) {

@@ -144,6 +144,8 @@ import type {
   N8nIntegrationKey,
   N8nWebhookDelivery,
 } from '@/types/calling';
+import type { LeadAiWorkflowResult } from '@/types/leads';
+import type { BackendLead } from '@/lib/mappers';
 
 export const api = {
   get: <T = unknown>(endpoint: string, options?: RequestInit) =>
@@ -301,6 +303,37 @@ export const api = {
   settings: {
     getProviders: () =>
       apiRequest<{ success: boolean; providers: ProviderStatusItem[] }>('/settings/providers'),
+  },
+
+  leads: {
+    list: (params?: { search?: string; status?: string; page?: number; limit?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.set('search', params.search);
+      if (params?.status) searchParams.set('status', params.status);
+      if (params?.page) searchParams.set('page', String(params.page));
+      if (params?.limit) searchParams.set('limit', String(params.limit));
+      const qs = searchParams.toString();
+      return apiRequest<{
+        success: boolean;
+        data: BackendLead[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>(qs ? `/leads?${qs}` : '/leads');
+    },
+
+    get: (id: string) =>
+      apiRequest<{
+        success: boolean;
+        lead: BackendLead;
+      }>(`/leads/${id}`),
+
+    runAi: (id: string) =>
+      apiRequest<{
+        success: boolean;
+        data: LeadAiWorkflowResult;
+      }>(`/leads/${id}/ai`, { method: 'POST' }),
   },
 };
 

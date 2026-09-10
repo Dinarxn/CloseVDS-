@@ -8,11 +8,12 @@ import { LeadsFilters } from "@/components/leads/leads-filters";
 import { LeadsTable } from "@/components/leads/leads-table";
 import { LeadsCardGrid } from "@/components/leads/leads-card-grid";
 import { LeadDiscoveryModal } from "@/components/leads/lead-discovery-modal";
+import { LeadDetailModal } from "@/components/leads/lead-detail-modal";
 import { PermissionGateBanner } from "@/components/shared/permission-gate-banner";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Lead, LeadFilterState, LeadSortOption, LeadViewMode } from "@/types/leads";
 import { api, ApiClientError } from "@/lib/api-client";
-import { mapBackendLeadToFrontend, type BackendLead } from "@/lib/mappers";
+import { mapBackendLeadToFrontend } from "@/lib/mappers";
 import { CallPreparationModal } from "@/components/calling/call-preparation-modal";
 
 const INITIAL_FILTERS: LeadFilterState = {
@@ -36,6 +37,7 @@ export default function LeadsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [selectedLeadForCall, setSelectedLeadForCall] = useState<Lead | null>(null);
 
   const filterDisclosure = useDisclosure({ defaultIsOpen: false });
@@ -45,31 +47,35 @@ export default function LeadsPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const queryParams = new URLSearchParams();
-      if (search.trim()) queryParams.set("search", search.trim());
-      if (filters.status) queryParams.set("status", filters.status.toUpperCase());
-      if (filters.campaign) queryParams.set("campaignId", filters.campaign);
+      const response = await api.leads.list({
+        search: search.trim() || undefined,
+        status: filters.status ? filters.status.toUpperCase() : undefined,
+      });
 
-      const qs = queryParams.toString();
-      const endpoint = qs ? `/leads?${qs}` : "/leads";
-      const response = await api.get<{ data: { items: BackendLead[]; total: number } }>(endpoint);
+      const rawItems = Array.isArray(response?.data)
+        ? response.data
+        : [];
 
-      if (response?.data?.items) {
-        setLeads(response.data.items.map(mapBackendLeadToFrontend));
-      } else {
-        setLeads([]);
-      }
+      setLeads(rawItems.map(mapBackendLeadToFrontend));
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
-        setErrorMsg(err.message || "Failed to load leads from server");
+        if (err.statusCode === 503 || err.code === "DATABASE_UNAVAILABLE") {
+          setErrorMsg(
+            "Cannot reach database server. Please verify PostgreSQL connection."
+          );
+        } else if (err.statusCode === 401) {
+          setErrorMsg("Your session has expired. Please log in again.");
+        } else {
+          setErrorMsg(err.message || "Failed to load leads from server");
+        }
       } else {
-        setErrorMsg("Failed to connect to leads API service");
+        setErrorMsg("Unable to connect to backend API server.");
       }
       setLeads([]);
     } finally {
       setIsLoading(false);
     }
-  }, [search, filters.status, filters.campaign]);
+  }, [search, filters.status]);
 
   useEffect(() => {
     fetchLeads();
@@ -153,6 +159,7 @@ export default function LeadsPage() {
             onFindLeads={discoveryModal.onOpen}
             isFiltered={isFiltered}
             onClearFilters={handleResetFilters}
+            onSelectLead={(lead) => setSelectedLeadId(lead.id)}
             onPrepareCall={(lead) => setSelectedLeadForCall(lead)}
           />
         ) : (
@@ -161,6 +168,7 @@ export default function LeadsPage() {
             onFindLeads={discoveryModal.onOpen}
             isFiltered={isFiltered}
             onClearFilters={handleResetFilters}
+            onSelectLead={(lead) => setSelectedLeadId(lead.id)}
           />
         )}
 
@@ -171,6 +179,14 @@ export default function LeadsPage() {
             discoveryModal.onClose();
             fetchLeads();
           }}
+        />
+
+        {/* Lead Detail & AI Analysis Dossier Modal */}
+        <LeadDetailModal
+          isOpen={Boolean(selectedLeadId)}
+          leadId={selectedLeadId}
+          onClose={() => setSelectedLeadId(null)}
+          onLeadUpdated={fetchLeads}
         />
 
         {/* Call Preparation Modal */}
