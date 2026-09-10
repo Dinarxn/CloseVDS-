@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --color-black: #09090b;
+  --color-white: #ffffff;
+
+  /* Obsidian Precision Layered Surfaces */
+  --surface-canvas: #09090b;
+  --surface-panel: #0d0d11;
+  --surface-card: #131318;
+  --surface-card-hover: #181820;
+  --surface-elevated: #1f1f28;
+
+  /* 1px Precision Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-highlight: rgba(255, 255, 255, 0.20);
+
+  /* Approved Phase 0 Neutral Scale */
+  --neutral-950: #09090b;
+  --neutral-900: #131318;
+  --neutral-800: #27272a;
+  --neutral-700: #3f3f46;
+  --neutral-600: #52525b;
+  --neutral-500: #71717a;
+  --neutral-400: #a1a1aa;
+  --neutral-300: #d4d4d8;
+  --neutral-200: #e4e4e7;
+  --neutral-100: #f4f4f5;
+  --neutral-50: #fafafa;
+}
+
+body {
+  background-color: var(--surface-canvas);
+  color: var(--color-white);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* Subtle Ambient Glow Utilities */
+.glow-card {
+  position: relative;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+}
+
+.glow-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+.glow-pill {
+  box-shadow: 0 0 12px -2px rgba(99, 102, 241, 0.25);
+}
+
+/* Tabular Numerals for Analytics & KPIs */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Accessible Modern Focus Ring */
+:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Smooth selection color */
+::selection {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
