@@ -81,7 +81,7 @@ export function mapBackendStatusToLeadStatus(rawStatus?: string): LeadStatus {
   if (statusStr === 'AUDITING' || statusStr === 'RESEARCHED') return 'analyzing';
   if (statusStr === 'QUALIFIED') return 'qualified';
   if (statusStr === 'DISQUALIFIED') return 'disqualified';
-  if (statusStr === 'OUTREACH_READY') return 'outreach_ready';
+  if (statusStr === 'CALL_READY' || statusStr === 'OUTREACH_READY') return 'outreach_ready';
   if (statusStr === 'CONTACTED') return 'contacted';
   if (statusStr === 'IN_FOLLOWUP') return 'in_followup';
   if (statusStr === 'REPLIED') return 'replied';

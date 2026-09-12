@@ -1,333 +1,113 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api-client";
-
-interface CallsResponsePayload {
-  calls?: CallItem[];
-  data?: { calls?: CallItem[] };
-}
-
-interface LeadsResponsePayload {
-  items?: LeadItem[];
-  data?: { items?: LeadItem[] };
-}
-
-type OperationCategory =
-  | "all"
-  | "approvals"
-  | "calling"
-  | "research"
-  | "qualification"
-  | "followup"
-  | "crm"
-  | "system";
-
-interface OperationTask {
-  id: string;
-  category: OperationCategory;
-  title: string;
-  target: string;
-  reason: string;
-  priority: "CRITICAL" | "HIGH" | "MEDIUM" | "ROUTINE";
-  timestamp: string;
-  actionText: string;
-  actionHref: string;
-  metadata?: string;
-}
-
-interface LeadItem {
-  id: string;
-  businessName: string;
-  domain?: string;
-  status: string;
-  createdAt: string;
-  leadScore?: { finalScore?: number } | null;
-}
-
-interface CallItem {
-  id: string;
-  leadId: string;
-  status: string;
-  createdAt: string;
-  lead?: { businessName?: string } | null;
-  outcome?: { outcomeType?: string; notes?: string } | null;
-}
+import { api, ApiClientError } from "@/lib/api-client";
+import type { QueueItem, OperationTask, OperationsSummary } from "@/types/operations";
 
 export default function OperationsPage() {
-  const [selectedFilter, setSelectedFilter] = useState<OperationCategory>("all");
+  const [activeTab, setActiveTab] = useState<"queue" | "call-ready">("queue");
   const [isLoading, setIsLoading] = useState(true);
-  const [tasks, setTasks] = useState<OperationTask[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadOperations = useCallback(async () => {
+  const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
+  const [callReadyTasks, setCallReadyTasks] = useState<OperationTask[]>([]);
+  const [summary, setSummary] = useState<OperationsSummary | null>(null);
+
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+
+  const loadOperationsData = useCallback(async () => {
     setIsLoading(true);
+    setErrorMessage(null);
+
     try {
-      const [leadsRes, callsRes, providersRes, agentsRes] = await Promise.allSettled([
-        api.get<{ items?: LeadItem[]; data?: { items?: LeadItem[] } }>("/leads?limit=100"),
-        api.voice.listCalls({ limit: 100 }),
-        api.settings.getProviders(),
-        api.voice.getAgentConfigs(),
+      const [queueRes, callReadyRes, summaryRes] = await Promise.allSettled([
+        api.operations.getQueue(),
+        api.operations.getCallReady(),
+        api.operations.getSummary(),
       ]);
 
-      const items: OperationTask[] = [];
-
-      // 1. Process Voice Calls for Approvals & Call Ready
-      if (callsRes.status === "fulfilled") {
-        const val = callsRes.value as unknown as CallsResponsePayload;
-        const rawCalls: CallItem[] = Array.isArray(val?.calls)
-          ? val.calls
-          : Array.isArray(val?.data?.calls)
-          ? val.data.calls
-          : [];
-
-        // Approvals required
-        const pendingCalls = rawCalls.filter((c) => c.status === "APPROVAL_REQUIRED");
-        if (pendingCalls.length > 0) {
-          pendingCalls.forEach((call) => {
-            items.push({
-              id: `call-approval-${call.id}`,
-              category: "approvals",
-              title: "Outbound Voice Call Authorization Required",
-              target: call.lead?.businessName || "Prospect",
-              reason: "AI dialogue script, target phone, and grounded facts prepared. Awaiting operator authorization.",
-              priority: "CRITICAL",
-              timestamp: formatTime(call.createdAt),
-              actionText: "Review & Authorize",
-              actionHref: `/calling/calls`,
-              metadata: "Approval Gate",
-            });
-          });
-        }
-
-        // Follow-ups due from outcomes
-        const callbackCalls = rawCalls.filter(
-          (c) =>
-            c.outcome?.outcomeType === "CALLBACK_REQUESTED" ||
-            c.outcome?.outcomeType === "INTERESTED"
-        );
-        if (callbackCalls.length > 0) {
-          callbackCalls.forEach((call) => {
-            items.push({
-              id: `followup-${call.id}`,
-              category: "followup",
-              title:
-                call.outcome?.outcomeType === "CALLBACK_REQUESTED"
-                  ? "Callback Requested by Prospect"
-                  : "Interested Lead Disposition",
-              target: call.lead?.businessName || "Prospect",
-              reason: call.outcome?.notes || "Positive response detected during call. Operator callback needed.",
-              priority: "HIGH",
-              timestamp: formatTime(call.createdAt),
-              actionText: "Open Follow-Up",
-              actionHref: `/crm`,
-              metadata: call.outcome?.outcomeType || "Follow-up",
-            });
-          });
+      if (queueRes.status === "fulfilled" && queueRes.value?.data) {
+        setQueueItems(queueRes.value.data);
+      } else if (queueRes.status === "rejected") {
+        const err = queueRes.reason;
+        if (err instanceof ApiClientError && (err.statusCode === 503 || err.code === "DATABASE_UNAVAILABLE")) {
+          setErrorMessage("Cannot reach database server. PostgreSQL connection offline.");
         }
       }
 
-      // 2. Process Leads for Research & Qualification
-      if (leadsRes.status === "fulfilled") {
-        const val = leadsRes.value as unknown as LeadsResponsePayload;
-        const rawLeads: LeadItem[] = Array.isArray(val?.items)
-          ? val.items
-          : Array.isArray(val?.data?.items)
-          ? val.data.items
-          : [];
-
-        // Needs research (new leads without audit score)
-        const unresearched = rawLeads.filter(
-          (l) => l.status === "NEW" && !l.leadScore
-        );
-        if (unresearched.length > 0) {
-          items.push({
-            id: "batch-research",
-            category: "research",
-            title: `${unresearched.length} Discovered Lead${unresearched.length > 1 ? "s" : ""} Need Research`,
-            target: unresearched.slice(0, 3).map((l) => l.businessName).join(", ") + (unresearched.length > 3 ? "..." : ""),
-            reason: "Website infrastructure, mobile deficits, and tech stack intelligence pending discovery audit.",
-            priority: "HIGH",
-            timestamp: formatTime(unresearched[0]?.createdAt),
-            actionText: "Open Research Queue",
-            actionHref: "/leads",
-            metadata: `${unresearched.length} Pending`,
-          });
-        }
-
-        // Needs qualification (leads scored or newly imported ready for review)
-        const toQualify = rawLeads.filter((l) => l.status === "NEW" && l.leadScore);
-        if (toQualify.length > 0) {
-          items.push({
-            id: "batch-qualification",
-            category: "qualification",
-            title: `${toQualify.length} Researched Lead${toQualify.length > 1 ? "s" : ""} Awaiting Qualification`,
-            target: toQualify.slice(0, 3).map((l) => l.businessName).join(", ") + (toQualify.length > 3 ? "..." : ""),
-            reason: "Dual fact verification and ICP fit threshold scoring ready for evaluation.",
-            priority: "MEDIUM",
-            timestamp: formatTime(toQualify[0]?.createdAt),
-            actionText: "Review & Qualify",
-            actionHref: "/leads",
-            metadata: "ICP Verification",
-          });
-        }
-
-        // Call Ready prospects (qualified leads ready for voice call preparation)
-        const qualified = rawLeads.filter((l) => l.status === "QUALIFIED");
-        if (qualified.length > 0) {
-          items.push({
-            id: "batch-call-ready",
-            category: "calling",
-            title: `${qualified.length} Qualified Prospect${qualified.length > 1 ? "s" : ""} Ready for Call Preparation`,
-            target: qualified.slice(0, 3).map((l) => l.businessName).join(", ") + (qualified.length > 3 ? "..." : ""),
-            reason: "Passed qualification gates. Ground facts and queue for AI voice agent outbound session.",
-            priority: "HIGH",
-            timestamp: formatTime(qualified[0]?.createdAt),
-            actionText: "Open Call Queue",
-            actionHref: "/calling/calls",
-            metadata: "Ready to Call",
-          });
-        }
+      if (callReadyRes.status === "fulfilled" && callReadyRes.value?.data) {
+        setCallReadyTasks(callReadyRes.value.data);
       }
 
-      // 3. System Configuration Issues
-      if (providersRes.status === "fulfilled") {
-        const providers = providersRes.value?.providers || [];
-        const configuredCount = providers.filter((p) => p.isConfigured).length;
-        if (configuredCount === 0) {
-          items.push({
-            id: "system-no-telephony",
-            category: "system",
-            title: "Voice Telephony Provider Not Configured",
-            target: "Twilio / Retell Carrier Integration",
-            reason: "No active voice provider credentials found. Live outbound voice calls are blocked until configured.",
-            priority: "CRITICAL",
-            timestamp: "Persistent",
-            actionText: "Configure Telephony",
-            actionHref: "/calling/settings",
-            metadata: "Telephony Gateway",
-          });
-        }
+      if (summaryRes.status === "fulfilled" && summaryRes.value?.data) {
+        setSummary(summaryRes.value.data);
       }
-
-      if (agentsRes.status === "fulfilled") {
-        const agentConfigs = agentsRes.value?.data || [];
-        if (agentConfigs.length === 0) {
-          items.push({
-            id: "system-no-agent",
-            category: "system",
-            title: "AI Voice Agent Persona Unconfigured",
-            target: "Agent Dialogue & Safety Guardrails",
-            reason: "No AI voice agent profile found. Configure dialogue prompt, voice model, and knowledge boundaries.",
-            priority: "CRITICAL",
-            timestamp: "Persistent",
-            actionText: "Configure Voice Agent",
-            actionHref: "/calling/settings",
-            metadata: "Agent Enclosure",
-          });
-        }
-      }
-
-      // Always show closeBDS discovery connection status
-      items.push({
-        id: "system-closebds",
-        category: "system",
-        title: "closeBDS Automated Discovery Sync Pending",
-        target: "External Prospect Scraping Pipeline",
-        reason: "closeBDS connects external scraper feeds into closeVDS Lead Pool. Configuration ready for setup.",
-        priority: "ROUTINE",
-        timestamp: "Standby",
-        actionText: "Connection Settings",
-        actionHref: "/settings",
-        metadata: "Discovery Source",
-      });
-
-      setTasks(items);
     } catch {
-      setTasks([]);
+      setErrorMessage("Failed to synchronize operations queue.");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadOperations();
-  }, [loadOperations]);
+    loadOperationsData();
+  }, [loadOperationsData]);
 
-  function formatTime(isoString?: string) {
-    if (!isoString) return "Recently";
+  const handlePrioritize = async (itemId: string, currentPriority: number) => {
+    setActionInProgress(itemId);
     try {
-      const d = new Date(isoString);
-      const diffMs = Date.now() - d.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      if (diffMins < 1) return "Just now";
-      if (diffMins < 60) return `${diffMins}m ago`;
-      const diffHours = Math.floor(diffMins / 60);
-      if (diffHours < 24) return `${diffHours}h ago`;
-      return `${Math.floor(diffHours / 24)}d ago`;
-    } catch {
-      return "Recently";
-    }
-  }
-
-  const filteredTasks = useMemo(() => {
-    if (selectedFilter === "all") return tasks;
-    return tasks.filter((t) => t.category === selectedFilter);
-  }, [tasks, selectedFilter]);
-
-  const countsByCategory = useMemo(() => {
-    const counts: Record<string, number> = {
-      all: tasks.length,
-      approvals: 0,
-      calling: 0,
-      research: 0,
-      qualification: 0,
-      followup: 0,
-      crm: 0,
-      system: 0,
-    };
-    tasks.forEach((t) => {
-      if (counts[t.category] !== undefined) {
-        counts[t.category]++;
+      await api.operations.prioritizeQueueItem(itemId, currentPriority + 1);
+      await loadOperationsData();
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("Failed to reprioritize queue item.");
       }
-    });
-    return counts;
-  }, [tasks]);
-
-  const filterTabs: Array<{ id: OperationCategory; label: string; countKey: string }> = [
-    { id: "all", label: "All Operations", countKey: "all" },
-    { id: "approvals", label: "Approvals", countKey: "approvals" },
-    { id: "calling", label: "Call Ready", countKey: "calling" },
-    { id: "research", label: "Needs Research", countKey: "research" },
-    { id: "qualification", label: "Qualification", countKey: "qualification" },
-    { id: "followup", label: "Follow-Up", countKey: "followup" },
-    { id: "system", label: "System Health", countKey: "system" },
-  ];
-
-  const getPriorityBadgeVariant = (priority: OperationTask["priority"]) => {
-    switch (priority) {
-      case "CRITICAL":
-        return "danger" as const;
-      case "HIGH":
-        return "warning" as const;
-      case "MEDIUM":
-        return "info" as const;
-      case "ROUTINE":
-        return "secondary" as const;
+    } finally {
+      setActionInProgress(null);
     }
   };
 
+  const handleCancelCall = async (itemId: string) => {
+    if (!window.confirm("Cancel this call from the outbound queue?")) return;
+    setActionInProgress(itemId);
+    try {
+      await api.operations.cancelQueueItem(itemId, "Cancelled by operator via Operations dashboard");
+      await loadOperationsData();
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("Failed to cancel queued call.");
+      }
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+
+  function formatTime(val?: string | Date) {
+    if (!val) return "—";
+    try {
+      const d = new Date(val);
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " " + d.toLocaleDateString([], { month: "short", day: "numeric" });
+    } catch {
+      return "—";
+    }
+  }
+
   return (
     <PageContainer maxWidth="xl" className="space-y-6">
-      {/* SECTION 1: Operations Header */}
+      {/* SECTION 1: Page Header */}
       <PageHeader
-        title="Operations"
-        description="Unified operator work queue. Review approvals, prepare calls, inspect prospect research, and clear system blockers."
+        title="Operations &amp; Call Queue"
+        description="Supervise approved and eligible prospects in the call queue, monitor operational readiness, and manage queue priority."
         breadcrumbs={[
           { label: "closeVDS", href: "/dashboard" },
           { label: "Operations" },
@@ -335,152 +115,300 @@ export default function OperationsPage() {
         action={
           <div className="flex items-center gap-2.5">
             <Link href="/leads">
-              <Button variant="secondary" size="sm" className="flex items-center gap-1.5">
+              <Button variant="secondary" size="sm" className="flex items-center gap-1.5 text-xs">
                 <svg className="w-3.5 h-3.5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <span>Lead Pool</span>
               </Button>
             </Link>
-            <Link href="/calling/calls">
-              <Button variant="primary" size="sm" className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
-                </svg>
-                <span>Call Queue</span>
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadOperationsData}
+              disabled={isLoading}
+              className="text-xs flex items-center gap-1.5"
+            >
+              <svg className={`w-3.5 h-3.5 text-zinc-400 ${isLoading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Refresh</span>
+            </Button>
           </div>
         }
       />
 
-      {/* SECTION 2: Work Queue Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-b border-white/[0.06]">
-        {filterTabs.map((tab) => {
-          const active = selectedFilter === tab.id;
-          const count = countsByCategory[tab.countKey] || 0;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedFilter(tab.id)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-2 shrink-0 cursor-pointer ${
-                active
-                  ? "bg-white/[0.12] text-white border border-white/[0.14] shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent"
-              }`}
-            >
-              <span>{tab.label}</span>
-              <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                  active
-                    ? "bg-white/[0.2] text-white font-bold"
-                    : "bg-white/[0.06] text-zinc-400"
-                }`}
-              >
-                {count}
-              </span>
-            </button>
-          );
-        })}
+      {/* SECTION 2: Database Offline / Error Banner */}
+      {errorMessage && (
+        <div className="p-4 rounded-xl bg-amber-950/40 border border-amber-800/60 flex items-start gap-3 text-xs text-amber-200">
+          <svg className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div>
+            <span className="font-semibold block text-amber-300">Operations Status Notice</span>
+            <p className="mt-0.5 text-amber-200/90 leading-relaxed">{errorMessage}</p>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 3: Operational Readiness Metrics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Card variant="standard" className="p-4 bg-[#0e0e14] border border-white/[0.08]">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block mb-1">
+            Active Call Queue
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-white font-mono">
+              {queueItems.length}
+            </span>
+            <span className="text-xs text-zinc-400">calls queued</span>
+          </div>
+        </Card>
+
+        <Card variant="standard" className="p-4 bg-[#0e0e14] border border-white/[0.08]">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block mb-1">
+            Call-Ready Prospects
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-emerald-400 font-mono">
+              {summary?.callReadyCount ?? callReadyTasks.length}
+            </span>
+            <span className="text-xs text-zinc-400">approved &amp; eligible</span>
+          </div>
+        </Card>
+
+        <Card variant="standard" className="p-4 bg-[#0e0e14] border border-white/[0.08]">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block mb-1">
+            Outbound Readiness
+          </span>
+          <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${summary?.systemHealth?.telephonyConfigured ? "bg-emerald-400" : "bg-amber-400"}`} />
+              <span className="text-xs text-zinc-300 font-mono">Telephony</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${summary?.systemHealth?.voiceAiConfigured ? "bg-emerald-400" : "bg-amber-400"}`} />
+              <span className="text-xs text-zinc-300 font-mono">Voice AI</span>
+            </div>
+          </div>
+        </Card>
       </div>
 
-      {/* SECTION 3: Operations Work Queue List */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
-              Actionable Work Items
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          </div>
-          <span className="text-[10px] font-mono text-zinc-500">
-            {isLoading ? "Fetching operations..." : `${filteredTasks.length} Task${filteredTasks.length === 1 ? "" : "s"} in Queue`}
+      {/* SECTION 4: View Tabs */}
+      <div className="flex items-center gap-2 border-b border-white/[0.06] pb-1">
+        <button
+          onClick={() => setActiveTab("queue")}
+          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer ${
+            activeTab === "queue"
+              ? "bg-white/[0.12] text-white border border-white/[0.14]"
+              : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent"
+          }`}
+        >
+          <span>Active Call Queue</span>
+          <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+            activeTab === "queue" ? "bg-white/[0.2] text-white font-bold" : "bg-white/[0.06] text-zinc-400"
+          }`}>
+            {queueItems.length}
           </span>
-        </div>
+        </button>
 
-        {isLoading ? (
-          <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-[#0f0f16] space-y-3">
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs text-zinc-400 font-mono">Synchronizing operator queues...</p>
+        <button
+          onClick={() => setActiveTab("call-ready")}
+          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer ${
+            activeTab === "call-ready"
+              ? "bg-white/[0.12] text-white border border-white/[0.14]"
+              : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent"
+          }`}
+        >
+          <span>Call-Ready Prospects</span>
+          <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+            activeTab === "call-ready" ? "bg-white/[0.2] text-white font-bold" : "bg-white/[0.06] text-zinc-400"
+          }`}>
+            {callReadyTasks.length}
+          </span>
+        </button>
+      </div>
+
+      {/* SECTION 5: Content Area */}
+      {isLoading ? (
+        <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-[#0f0f16] space-y-3">
+          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs text-zinc-400 font-mono">Synchronizing operations queue...</p>
+        </div>
+      ) : activeTab === "queue" ? (
+        /* TAB 1: Active Call Queue View */
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
+              Queue Position &amp; Calling Status
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500">
+              {queueItems.length} Enqueued Item{queueItems.length === 1 ? "" : "s"}
+            </span>
           </div>
-        ) : filteredTasks.length === 0 ? (
-          <Card variant="standard" className="p-12 text-center space-y-3">
-            <div className="w-10 h-10 mx-auto rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-center text-emerald-400">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold text-white">No tasks pending in this queue</h4>
+
+          {queueItems.length === 0 ? (
+            <Card variant="standard" className="p-10 text-center space-y-2.5">
+              <div className="w-9 h-9 mx-auto rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+                </svg>
+              </div>
+              <h4 className="text-sm font-semibold text-white">Call Queue is Empty</h4>
               <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
-                All items in this queue have been handled or cleared by active safety gates.
+                No active calls are queued. Approve eligible leads in the Lead Pool to prepare them for the call queue.
               </p>
-            </div>
-            <div className="pt-2">
-              <Button size="sm" variant="secondary" onClick={() => setSelectedFilter("all")}>
-                View All Operations
-              </Button>
-            </div>
-          </Card>
-        ) : (
-          <div className="space-y-2.5">
-            {filteredTasks.map((task) => (
-              <Card
-                key={task.id}
-                variant="interactive"
-                className="p-4 bg-[#0d0d14] border border-white/[0.08] hover:border-white/[0.18] rounded-xl transition-all duration-150 group"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1.5 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge
-                        variant={getPriorityBadgeVariant(task.priority)}
-                        size="sm"
-                        className="font-mono text-[9px] font-bold"
-                      >
-                        {task.priority}
-                      </Badge>
-                      {task.metadata && (
-                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/[0.06] text-zinc-400 border border-white/[0.04]">
-                          {task.metadata}
-                        </span>
-                      )}
-                      <span className="text-[10px] font-mono text-zinc-500">
-                        {task.timestamp}
+              <div className="pt-2">
+                <Link href="/leads">
+                  <Button size="sm" variant="secondary" className="text-xs">
+                    View Lead Pool
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {queueItems.map((item, index) => (
+                <Card
+                  key={item.id}
+                  variant="interactive"
+                  className="p-3.5 bg-[#0d0d14] border border-white/[0.08] hover:border-white/[0.16] rounded-xl transition-all duration-150"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start sm:items-center gap-3 min-w-0">
+                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-white/[0.06] text-zinc-300 font-semibold shrink-0">
+                        #{item.priority || index + 1}
                       </span>
+
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-semibold text-white truncate">
+                            {item.businessName}
+                          </h4>
+                          <Badge
+                            variant={item.isApproved ? "solid" : "secondary"}
+                            size="sm"
+                            className="text-[9px] font-mono"
+                          >
+                            {item.isApproved ? "Authorized" : "Pending"}
+                          </Badge>
+                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/[0.04] text-zinc-400">
+                            {item.status}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3 text-[11px] text-zinc-400">
+                          <span className="font-mono">{item.recipientPhone}</span>
+                          <span>•</span>
+                          <span>Enqueued: {formatTime(item.createdAt)}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <h3 className="text-sm font-bold text-white tracking-tight group-hover:text-white">
-                      {task.title}
-                    </h3>
-
-                    <p className="text-xs text-zinc-300">
-                      Target: <span className="font-semibold text-white">{task.target}</span>
-                    </p>
-
-                    <p className="text-xs text-zinc-400 leading-relaxed max-w-3xl">
-                      {task.reason}
-                    </p>
-                  </div>
-
-                  <div className="shrink-0 self-end sm:self-center">
-                    <Link href={task.actionHref}>
+                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
                       <Button
                         size="sm"
-                        variant={task.priority === "CRITICAL" ? "primary" : "secondary"}
-                        className="text-xs flex items-center gap-1.5 whitespace-nowrap"
+                        variant="secondary"
+                        onClick={() => handlePrioritize(item.id, item.priority || index + 1)}
+                        disabled={actionInProgress === item.id}
+                        className="text-xs flex items-center gap-1 h-7 px-2.5"
                       >
-                        <span>{task.actionText}</span>
-                        <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                        <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                        </svg>
+                        <span>Prioritize</span>
                       </Button>
-                    </Link>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCancelCall(item.id)}
+                        disabled={actionInProgress === item.id}
+                        className="text-xs text-rose-300 hover:text-rose-200 h-7 px-2.5"
+                      >
+                        <span>Cancel</span>
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* TAB 2: Call-Ready Prospects View */
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
+              Step 20 Approved Prospects (CALL_READY)
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500">
+              {callReadyTasks.length} Prospect{callReadyTasks.length === 1 ? "" : "s"} Eligible
+            </span>
           </div>
-        )}
-      </div>
+
+          {callReadyTasks.length === 0 ? (
+            <Card variant="standard" className="p-10 text-center space-y-2.5">
+              <div className="w-9 h-9 mx-auto rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h4 className="text-sm font-semibold text-white">No Call-Ready Prospects</h4>
+              <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                Leads must be analyzed and approved via the Step 20 human approval workflow in the Lead Pool to become eligible for the calling queue.
+              </p>
+              <div className="pt-2">
+                <Link href="/leads">
+                  <Button size="sm" variant="secondary" className="text-xs">
+                    Open Lead Pool
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {callReadyTasks.map((task) => (
+                <Card
+                  key={task.id}
+                  variant="interactive"
+                  className="p-3.5 bg-[#0d0d14] border border-white/[0.08] hover:border-white/[0.16] rounded-xl transition-all duration-150"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="solid" size="sm" className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-mono">
+                          CALL_READY
+                        </Badge>
+                        <h4 className="text-xs font-semibold text-white truncate">
+                          {task.target}
+                        </h4>
+                      </div>
+
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        {task.reason}
+                      </p>
+
+                      <div className="text-[11px] text-zinc-500 font-mono">
+                        Ready since: {formatTime(task.timestamp)}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 self-end sm:self-center">
+                      <Link href="/leads">
+                        <Button size="sm" variant="secondary" className="text-xs flex items-center gap-1.5">
+                          <span>Inspect Lead</span>
+                          <span>→</span>
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </PageContainer>
   );
 }

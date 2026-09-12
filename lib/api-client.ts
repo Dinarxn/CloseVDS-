@@ -146,6 +146,7 @@ import type {
 } from '@/types/calling';
 import type { LeadAiWorkflowResult } from '@/types/leads';
 import type { BackendLead } from '@/lib/mappers';
+import type { OperationsSummary, OperationTask, QueueItem } from '@/types/operations';
 
 export const api = {
   get: <T = unknown>(endpoint: string, options?: RequestInit) =>
@@ -334,6 +335,67 @@ export const api = {
         success: boolean;
         data: LeadAiWorkflowResult;
       }>(`/leads/${id}/ai`, { method: 'POST' }),
+
+    approve: (id: string, reason?: string) =>
+      apiRequest<{
+        success: boolean;
+        data: {
+          leadId: string;
+          status: string;
+          approval: {
+            status: string;
+            approvedBy?: string;
+            approvedAt?: string;
+            reason?: string;
+          };
+        };
+        message: string;
+      }>(`/leads/${id}/approve`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+
+    reject: (id: string, reason?: string) =>
+      apiRequest<{
+        success: boolean;
+        data: {
+          leadId: string;
+          status: string;
+          approval: {
+            status: string;
+            approvedBy?: string;
+            approvedAt?: string;
+            reason?: string;
+          };
+        };
+        message: string;
+      }>(`/leads/${id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+  },
+
+  operations: {
+    getSummary: () =>
+      apiRequest<{ success: boolean; data: OperationsSummary }>('/operations/summary'),
+
+    getQueue: () =>
+      apiRequest<{ success: boolean; data: QueueItem[] }>('/operations/queue'),
+
+    getCallReady: () =>
+      apiRequest<{ success: boolean; data: OperationTask[] }>('/operations/call-ready'),
+
+    prioritizeQueueItem: (itemId: string, priority: number) =>
+      apiRequest<{ success: boolean; data: unknown; message: string }>(
+        `/operations/queue/${itemId}/prioritize`,
+        { method: 'POST', body: JSON.stringify({ priority }) }
+      ),
+
+    cancelQueueItem: (itemId: string, reason?: string) =>
+      apiRequest<{ success: boolean; data: unknown; message: string }>(
+        `/operations/queue/${itemId}/cancel`,
+        { method: 'POST', body: JSON.stringify({ reason }) }
+      ),
   },
 };
 
