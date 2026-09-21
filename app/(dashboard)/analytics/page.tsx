@@ -18,16 +18,31 @@ import { Tabs, TabList, Tab, TabPanel } from "@/components/ui/tabs";
 import { VoiceAnalyticsData } from "@/types/calling";
 import { formatCallDuration } from "@/lib/mappers";
 
-interface BackendAnalyticsOverview {
-  totalLeads: number;
-  qualifiedLeads: number;
-  qualificationRate: number;
-  totalOutreachMessages: number;
-  deliveredMessages: number;
-  repliesCount: number;
-  replyRate: number;
-  wonDeals: number;
-  conversionRate: number;
+interface BackendOverviewMetrics {
+  leads?: {
+    total?: number;
+    qualificationRate?: number;
+    replyRate?: number;
+    byStatus?: Record<string, number>;
+  };
+  outreach?: {
+    total?: number;
+    sent?: number;
+    approved?: number;
+    draft?: number;
+  };
+  crm?: {
+    totalActivities?: number;
+  };
+  tasks?: {
+    completed?: number;
+  };
+  totalLeads?: number;
+  qualificationRate?: number;
+  deliveredMessages?: number;
+  replyRate?: number;
+  repliesCount?: number;
+  wonDeals?: number;
 }
 
 export default function AnalyticsPage() {
@@ -44,20 +59,30 @@ export default function AnalyticsPage() {
     setErrorMsg(null);
     try {
       const [overviewRes, voiceRes] = await Promise.allSettled([
-        api.get<{ data: BackendAnalyticsOverview }>("/analytics/overview"),
+        api.get<{ metrics?: BackendOverviewMetrics; data?: BackendOverviewMetrics }>("/analytics/overview"),
         api.voice.getVoiceAnalytics(),
       ]);
 
-      if (overviewRes.status === "fulfilled" && overviewRes.value?.data) {
-        const d = overviewRes.value.data;
-        setKpis({
-          leadsDiscovered: d.totalLeads,
-          qualificationRate: Math.round(d.qualificationRate),
-          approvedDispatches: d.deliveredMessages,
-          replyRate: Math.round(d.replyRate),
-          meetingsBooked: d.repliesCount,
-          clientsClosed: d.wonDeals,
-        });
+      if (overviewRes.status === "fulfilled" && overviewRes.value) {
+        const val = overviewRes.value;
+        const m = val.metrics || val.data;
+        if (m) {
+          const leadsTotal = m.leads?.total ?? m.totalLeads ?? 0;
+          const qualRate = m.leads?.qualificationRate ?? m.qualificationRate ?? 0;
+          const dispatches = m.outreach?.sent ?? m.outreach?.approved ?? m.deliveredMessages ?? 0;
+          const repRate = m.leads?.replyRate ?? m.replyRate ?? 0;
+          const meetings = m.crm?.totalActivities ?? m.repliesCount ?? 0;
+          const closed = m.leads?.byStatus?.CLOSED_DEAL ?? m.wonDeals ?? 0;
+
+          setKpis({
+            leadsDiscovered: leadsTotal,
+            qualificationRate: Math.round(qualRate),
+            approvedDispatches: dispatches,
+            replyRate: Math.round(repRate),
+            meetingsBooked: meetings,
+            clientsClosed: closed,
+          });
+        }
       }
 
       if (voiceRes.status === "fulfilled" && voiceRes.value?.voice) {

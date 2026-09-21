@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { CrmPipelineBoard } from "@/components/crm/crm-pipeline-board";
 import { PermissionGateBanner } from "@/components/shared/permission-gate-banner";
 import { api, ApiClientError } from "@/lib/api-client";
-import { mapBackendLeadToCrmDeal, type BackendLead } from "@/lib/mappers";
+import { mapBackendLeadToCrmDeal } from "@/lib/mappers";
 import { CrmDealItem } from "@/types/crm";
 
 export default function CRMPage() {
@@ -18,9 +18,9 @@ export default function CRMPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const response = await api.get<{ data: { items: BackendLead[] } }>("/leads?limit=50");
-      if (response?.data?.items) {
-        setDeals(response.data.items.map(mapBackendLeadToCrmDeal));
+      const response = await api.leads.list({ limit: 50 });
+      if (Array.isArray(response?.data)) {
+        setDeals(response.data.map(mapBackendLeadToCrmDeal));
       } else {
         setDeals([]);
       }

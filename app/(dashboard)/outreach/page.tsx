@@ -18,14 +18,16 @@ export default function OutreachPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const response = await api.get<{ data: { items: BackendEmailMessage[] } }>(
-        "/outreach/drafts"
-      );
-      if (response?.data?.items) {
-        setDrafts(response.data.items.map(mapBackendOutreachToFrontend));
-      } else {
-        setDrafts([]);
-      }
+      const response = await api.get<{
+        data: BackendEmailMessage[] | { items: BackendEmailMessage[] };
+      }>("/outreach");
+      const raw = response?.data;
+      const items = Array.isArray(raw)
+        ? raw
+        : raw && typeof raw === "object" && "items" in raw && Array.isArray(raw.items)
+        ? raw.items
+        : [];
+      setDrafts(items.map(mapBackendOutreachToFrontend));
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
         setErrorMsg(err.message || "Failed to load outreach drafts.");

@@ -35,37 +35,54 @@ export default function SettingsPage() {
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await api.get<{
-        data: {
-          workspace: { name: string; slug: string };
-          settings: {
-            dailyEmailCap: number;
-            killSwitchActive: boolean;
-            requireHumanApproval: boolean;
-            antiHallucinationEnforced: boolean;
-            autoSuppressionOnOptOut: boolean;
-            autoSuppressionOnHardBounce: boolean;
+      interface WorkspaceSettingsResponse {
+        settings?: {
+          name?: string;
+          killSwitchActive?: boolean;
+          defaultDailyCap?: number;
+          safetyThreshold?: number;
+          autoSuppressionOnOptOut?: boolean;
+          dailyEmailCap?: number;
+        };
+        workspace?: { name: string; slug: string };
+        data?: {
+          workspace?: { name: string; slug: string };
+          settings?: {
+            name?: string;
+            dailyEmailCap?: number;
+            killSwitchActive?: boolean;
+            requireHumanApproval?: boolean;
+            antiHallucinationEnforced?: boolean;
+            autoSuppressionOnOptOut?: boolean;
+            autoSuppressionOnHardBounce?: boolean;
+            defaultDailyCap?: number;
           };
         };
-      }>("/settings/workspace");
+      }
 
-      if (response?.data?.settings) {
-        const s = response.data.settings;
-        const ws = response.data.workspace;
+      const response = await api.get<WorkspaceSettingsResponse>("/settings/workspace");
+      const s = response?.settings || response?.data?.settings;
+      if (s) {
         setSettings((prev) => ({
           ...prev,
           general: {
             ...prev.general,
-            workspaceName: ws?.name || prev.general.workspaceName,
+            workspaceName:
+              s.name ||
+              response?.workspace?.name ||
+              response?.data?.workspace?.name ||
+              prev.general.workspaceName,
           },
           safety: {
             ...prev.safety,
-            dailyOutreachCap: s.dailyEmailCap || prev.safety.dailyOutreachCap,
+            dailyOutreachCap: s.defaultDailyCap ?? s.dailyEmailCap ?? prev.safety.dailyOutreachCap,
             globalKillSwitchActive: Boolean(s.killSwitchActive),
           },
           suppression: {
             ...prev.suppression,
-            requireOneClickUnsubscribe: Boolean(s.autoSuppressionOnOptOut),
+            requireOneClickUnsubscribe: Boolean(
+              s.autoSuppressionOnOptOut ?? prev.suppression.requireOneClickUnsubscribe
+            ),
           },
         }));
       }
@@ -115,7 +132,7 @@ export default function SettingsPage() {
   const executeKillSwitchToggle = async () => {
     const targetActive = !settings.safety.globalKillSwitchActive;
     try {
-      await api.post("/settings/kill-switch", { active: targetActive });
+      await api.patch("/settings/workspace", { killSwitchActive: targetActive });
       setSettings((prev) => ({
         ...prev,
         safety: { ...prev.safety, globalKillSwitchActive: targetActive },
@@ -138,8 +155,10 @@ export default function SettingsPage() {
   const handleSaveAll = async () => {
     setIsSaving(true);
     try {
-      await api.put("/settings/workspace", {
+      await api.patch("/settings/workspace", {
+        name: settings.general.workspaceName,
         workspaceName: settings.general.workspaceName,
+        defaultDailyCap: settings.safety.dailyOutreachCap,
         dailyEmailCap: settings.safety.dailyOutreachCap,
         requireHumanApproval: true,
         antiHallucinationEnforced: settings.ai.strictAntiHallucination,
