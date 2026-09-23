@@ -2,9 +2,12 @@
 
 import React, { createContext, useContext, useState, useRef } from "react";
 
+export type TabsVariant = "underline" | "pills";
+
 interface TabsContextValue {
   activeTab: string;
   setActiveTab: (value: string) => void;
+  variant: TabsVariant;
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -23,6 +26,7 @@ export interface TabsProps {
   onValueChange?: (value: string) => void;
   children: React.ReactNode;
   className?: string;
+  variant?: TabsVariant;
 }
 
 export function Tabs({
@@ -31,6 +35,7 @@ export function Tabs({
   onValueChange,
   children,
   className = "",
+  variant = "underline",
 }: TabsProps) {
   const [internalValue, setInternalValue] = useState(defaultValue);
 
@@ -44,7 +49,7 @@ export function Tabs({
   };
 
   return (
-    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+    <TabsContext.Provider value={{ activeTab, setActiveTab, variant }}>
       <div className={`space-y-4 text-left ${className}`}>{children}</div>
     </TabsContext.Provider>
   );
@@ -53,10 +58,13 @@ export function Tabs({
 export interface TabListProps {
   children: React.ReactNode;
   className?: string;
+  variant?: TabsVariant;
 }
 
-export function TabList({ children, className = "" }: TabListProps) {
+export function TabList({ children, className = "", variant: listVariant }: TabListProps) {
   const listRef = useRef<HTMLDivElement>(null);
+  const context = useTabsContext();
+  const effectiveVariant = listVariant || context.variant;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!listRef.current) return;
@@ -90,12 +98,17 @@ export function TabList({ children, className = "" }: TabListProps) {
     }
   };
 
+  const defaultClasses =
+    effectiveVariant === "pills"
+      ? "inline-flex items-center p-1 rounded-xl bg-[#0a0a10] border border-white/[0.08] gap-1 overflow-x-auto max-w-full"
+      : "flex items-center space-x-1 border-b border-white/[0.08] overflow-x-auto";
+
   return (
     <div
       ref={listRef}
       role="tablist"
       onKeyDown={handleKeyDown}
-      className={`flex items-center space-x-1 border-b border-white/[0.08] overflow-x-auto ${className}`}
+      className={`${defaultClasses} ${className}`}
     >
       {children}
     </div>
@@ -107,6 +120,7 @@ export interface TabProps {
   disabled?: boolean;
   children: React.ReactNode;
   className?: string;
+  variant?: "underline" | "pill" | "pills";
 }
 
 export function Tab({
@@ -114,20 +128,45 @@ export function Tab({
   disabled = false,
   children,
   className = "",
+  variant: tabVariant,
 }: TabProps) {
-  const { activeTab, setActiveTab } = useTabsContext();
+  const { activeTab, setActiveTab, variant: contextVariant } = useTabsContext();
   const isActive = activeTab === value;
+  const isPill = tabVariant === "pill" || tabVariant === "pills" || contextVariant === "pills";
+
+  if (isPill) {
+    return (
+      <button
+        type="button"
+        role="tab"
+        aria-selected={isActive}
+        data-state={isActive ? "active" : "inactive"}
+        tabIndex={isActive ? 0 : -1}
+        disabled={disabled}
+        onClick={() => !disabled && setActiveTab(value)}
+        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 whitespace-nowrap focus:outline-none focus-visible:text-white ${
+          isActive
+            ? "bg-white/[0.08] text-white border border-white/[0.12] shadow-xs font-semibold"
+            : "border border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]"
+        } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"} ${className}`}
+      >
+        {children}
+      </button>
+    );
+  }
 
   return (
     <button
+      type="button"
       role="tab"
       aria-selected={isActive}
+      data-state={isActive ? "active" : "inactive"}
       tabIndex={isActive ? 0 : -1}
       disabled={disabled}
       onClick={() => !disabled && setActiveTab(value)}
       className={`px-3 py-2 text-xs font-medium border-b-2 -mb-px transition-colors duration-150 whitespace-nowrap focus:outline-none focus-visible:text-white ${
         isActive
-          ? "border-white text-white font-semibold"
+          ? "border-emerald-400 text-white font-semibold"
           : "border-transparent text-zinc-400 hover:text-zinc-200"
       } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"} ${className}`}
     >
@@ -152,3 +191,4 @@ export function TabPanel({ value, children, className = "" }: TabPanelProps) {
     </div>
   );
 }
+

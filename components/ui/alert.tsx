@@ -14,19 +14,19 @@ export function Alert({
   ...props
 }: AlertProps) {
   const variantStyles = {
-    default: "bg-[#171717] border-[#404040] text-white",
-    warning: "bg-[#0a0a0a] border-[#d4d4d4] text-white",
-    destructive: "bg-[#0a0a0a] border-white text-white font-medium",
+    default: "bg-[#0c0c12] border-white/[0.08] text-zinc-300",
+    warning: "bg-amber-500/[0.06] border-amber-500/25 text-amber-200",
+    destructive: "bg-rose-500/[0.08] border-rose-500/30 text-rose-200 font-medium",
   };
 
   return (
     <div
       role="alert"
-      className={`p-4 rounded-md border text-sm space-y-1 transition-colors duration-150 ${variantStyles[variant]} ${className}`}
+      className={`p-4 rounded-xl border text-sm space-y-1 transition-colors duration-150 ${variantStyles[variant]} ${className}`}
       {...props}
     >
-      {title && <h5 className="font-semibold text-xs uppercase tracking-wider">{title}</h5>}
-      <div className="text-xs text-[#d4d4d4]">{children}</div>
+      {title && <h5 className="font-mono font-semibold text-xs uppercase tracking-wider">{title}</h5>}
+      <div className="text-xs text-zinc-400">{children}</div>
     </div>
   );
 }

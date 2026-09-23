@@ -4,9 +4,6 @@ import React from "react";
 import { SafetyLimitsConfig } from "@/types/settings";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Alert } from "@/components/ui/alert";
 
 export interface SafetyBoundsTabProps {
   safety: SafetyLimitsConfig;
@@ -19,37 +16,102 @@ export function SafetyBoundsTab({
   onChange,
   onOpenKillSwitch,
 }: SafetyBoundsTabProps) {
-  return (
-    <div className="space-y-6">
-      {/* Emergency Kill Switch Header */}
-      <div className="p-4 bg-[#0a0a0a] border border-[#404040] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <h4 className="text-sm font-bold text-white">Emergency Global Kill Switch</h4>
-            <Badge variant={safety.globalKillSwitchActive ? "solid" : "outline"}>
-              {safety.globalKillSwitchActive ? "ACTIVE — SENDING HALTED" : "INACTIVE — NORMAL"}
-            </Badge>
-          </div>
-          <p className="text-xs text-[#737373] max-w-xl leading-relaxed">
-            Instantly halt all outbound outreach dispatches, sequence progression, and follow-up sending across the entire workspace.
-          </p>
-        </div>
+  const isKillSwitchActive = safety.globalKillSwitchActive;
 
-        <Button
-          variant={safety.globalKillSwitchActive ? "primary" : "destructive"}
-          size="sm"
-          onClick={onOpenKillSwitch}
-          className="font-bold shrink-0"
-        >
-          {safety.globalKillSwitchActive ? "Deactivate Kill Switch" : "Activate Emergency Kill Switch"}
-        </Button>
+  return (
+    <div className="space-y-5">
+      {/* 1. Emergency Global Kill Switch — Highest Priority */}
+      <div
+        className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-200 ${
+          isKillSwitchActive
+            ? "bg-gradient-to-br from-rose-950/25 via-[#0e0910] to-[#08070c] border-rose-500/40 shadow-[0_0_24px_rgba(244,63,94,0.08)]"
+            : "bg-[#0c0c12] border-white/[0.08]"
+        }`}
+      >
+        <div
+          className={`absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent ${
+            isKillSwitchActive ? "via-rose-500/50" : "via-white/[0.12]"
+          } to-transparent`}
+        />
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex items-center gap-2">
+                <svg
+                  className={`w-4 h-4 ${isKillSwitchActive ? "text-rose-400" : "text-zinc-400"}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4M12 16h.01" />
+                </svg>
+                <h4 className="text-sm font-semibold text-white tracking-tight">
+                  Emergency Global Kill Switch
+                </h4>
+              </div>
+
+              <span
+                className={`font-mono text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 border ${
+                  isKillSwitchActive
+                    ? "bg-rose-500/10 text-rose-300 border-rose-500/30"
+                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isKillSwitchActive ? "bg-rose-400 animate-pulse" : "bg-emerald-400"
+                  }`}
+                />
+                {isKillSwitchActive ? "ACTIVE — SENDING HALTED" : "INACTIVE — NORMAL"}
+              </span>
+            </div>
+
+            <p className="text-xs text-zinc-400 max-w-xl leading-relaxed">
+              Instantly halt all outbound outreach dispatches, sequence progression, and follow-up sending across the entire workspace.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenKillSwitch}
+            className={`h-9 px-4 rounded-lg text-xs font-semibold shrink-0 transition-all shadow-xs inline-flex items-center justify-center gap-2 ${
+              isKillSwitchActive
+                ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-950/30"
+                : "border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60 shadow-rose-950/20"
+            }`}
+          >
+            <svg
+              className={`w-3.5 h-3.5 ${isKillSwitchActive ? "text-black" : "text-rose-400"}`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" />
+            </svg>
+            <span>{isKillSwitchActive ? "Deactivate Kill Switch" : "Activate Emergency Kill Switch"}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Sending Caps & Velocity */}
-      <div className="p-5 bg-[#171717] border border-[#404040] rounded-lg space-y-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-white">
-          Outreach Velocity &amp; Daily Caps
-        </h4>
+      {/* 2. Outreach Velocity & Daily Caps */}
+      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+          <div className="flex items-center gap-2">
+            <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            <h4 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+              Outreach Velocity &amp; Daily Caps
+            </h4>
+          </div>
+          <span className="font-mono text-[10px] text-zinc-500">OPERATIONAL LIMITS</span>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -72,13 +134,24 @@ export function SafetyBoundsTab({
         </div>
       </div>
 
-      {/* Sending Windows */}
-      <div className="p-5 bg-[#171717] border border-[#404040] rounded-lg space-y-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-white">
-          Timezone &amp; Delivery Windows
-        </h4>
+      {/* 3. Timezone & Delivery Windows */}
+      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
 
-        <div className="space-y-3">
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+          <div className="flex items-center gap-2">
+            <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <h4 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+              Timezone &amp; Delivery Windows
+            </h4>
+          </div>
+          <span className="font-mono text-[10px] text-zinc-500">SCHEDULING CONTROLS</span>
+        </div>
+
+        <div className="space-y-4">
           <Checkbox
             id="safety-biz-hours"
             label="Enforce Recipient Business Hours Delivery Only"
@@ -87,7 +160,7 @@ export function SafetyBoundsTab({
             description="Dispatches will only be sent between 9:00 AM and 5:00 PM in the target recipient's local timezone."
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
             <Input
               id="safety-window-start"
               label="Window Start Time"
@@ -107,9 +180,24 @@ export function SafetyBoundsTab({
         </div>
       </div>
 
-      <Alert variant="default" title="Phase 1 Safety Configuration">
-        These safety bounds govern the dispatch orchestration queue. Values are currently held in local configuration state and will bind to the Fastify rate limiter in Phase 2.
-      </Alert>
+      {/* 4. Phase 1 Safety Configuration Governance Panel */}
+      <div className="relative overflow-hidden rounded-xl bg-[#09090f] border border-white/[0.07] p-4 flex items-start gap-3 text-xs">
+        <div className="p-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-zinc-400 shrink-0 mt-0.5">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+        </div>
+        <div className="space-y-1">
+          <h5 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+            Phase 1 Safety Configuration
+          </h5>
+          <p className="text-xs text-zinc-400 leading-relaxed">
+            These safety bounds govern the dispatch orchestration queue. Values are currently held in local configuration state and will bind to the Fastify rate limiter in Phase 2.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

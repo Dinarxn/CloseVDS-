@@ -2,8 +2,6 @@
 
 import React from "react";
 import { Dialog } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
 
 export interface KillSwitchDialogProps {
   isOpen: boolean;
@@ -30,36 +28,83 @@ export function KillSwitchDialog({
       }
     >
       <div className="space-y-4 text-xs">
-        <Alert variant={isActive ? "default" : "destructive"} title="Global Outreach Impact">
-          {isActive
-            ? "Normal velocity rules and Gate 2 explicit approval requirements will resume."
-            : "All outbound message transmission will be blocked immediately. In Phase 1 foundation mode, this demonstrates the safety boundary state."}
-        </Alert>
+        {/* Global Impact Banner */}
+        <div
+          className={`p-3.5 rounded-xl border space-y-1 ${
+            isActive
+              ? "bg-[#0c0c12] border-white/[0.08] text-zinc-300"
+              : "bg-rose-950/20 border-rose-500/35 text-rose-200"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <svg
+              className={`w-3.5 h-3.5 ${isActive ? "text-emerald-400" : "text-rose-400"}`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            <h5 className="font-mono text-[11px] font-semibold uppercase tracking-wider">
+              Global Outreach Impact
+            </h5>
+          </div>
+          <p className="text-xs opacity-90 leading-relaxed pl-5.5">
+            {isActive
+              ? "Normal velocity rules and Gate 2 explicit approval requirements will resume."
+              : "All outbound message transmission will be blocked immediately across every channel."}
+          </p>
+        </div>
 
-        <div className="p-3 bg-[#0a0a0a] border border-[#404040] rounded-md space-y-1 text-[#d4d4d4]">
-          <p className="font-semibold text-white">Safety Checklist:</p>
-          <ul className="list-disc list-inside space-y-0.5 text-[11px] text-[#737373]">
-            <li>Active outbound queues will be paused</li>
-            <li>No automated follow-up dispatches will execute</li>
-            <li>Inbound reply webhooks will continue to monitor opt-outs</li>
+        {/* Safety Checklist */}
+        <div className="p-3.5 bg-[#07070c] border border-white/[0.08] rounded-xl space-y-2">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+            Safety Checklist:
+          </p>
+          <ul className="space-y-1.5 text-xs text-zinc-400">
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span>Active outbound queues will be paused immediately</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span>No automated follow-up dispatches will execute</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span>Inbound reply webhooks will continue to monitor opt-outs</span>
+            </li>
           </ul>
         </div>
 
-        <div className="flex items-center justify-end space-x-3 pt-3 border-t border-[#404040]/40">
-          <Button variant="outline" size="sm" onClick={onClose}>
+        {/* Modal Actions */}
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 px-4 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white border border-white/[0.08] hover:bg-white/[0.04] transition-all"
+          >
             Cancel
-          </Button>
-          <Button
-            variant={isActive ? "primary" : "destructive"}
-            size="sm"
+          </button>
+          <button
+            type="button"
             onClick={() => {
               onConfirmToggle();
               onClose();
             }}
-            className="font-bold"
+            className={`h-9 px-4 rounded-lg text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-2 ${
+              isActive
+                ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-950/30"
+                : "bg-rose-600 hover:bg-rose-500 text-white border border-rose-500/50 shadow-rose-950/40"
+            }`}
           >
-            {isActive ? "Confirm: Resume Operations" : "Confirm: ACTIVATE KILL SWITCH"}
-          </Button>
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" />
+            </svg>
+            <span>{isActive ? "Confirm: Resume Operations" : "Confirm: ACTIVATE KILL SWITCH"}</span>
+          </button>
         </div>
       </div>
     </Dialog>

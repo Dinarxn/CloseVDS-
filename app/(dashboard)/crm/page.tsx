@@ -42,13 +42,13 @@ export default function CRMPage() {
 
   return (
     <PageContainer>
-      <div className="space-y-6">
+      <div className="space-y-5">
         <PageHeader
           title="CRM Pipeline"
           description="Visual acquisition pipeline tracking prospects from discovery through qualification, outreach approval, follow-ups, and closed deals."
           breadcrumbs={[
-            { label: "Home", href: "/dashboard" },
-            { label: "CRM" },
+            { label: "closeVDS", href: "/dashboard" },
+            { label: "CRM Pipeline" },
           ]}
         />
 
@@ -56,18 +56,26 @@ export default function CRMPage() {
         <PermissionGateBanner currentStage="followup" />
 
         {errorMsg && (
-          <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-2.5">
+          <div className="relative rounded-xl border border-rose-500/30 bg-[#140b0e] p-4 flex items-start gap-3 shadow-xs">
             <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <span className="leading-relaxed">{errorMsg}</span>
+            <div className="space-y-0.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-rose-300 font-semibold block">
+                CRM Service Error
+              </span>
+              <p className="text-xs text-rose-200/80 leading-relaxed">{errorMsg}</p>
+            </div>
           </div>
         )}
 
         {isLoading ? (
-          <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-[#121216]">
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-xs text-zinc-400">Loading CRM pipeline from workspace...</p>
+          <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+            <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+              Loading CRM pipeline from workspace...
+            </p>
           </div>
         ) : (
           <CrmPipelineBoard deals={deals} />

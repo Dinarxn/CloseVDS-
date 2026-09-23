@@ -111,15 +111,15 @@ export function Dialog({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
-        className={`relative w-full max-w-lg bg-[#0a0a0a] border border-[#404040] rounded-xl p-6 shadow-2xl space-y-4 z-10 text-left ${className}`}
+        className={`relative w-full max-w-lg bg-[#09090f] border border-white/[0.1] rounded-2xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-4 z-10 text-left ${className}`}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h3 id={titleId} className="text-lg font-bold text-white tracking-tight">
+            <h3 id={titleId} className="text-base font-bold text-white tracking-tight">
               {title}
             </h3>
             {description && (
-              <p id={descId} className="text-xs text-[#737373] leading-relaxed">
+              <p id={descId} className="text-xs text-zinc-400 leading-relaxed">
                 {description}
               </p>
             )}
@@ -127,7 +127,7 @@ export function Dialog({
           <button
             onClick={() => onOpenChange(false)}
             aria-label="Close dialog"
-            className="text-[#737373] hover:text-white p-1 rounded-md hover:bg-[#171717] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white"
+            className="text-zinc-500 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white"
           >
             ✕
           </button>
