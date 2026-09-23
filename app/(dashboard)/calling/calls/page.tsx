@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
 import {
   CallsTable,
   CallFilters,
@@ -146,86 +146,109 @@ export default function CallsPage() {
   };
 
   return (
-    <PageContainer>
-      <div className="space-y-6">
-        <PageHeader
-          title="Call Queue &amp; History"
-          description="Supervise all queued, approved, in-progress, and completed AI voice outreach calls across the acquisition pipeline."
-          breadcrumbs={[
-            { label: "Home", href: "/dashboard" },
-            { label: "AI Calling", href: "/calling" },
-            { label: "Call Queue" },
-          ]}
-        />
-
-        {errorMsg && (
-          <Alert variant="destructive" title="Error">
-            {errorMsg}
-          </Alert>
-        )}
-
-        {/* Filter Toolbar */}
-        <CallFilters
-          search={search}
-          onSearchChange={(val) => {
-            setSearch(val);
-            setPage(1);
-          }}
-          status={status}
-          onStatusChange={(val) => {
-            setStatus(val);
-            setPage(1);
-          }}
-          campaignId={campaignId}
-          onCampaignChange={(val) => {
-            setCampaignId(val);
-            setPage(1);
-          }}
-          campaigns={campaigns}
-          onReset={handleResetFilters}
-          onPrepareClick={() => setIsPrepModalOpen(true)}
-        />
-
-        {/* Calls Table */}
-        <CallsTable
-          calls={calls}
-          isLoading={isLoading}
-          onApprove={handleApprove}
-          onReject={(call) => setRejectingCall(call)}
-          onCheckSafety={(call) => setSafetyModalCallId(call.id)}
-          onDispatch={(call) => setDispatchModalCall(call)}
-          onPrepareClick={() => setIsPrepModalOpen(true)}
-        />
-
-        {/* Pagination Bar */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between py-2 text-xs text-zinc-400">
-            <span>
-              Showing {calls.length} of {totalCount} total calls
-            </span>
-            <div className="flex items-center gap-2">
+    <PageContainer maxWidth="xl" className="space-y-6">
+      <PageHeader
+        title="Call Queue &amp; History"
+        description="Supervise all queued, approved, in-progress, and completed AI voice outreach calls across the acquisition pipeline."
+        breadcrumbs={[
+          { label: "closeVDS", href: "/dashboard" },
+          { label: "AI Calling", href: "/calling" },
+          { label: "Call Queue" },
+        ]}
+        action={
+          <div className="flex items-center gap-2">
+            <Link href="/calling">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
-                disabled={page <= 1 || isLoading}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="h-8 px-3 text-xs bg-[#101017] hover:bg-[#161622] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
               >
-                Previous
+                <span>AI Calling Hub</span>
               </Button>
-              <span className="font-mono text-white px-2">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= totalPages || isLoading}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next
-              </Button>
-            </div>
+            </Link>
           </div>
-        )}
+        }
+      />
+
+      {errorMsg && (
+        <div className="p-3.5 rounded-xl bg-[#140f09] border border-amber-500/20 flex items-start gap-3 text-xs text-amber-200/90 shadow-xs">
+          <svg className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div className="space-y-0.5">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-amber-300 font-medium block">
+              Call Queue Notice
+            </span>
+            <p className="text-amber-200/80 leading-relaxed">{errorMsg}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Filter Toolbar */}
+      <CallFilters
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        status={status}
+        onStatusChange={(val) => {
+          setStatus(val);
+          setPage(1);
+        }}
+        campaignId={campaignId}
+        onCampaignChange={(val) => {
+          setCampaignId(val);
+          setPage(1);
+        }}
+        campaigns={campaigns}
+        onReset={handleResetFilters}
+        onPrepareClick={() => setIsPrepModalOpen(true)}
+      />
+
+      {/* Calls Table */}
+      <CallsTable
+        calls={calls}
+        isLoading={isLoading}
+        onApprove={handleApprove}
+        onReject={(call) => setRejectingCall(call)}
+        onCheckSafety={(call) => setSafetyModalCallId(call.id)}
+        onDispatch={(call) => setDispatchModalCall(call)}
+        onPrepareClick={() => setIsPrepModalOpen(true)}
+      />
+
+      {/* Pagination Bar */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between p-3 rounded-xl bg-[#0a0a10] border border-white/[0.07] text-xs text-zinc-400 shadow-xs">
+          <span>
+            Showing <span className="font-mono text-white">{calls.length}</span> of{" "}
+            <span className="font-mono text-white">{totalCount}</span> total calls
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || isLoading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="h-7 px-2.5 text-xs bg-white/[0.04] border-white/[0.08]"
+            >
+              Previous
+            </Button>
+            <span className="font-mono text-white px-2">
+              Page {page} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages || isLoading}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="h-7 px-2.5 text-xs bg-white/[0.04] border-white/[0.08]"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
         {/* Modals */}
         <CallPreparationModal
@@ -258,7 +281,6 @@ export default function CallsPage() {
           onClose={() => setRejectingCall(null)}
           onConfirm={handleConfirmReject}
         />
-      </div>
     </PageContainer>
   );
 }

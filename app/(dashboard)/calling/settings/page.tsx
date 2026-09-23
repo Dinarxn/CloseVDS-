@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { Alert } from "@/components/ui/alert";
 import {
   ProviderStatusCard,
   N8nKeysManager,
@@ -62,26 +61,38 @@ export default function CallingSettingsPage() {
 
   return (
     <PageContainer>
-      <div className="space-y-8 max-w-5xl">
+      <div className="space-y-6 max-w-5xl">
         <PageHeader
-          title="Telephony &amp; n8n Gateway Settings"
+          title="Telephony & n8n Gateway Settings"
           description="External voice providers status reporting, scoped n8n workflow credentials, and signed webhook deliveries audit."
           breadcrumbs={[
-            { label: "Home", href: "/dashboard" },
+            { label: "closeVDS", href: "/dashboard" },
             { label: "AI Calling", href: "/calling" },
             { label: "Settings & Gateway" },
           ]}
         />
 
         {errorMsg && (
-          <Alert variant="destructive" title="Error">
-            {errorMsg}
-          </Alert>
+          <div className="relative rounded-xl border border-rose-500/30 bg-[#140b0e] p-4 flex items-start gap-3 shadow-xs">
+            <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div className="space-y-1">
+              <h4 className="text-xs font-semibold text-rose-300">Service Communication Error</h4>
+              <p className="text-xs text-rose-200/80 leading-relaxed">{errorMsg}</p>
+            </div>
+          </div>
         )}
 
         {/* 1. Telephony and AI Provider Status */}
-        <section className="space-y-2">
-          <h3 className="text-sm font-semibold text-white">External Providers Link Status</h3>
+        <section className="space-y-2.5">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
+              Infrastructure Telemetry
+            </span>
+            <span className="text-zinc-600 font-mono text-[10px]">•</span>
+            <h3 className="text-xs font-semibold text-white">External Providers Link Status</h3>
+          </div>
           <ProviderStatusCard
             providers={providers}
             n8nActiveKeysCount={n8nKeys.filter((k) => k.isActive).length}
@@ -90,7 +101,7 @@ export default function CallingSettingsPage() {
         </section>
 
         {/* 2. n8n Integration Credentials Manager */}
-        <section className="space-y-2">
+        <section>
           <N8nKeysManager
             keys={n8nKeys}
             isLoading={isLoading}
@@ -100,7 +111,7 @@ export default function CallingSettingsPage() {
         </section>
 
         {/* 3. Outbound Webhook Deliveries Table */}
-        <section className="space-y-2">
+        <section>
           <N8nDeliveriesTable deliveries={deliveries} isLoading={isLoading} />
         </section>
       </div>

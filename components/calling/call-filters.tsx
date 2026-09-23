@@ -50,14 +50,15 @@ export function CallFilters({
   const hasActiveFilters = Boolean(search.trim() || status || campaignId);
 
   return (
-    <div className="p-4 bg-[#0d0d14] border border-white/[0.08] rounded-xl space-y-3">
+    <div className="p-3.5 bg-[#0c0c12] border border-white/[0.08] rounded-xl shadow-xs">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <Input
             id="calls-search"
             placeholder="Search company, contact, or phone..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            className="h-8 text-xs bg-[#08080d] border-white/[0.08] focus:border-white/[0.2]"
           />
 
           <Select
@@ -65,6 +66,7 @@ export function CallFilters({
             value={status}
             onChange={(e) => onStatusChange(e.target.value)}
             options={CALL_STATUS_OPTIONS}
+            className="h-8 text-xs bg-[#08080d] border-white/[0.08]"
           />
 
           <Select
@@ -75,18 +77,29 @@ export function CallFilters({
               { value: "", label: "All Objectives" },
               ...campaigns.map((c) => ({ value: c.id, label: c.name })),
             ]}
+            className="h-8 text-xs bg-[#08080d] border-white/[0.08]"
           />
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
           {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={onReset}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onReset}
+              className="h-8 px-2.5 text-xs text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+            >
               Reset Filters
             </Button>
           )}
           {onPrepareClick && (
-            <Button variant="primary" size="sm" onClick={onPrepareClick}>
-              + Prepare AI Call
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={onPrepareClick}
+              className="h-8 px-3.5 text-xs bg-white text-zinc-950 hover:bg-zinc-200 font-semibold shadow-xs flex items-center gap-1.5"
+            >
+              <span>+ Prepare AI Call</span>
             </Button>
           )}
         </div>

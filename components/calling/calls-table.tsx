@@ -29,42 +29,58 @@ export function CallsTable({
 }: CallsTableProps) {
   if (isLoading) {
     return (
-      <div className="border border-white/[0.08] rounded-xl bg-[#121216] p-12 text-center">
-        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-xs text-zinc-400">Loading call queue from workspace...</p>
+      <div className="border border-white/[0.08] rounded-xl bg-[#0c0c12] p-12 text-center space-y-3 shadow-xs">
+        <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-xs text-zinc-400 font-mono">Loading call queue from workspace...</p>
       </div>
     );
   }
 
   if (calls.length === 0) {
     return (
-      <div className="border border-white/[0.08] rounded-xl bg-[#121216] p-12 text-center space-y-3">
-        <div className="w-10 h-10 rounded-full bg-[#0d0d12] border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
-          <svg className="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+      <div className="relative overflow-hidden border border-white/[0.08] rounded-xl bg-[#09090f]/90 p-8 sm:p-12 text-center space-y-3.5 shadow-xs">
+        {/* Hairline reflection */}
+        <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-white/[0.1] to-transparent pointer-events-none" />
+
+        <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
+          <svg className="w-4.5 h-4.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
           </svg>
         </div>
-        <div>
-          <h4 className="text-sm font-semibold text-white">No calls found</h4>
-          <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
-            No calls match your active filter criteria or no calls have been prepared yet.
-          </p>
+
+        <div className="space-y-1">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium block">
+            Call Queue Telemetry
+          </span>
+          <h4 className="text-sm sm:text-base font-semibold text-white tracking-tight">No calls found</h4>
         </div>
+
+        <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+          No calls match your active filter criteria or no calls have been prepared yet.
+        </p>
+
         {onPrepareClick && (
-          <Button variant="secondary" size="sm" onClick={onPrepareClick}>
-            + Prepare New AI Call
-          </Button>
+          <div className="pt-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onPrepareClick}
+              className="text-xs h-8 px-3.5 bg-white/[0.08] hover:bg-white/[0.14] text-white border-white/[0.1] hover:border-white/[0.2] shadow-xs inline-flex items-center gap-1.5"
+            >
+              <span>+ Prepare New AI Call</span>
+            </Button>
+          </div>
         )}
       </div>
     );
   }
 
   return (
-    <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-[#121216] shadow-sm">
+    <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-[#0c0c12] shadow-xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-white/[0.08] bg-[#0d0d12] text-zinc-400 uppercase tracking-wider font-mono text-[10px]">
+            <tr className="border-b border-white/[0.07] bg-[#08080d] text-zinc-400 uppercase tracking-wider font-mono text-[10px]">
               <th className="py-3 px-4">Prospect &amp; Company</th>
               <th className="py-3 px-4">Contact Phone</th>
               <th className="py-3 px-4">Voice Agent &amp; Objective</th>

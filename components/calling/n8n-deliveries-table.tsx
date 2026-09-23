@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { N8nWebhookDelivery } from "@/types/calling";
 import { formatCallDateTime } from "@/lib/mappers";
 
@@ -15,36 +14,61 @@ export function N8nDeliveriesTable({
   isLoading = false,
 }: N8nDeliveriesTableProps) {
   return (
-    <Card variant="standard">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Outbound Webhook Delivery Log</CardTitle>
-          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#171717] text-[#a3a3a3] border border-[#404040]">
-            HMAC-SHA256 Signed
-          </span>
-        </div>
-        <CardDescription>
-          Real-time audit history of events dispatched to registered n8n webhook targets. Secrets are never exposed.
-        </CardDescription>
-      </CardHeader>
+    <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 shadow-xs overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
-      <CardContent>
+      {/* Header */}
+      <div className="p-4 sm:p-5 border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
+              Dispatch Audit Stream
+            </span>
+            <span className="text-zinc-600 font-mono text-[10px]">•</span>
+            <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
+              HMAC-SHA256 Signed
+            </span>
+          </div>
+          <h3 className="text-sm font-semibold text-white tracking-tight">
+            Outbound Webhook Delivery Log
+          </h3>
+          <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+            Real-time audit history of events dispatched to registered n8n webhook targets. Secrets are never exposed.
+          </p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 sm:p-5">
         {isLoading ? (
-          <div className="py-8 text-center text-xs text-[#737373]">
-            Loading webhook deliveries...
+          <div className="py-8 text-center">
+            <div className="w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <p className="text-xs font-mono text-zinc-400">Loading webhook deliveries...</p>
           </div>
         ) : deliveries.length === 0 ? (
-          <div className="py-8 text-center text-xs text-[#737373] bg-[#0a0a0a] rounded-lg border border-[#404040]/50 space-y-1">
-            <p className="font-semibold text-white">No outbound deliveries recorded yet</p>
-            <p className="text-[#525252]">
-              When calls complete or outcomes are classified, signed events will be dispatched to configured endpoints.
-            </p>
+          <div className="relative p-8 sm:p-10 text-center border border-white/[0.07] rounded-lg bg-[#09090f]/80 space-y-3 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
+                Webhook Audit Log
+              </span>
+              <h4 className="text-sm font-semibold text-white tracking-tight">
+                No outbound deliveries recorded yet
+              </h4>
+              <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                When calls complete or outcomes are classified, signed events will be dispatched to configured endpoints.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="border border-[#404040] rounded-lg overflow-hidden bg-[#0a0a0a]">
-            <table className="w-full text-left text-xs border-collapse">
+          <div className="border border-white/[0.07] rounded-lg overflow-x-auto bg-[#09090f]/70">
+            <table className="w-full text-left text-xs border-collapse min-w-[700px]">
               <thead>
-                <tr className="border-b border-[#404040] bg-[#171717] text-[#737373] uppercase tracking-wider font-semibold">
+                <tr className="border-b border-white/[0.06] bg-[#0c0c14]/90 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-medium">
                   <th className="py-3 px-4">Event ID</th>
                   <th className="py-3 px-4">Event Type</th>
                   <th className="py-3 px-4">Status</th>
@@ -54,27 +78,27 @@ export function N8nDeliveriesTable({
                   <th className="py-3 px-4">Error</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#404040]/50 text-white">
+              <tbody className="divide-y divide-white/[0.04]">
                 {deliveries.map((d) => {
                   const isDelivered = d.status === "DELIVERED";
                   const isFailed = d.status === "FAILED";
 
                   return (
-                    <tr key={d.id} className="hover:bg-[#171717]/40 transition-colors">
-                      <td className="py-3 px-4 font-mono text-[#a3a3a3]">
+                    <tr key={d.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="py-3 px-4 font-mono text-zinc-400 text-xs">
                         {d.eventId}
                       </td>
-                      <td className="py-3 px-4 font-semibold text-white">
+                      <td className="py-3 px-4 font-medium text-zinc-200">
                         {d.eventType}
                       </td>
                       <td className="py-3 px-4">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border ${
                             isDelivered
-                              ? "bg-emerald-950/40 text-emerald-300 border border-emerald-800"
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                               : isFailed
-                              ? "bg-rose-950/40 text-rose-300 border border-rose-800"
-                              : "bg-amber-950/40 text-amber-300 border border-amber-800"
+                              ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                              : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                           }`}
                         >
                           <span
@@ -89,13 +113,13 @@ export function N8nDeliveriesTable({
                           {d.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-mono text-[#a3a3a3]">
+                      <td className="py-3 px-4 font-mono text-zinc-400 text-xs">
                         {d.statusCode || "—"}
                       </td>
-                      <td className="py-3 px-4 font-mono text-[#a3a3a3]">
+                      <td className="py-3 px-4 font-mono text-zinc-400 text-xs">
                         {d.attempts}
                       </td>
-                      <td className="py-3 px-4 text-[#737373]">
+                      <td className="py-3 px-4 text-zinc-400 font-mono text-[11px]">
                         {formatCallDateTime(d.deliveredAt || d.createdAt)}
                       </td>
                       <td className="py-3 px-4 text-xs text-rose-400 max-w-xs truncate">
@@ -108,7 +132,7 @@ export function N8nDeliveriesTable({
             </table>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

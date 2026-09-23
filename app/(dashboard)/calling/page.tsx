@@ -5,7 +5,6 @@ import Link from "next/link";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
 import {
   CallingKpiGrid,
   ApprovalQueueWidget,
@@ -130,91 +129,116 @@ export default function CallingDashboardPage() {
   );
 
   return (
-    <PageContainer>
-      <div className="space-y-6">
-        {/* Header with primary actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <PageHeader
-            title="AI Calling Agent"
-            description="Autonomous voice outreach supervision, human approval queue, and grounded context evaluation."
-            breadcrumbs={[
-              { label: "Home", href: "/dashboard" },
-              { label: "AI Calling" },
-            ]}
-          />
-
-          <div className="flex items-center gap-2.5 shrink-0">
+    <PageContainer maxWidth="xl" className="space-y-6">
+      {/* Header with command center action hierarchy */}
+      <PageHeader
+        title="AI Calling Agent"
+        description="Autonomous voice outreach supervision, human approval queue, and grounded context evaluation."
+        breadcrumbs={[
+          { label: "closeVDS", href: "/dashboard" },
+          { label: "AI Calling" },
+        ]}
+        action={
+          <div className="flex items-center gap-2 flex-wrap">
             <Link href="/calling/calls">
-              <Button variant="secondary" size="sm">
-                Call Queue
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 px-3 text-xs bg-[#101017] hover:bg-[#161622] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span>Call Queue</span>
               </Button>
             </Link>
             <Link href="/calling/agents">
-              <Button variant="secondary" size="sm">
-                Voice Agents
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 px-3 text-xs bg-[#101017] hover:bg-[#161622] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                <span>Voice Agents</span>
               </Button>
             </Link>
             <Button
               variant="primary"
               size="sm"
               onClick={() => setIsPrepModalOpen(true)}
+              className="h-8 px-3.5 text-xs bg-white text-zinc-950 hover:bg-zinc-200 font-semibold shadow-xs flex items-center gap-1.5"
             >
-              + Prepare AI Call
+              <span>+ Prepare AI Call</span>
             </Button>
           </div>
-        </div>
+        }
+      />
 
-        {errorMsg && (
-          <Alert variant="destructive" title="Service Error">
-            {errorMsg}
-          </Alert>
-        )}
-
-        {/* 10 Operational Calling KPIs */}
-        <CallingKpiGrid
-          analytics={analytics}
-          queuedCount={queuedCount}
-          approvalRequiredCount={pendingCalls.length}
-          callsTodayCount={calls.length}
-          isLoading={isLoading}
-        />
-
-        {/* Human Approval Queue */}
-        <ApprovalQueueWidget
-          pendingCalls={pendingCalls}
-          isLoading={isLoading}
-          onActionComplete={fetchData}
-          onCheckSafety={(call) => setSafetyModalCallId(call.id)}
-        />
-
-        {/* Dual Status Cards: Providers & Safety Guardrails */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <ProviderStatusCard
-            providers={providers}
-            n8nActiveKeysCount={n8nKeys.filter((k) => k.isActive).length}
-            isLoading={isLoading}
-          />
-          <SafetyStatusCard
-            killSwitchActive={false}
-            humanApprovalRequired={true}
-            suppressedPhoneCount={analytics?.optOutCount || 0}
-            dailyCap={25}
-            callingWindow="09:00 - 17:00"
-            providerConfigured={twilioConfigured}
-          />
-        </div>
-
-        {/* Recent Calls Table */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-white">Recent Voice Outreach Calls</h3>
-            <Link
-              href="/calling/calls"
-              className="text-xs text-zinc-400 hover:text-white underline transition-colors"
-            >
-              View Full Call Queue &rarr;
-            </Link>
+      {errorMsg && (
+        <div className="p-3.5 rounded-xl bg-[#140f09] border border-amber-500/20 flex items-start gap-3 text-xs text-amber-200/90 shadow-xs">
+          <svg className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div className="space-y-0.5">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-amber-300 font-medium block">
+              Calling System Notice
+            </span>
+            <p className="text-amber-200/80 leading-relaxed">{errorMsg}</p>
           </div>
+        </div>
+      )}
+
+      {/* 10 Operational Calling KPIs */}
+      <CallingKpiGrid
+        analytics={analytics}
+        queuedCount={queuedCount}
+        approvalRequiredCount={pendingCalls.length}
+        callsTodayCount={calls.length}
+        isLoading={isLoading}
+      />
+
+      {/* Human Approval Queue */}
+      <ApprovalQueueWidget
+        pendingCalls={pendingCalls}
+        isLoading={isLoading}
+        onActionComplete={fetchData}
+        onCheckSafety={(call) => setSafetyModalCallId(call.id)}
+      />
+
+      {/* Dual Status Cards: Providers & Safety Guardrails */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <ProviderStatusCard
+          providers={providers}
+          n8nActiveKeysCount={n8nKeys.filter((k) => k.isActive).length}
+          isLoading={isLoading}
+        />
+        <SafetyStatusCard
+          killSwitchActive={false}
+          humanApprovalRequired={true}
+          suppressedPhoneCount={analytics?.optOutCount || 0}
+          dailyCap={25}
+          callingWindow="09:00 - 17:00"
+          providerConfigured={twilioConfigured}
+        />
+      </div>
+
+      {/* Recent Calls Table */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+            <h3 className="text-sm font-semibold text-white tracking-tight">Recent Voice Outreach Calls</h3>
+          </div>
+          <Link
+            href="/calling/calls"
+            className="text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+          >
+            <span>View Full Call Queue</span>
+            <span>&rarr;</span>
+          </Link>
+        </div>
 
           <CallsTable
             calls={calls.slice(0, 8)}
@@ -258,7 +282,6 @@ export default function CallingDashboardPage() {
           onClose={() => setRejectingCall(null)}
           onConfirm={handleConfirmReject}
         />
-      </div>
     </PageContainer>
   );
 }
