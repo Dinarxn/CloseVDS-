@@ -108,12 +108,12 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       )}
 
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#0a0a0f] border-r border-white/[0.08] flex flex-col justify-between transition-transform duration-200 ease-in-out select-none shadow-2xl md:shadow-none ${
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#08080d] border-r border-white/[0.06] flex flex-col justify-between transition-transform duration-200 ease-in-out select-none shadow-2xl md:shadow-none ${
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
         {/* Top Brand & Workspace Switcher Header */}
-        <div className="p-3.5 border-b border-white/[0.06] space-y-3 bg-[#0d0d14]/60">
+        <div className="p-3 sm:p-3.5 border-b border-white/[0.06] space-y-2.5 bg-[#08080d]">
           <div className="flex items-center justify-between">
             <Link
               href="/dashboard"
@@ -121,12 +121,12 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               onClick={onClose}
             >
               {/* Premium Brand Logo */}
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-white via-zinc-200 to-zinc-400 text-zinc-950 font-extrabold flex items-center justify-center text-xs tracking-tighter shadow-[0_2px_10px_rgba(255,255,255,0.15)] group-hover:scale-105 transition-all duration-200">
+              <div className="w-7 h-7 rounded-lg bg-white text-zinc-950 font-bold flex items-center justify-center text-[11px] tracking-tight shadow-xs group-hover:scale-105 transition-transform duration-150">
                 VDS
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="font-bold text-white text-sm tracking-tight">closeVDS</span>
-                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-wider">
+              <div className="flex items-center space-x-1.5">
+                <span className="font-semibold text-white text-sm tracking-tight">closeVDS</span>
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium uppercase tracking-wider">
                   OS
                 </span>
               </div>
@@ -145,12 +145,12 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <Link
             href="/settings"
             onClick={onClose}
-            className="group px-3 py-2 rounded-xl bg-[#12121a] hover:bg-[#161622] border border-white/[0.08] hover:border-white/[0.18] flex items-center justify-between text-xs transition-all duration-150 shadow-xs cursor-pointer"
+            className="group px-2.5 py-1.5 rounded-lg bg-[#0e0e15] hover:bg-[#13131c] border border-white/[0.06] hover:border-white/[0.14] flex items-center justify-between text-xs transition-colors shadow-xs cursor-pointer"
             title="Manage Workspace Settings"
           >
-            <div className="flex items-center space-x-2.5 min-w-0">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] shrink-0" />
-              <span className="font-semibold text-zinc-200 group-hover:text-white truncate capitalize tracking-tight">
+            <div className="flex items-center space-x-2 min-w-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              <span className="font-medium text-zinc-200 group-hover:text-white truncate capitalize tracking-tight">
                 {workspace?.name || "Production OS"}
               </span>
             </div>
@@ -164,40 +164,34 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         </div>
 
         {/* Scrollable Navigation Center */}
-        <div className="flex-1 py-3 px-3 overflow-y-auto space-y-5 text-left no-scrollbar">
+        <div className="flex-1 py-3 px-2.5 overflow-y-auto space-y-4 text-left no-scrollbar">
           {/* Main Pipeline Section */}
-          <div className="space-y-1">
-            <p className="px-2.5 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 font-mono flex items-center justify-between">
-              <span>Pipeline</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+          <div className="space-y-0.5">
+            <p className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-medium select-none">
+              Pipeline
             </p>
             {MAIN_NAV_ITEMS.map((item) => {
               const active = isItemActive(item.href, item.isExact);
               const showCallingChildren = item.id === "calling" && isCallingActive;
               return (
-                <div key={item.id} className="space-y-1">
+                <div key={item.id} className="space-y-0.5">
                   <Link
                     href={item.href}
                     onClick={onClose}
-                    className={`group relative w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-xl transition-all duration-150 ${
+                    className={`group relative w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-colors duration-150 ${
                       active
-                        ? "bg-gradient-to-r from-white/[0.14] via-white/[0.08] to-white/[0.02] text-white font-semibold border border-white/[0.16] shadow-[0_2px_12px_rgba(0,0,0,0.5)] ring-1 ring-white/5"
-                        : "text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.05] border border-transparent"
+                        ? "bg-white/[0.06] text-white font-medium border border-white/[0.08] shadow-xs"
+                        : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03] border border-transparent font-normal"
                     }`}
                     aria-current={active ? "page" : undefined}
                   >
-                    {/* Active Left Accent Glow */}
-                    {active && (
-                      <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                    )}
-
                     <div className="flex items-center space-x-2.5 min-w-0">
                       {renderNavIcon(item.id, active)}
                       <span className="tracking-tight truncate">{item.label}</span>
                     </div>
 
                     {item.id === "calling" && (
-                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-indigo-950/80 text-indigo-300 border border-indigo-700/50 shadow-xs">
+                      <span className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-300 border border-purple-500/25 shrink-0">
                         AI
                       </span>
                     )}
@@ -205,7 +199,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
                   {/* Calling Sub-tree Menu */}
                   {showCallingChildren && (
-                    <div className="ml-5 pl-3 border-l border-white/[0.1] space-y-1 pt-1 pb-1">
+                    <div className="ml-4 pl-2.5 border-l border-white/[0.07] space-y-0.5 pt-0.5 pb-0.5">
                       {CALLING_NAV_ITEMS.map((sub) => {
                         const subActive = isItemActive(sub.href, sub.isExact);
                         return (
@@ -213,15 +207,15 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                             key={sub.id}
                             href={sub.href}
                             onClick={onClose}
-                            className={`w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] rounded-lg transition-all duration-150 ${
+                            className={`w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-colors ${
                               subActive
-                                ? "text-white font-semibold bg-[#1a1a26] border border-white/[0.1] shadow-xs"
-                                : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
+                                ? "text-white font-medium bg-white/[0.05] border border-white/[0.08]"
+                                : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]"
                             }`}
                             aria-current={subActive ? "page" : undefined}
                           >
                             <span className="truncate">{sub.label}</span>
-                            {subActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />}
+                            {subActive && <span className="w-1 h-1 rounded-full bg-white/60 shrink-0" />}
                           </Link>
                         );
                       })}
@@ -233,8 +227,8 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
 
           {/* System Section */}
-          <div className="space-y-1 pt-3 border-t border-white/[0.06]">
-            <p className="px-2.5 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 font-mono">
+          <div className="space-y-0.5 pt-3 border-t border-white/[0.06]">
+            <p className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-medium select-none">
               System
             </p>
             {FOOTER_NAV_ITEMS.map((item) => {
@@ -244,16 +238,13 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                   key={item.id}
                   href={item.href}
                   onClick={onClose}
-                  className={`group relative w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-all duration-150 ${
+                  className={`group relative w-full flex items-center space-x-2.5 px-2.5 py-1.5 text-xs rounded-lg transition-colors duration-150 ${
                     active
-                      ? "bg-gradient-to-r from-white/[0.14] via-white/[0.08] to-white/[0.02] text-white font-semibold border border-white/[0.16] shadow-[0_2px_12px_rgba(0,0,0,0.5)] ring-1 ring-white/5"
-                      : "text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.05] border border-transparent"
+                      ? "bg-white/[0.06] text-white font-medium border border-white/[0.08] shadow-xs"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03] border border-transparent font-normal"
                   }`}
                   aria-current={active ? "page" : undefined}
                 >
-                  {active && (
-                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                  )}
                   {renderNavIcon(item.id, active)}
                   <span className="tracking-tight truncate">{item.label}</span>
                 </Link>
@@ -261,37 +252,37 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             })}
           </div>
 
-          {/* AI OS Security & Compliance Widget */}
-          <div className="p-3 rounded-xl bg-gradient-to-b from-[#12121a] to-[#0d0d14] border border-white/[0.06] space-y-2 text-left">
+          {/* Safety Shield System Status Module */}
+          <div className="mx-0.5 p-2.5 rounded-lg bg-[#0c0c12] border border-white/[0.06] space-y-1.5 text-left">
             <div className="flex items-center justify-between text-[10px] font-mono">
-              <span className="text-zinc-400 uppercase font-semibold">Safety Shield</span>
-              <span className="text-emerald-400 font-bold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                18 GATES
+              <span className="text-zinc-400 uppercase tracking-wider font-medium">Safety Shield</span>
+              <span className="text-emerald-400 font-medium flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>18 GATES</span>
               </span>
             </div>
-            <p className="text-[10px] text-zinc-500 leading-tight">
+            <p className="text-[11px] text-zinc-400 leading-snug font-sans">
               Anti-hallucination grounded context enforced.
             </p>
-            <div className="w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-400 rounded-full w-full" />
+            <div className="w-full h-[2px] bg-white/[0.06] rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-400/80 rounded-full w-full" />
             </div>
           </div>
         </div>
 
         {/* User Profile / Status Footer */}
-        <div className="p-3 border-t border-white/[0.06] bg-[#0c0c12]/80">
-          <div className="p-2.5 rounded-xl bg-[#121218] border border-white/[0.08] hover:border-white/[0.16] flex items-center justify-between transition-colors shadow-xs">
+        <div className="p-2.5 border-t border-white/[0.06] bg-[#08080d]">
+          <div className="p-2 rounded-lg bg-[#0e0e15] border border-white/[0.06] hover:border-white/[0.12] flex items-center justify-between transition-colors shadow-xs">
             <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-zinc-700 via-zinc-800 to-zinc-950 border border-white/[0.14] flex items-center justify-center text-xs font-extrabold text-white shrink-0 shadow-inner">
+              <div className="w-7 h-7 rounded-md bg-white/[0.08] border border-white/[0.1] flex items-center justify-center text-xs font-semibold text-white shrink-0 font-sans">
                 {initials}
               </div>
               <div className="min-w-0 text-left">
-                <p className="text-xs font-semibold text-white truncate leading-tight capitalize">
+                <p className="text-xs font-medium text-white truncate leading-tight capitalize tracking-tight">
                   {user?.name || "Workspace Shell"}
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-white/[0.08] text-zinc-400 font-bold border border-white/[0.04]">
+                  <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-white/[0.04] text-zinc-400 font-medium border border-white/[0.06]">
                     {user?.role || "OWNER"}
                   </span>
                 </div>
@@ -299,7 +290,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             </div>
             <button
               onClick={handleLogout}
-              className="text-zinc-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-950/30 transition-colors shrink-0 cursor-pointer"
+              className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-md hover:bg-rose-500/10 transition-colors shrink-0 cursor-pointer"
               title="Sign out"
               aria-label="Sign out"
             >
