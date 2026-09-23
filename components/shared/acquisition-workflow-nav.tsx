@@ -56,7 +56,7 @@ export function AcquisitionWorkflowNav() {
   return (
     <nav
       aria-label="Acquisition Workflow"
-      className="border-b border-white/[0.06] bg-[#0c0c12]/90 backdrop-blur-md py-2 px-4 md:px-6 relative z-20"
+      className="border-b border-white/[0.07] bg-[#08080d]/85 backdrop-blur-xl py-2 px-4 md:px-6 relative z-20"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
         {/* Left Section Label */}

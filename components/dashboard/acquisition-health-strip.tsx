@@ -113,23 +113,23 @@ export function AcquisitionHealthStrip({ metrics }: AcquisitionHealthStripProps)
         <Link
           key={card.id}
           href={card.href}
-          className="group relative rounded-xl p-4 bg-[#0d0d14] hover:bg-[#11111a] border border-white/[0.07] hover:border-white/[0.2] transition-all duration-150 cursor-pointer block focus:outline-none focus:ring-1 focus:ring-emerald-500/30 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+          className="group relative rounded-xl p-4 bg-[#09090f]/90 hover:bg-[#0f0f18] border border-white/[0.08] hover:border-white/[0.20] transition-all duration-150 cursor-pointer block focus:outline-none focus:ring-1 focus:ring-emerald-500/30 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)] backdrop-blur-sm"
         >
           {/* Subtle top edge specular highlight */}
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-          {/* Top Line: Icon + Label + Dot & Arrow */}
+          {/* Top Line: Icon + Micro Label + Dot & Arrow */}
           <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="p-1 rounded bg-white/[0.03] border border-white/[0.06] shrink-0 group-hover:border-white/[0.12] transition-colors">
+              <span className="p-1 rounded bg-white/[0.04] border border-white/[0.07] shrink-0 group-hover:border-white/[0.15] transition-colors">
                 {card.icon}
               </span>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 font-medium group-hover:text-zinc-200 transition-colors truncate">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold group-hover:text-zinc-200 transition-colors truncate">
                 {card.label}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <span className={`w-1.5 h-1.5 rounded-full ${card.dotColor}`} />
               <svg
                 className="w-3 h-3 text-zinc-600 group-hover:text-zinc-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-150"
@@ -142,15 +142,15 @@ export function AcquisitionHealthStrip({ metrics }: AcquisitionHealthStripProps)
             </div>
           </div>
 
-          {/* Value */}
+          {/* High-contrast mono value */}
           <div className="mb-2">
-            <span className="text-3xl font-semibold font-mono tracking-tight text-white group-hover:text-white transition-colors">
+            <span className="text-3xl font-bold font-mono tracking-tight text-white tabular-nums">
               {card.value}
             </span>
           </div>
 
-          {/* Secondary Context */}
-          <p className="text-[11px] font-mono text-zinc-500 group-hover:text-zinc-400 transition-colors truncate">
+          {/* Muted mono context */}
+          <p className="text-[11px] font-mono text-zinc-400 group-hover:text-zinc-300 transition-colors truncate">
             {card.secondary}
           </p>
         </Link>

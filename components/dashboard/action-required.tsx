@@ -122,30 +122,33 @@ export function ActionRequired({
   });
 
   return (
-    <div className="rounded-xl p-5 bg-[#0c0c12] border border-white/[0.07] shadow-xl space-y-4">
+    <div className="relative rounded-xl p-5 bg-[#09090f]/90 border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-4 backdrop-blur-sm">
+      {/* Top specular highlight */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-white/[0.07]">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
             <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
               Operational Focus
             </span>
             {actions.length > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
                 {actions.length} Pending
               </span>
             )}
           </div>
           <h3 className="text-lg font-bold tracking-tight text-white">Action Required</h3>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
             Critical operational milestones and permission gates requiring operator intervention.
           </p>
         </div>
 
         <Link
           href="/operations"
-          className="group/link px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] text-xs font-mono text-zinc-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center"
+          className="group/link px-3.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] text-xs font-mono text-zinc-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
         >
           <span>Open Operations Queue</span>
           <span className="text-zinc-500 group-hover/link:text-white group-hover/link:translate-x-0.5 transition-transform">→</span>
@@ -155,44 +158,50 @@ export function ActionRequired({
       {/* Action items */}
       <div className="space-y-2.5">
         {actions.length === 0 && !isLoading ? (
-          <div className="p-6 text-center bg-[#0e0e16] border border-white/[0.06] rounded-lg space-y-1.5">
-            <div className="w-8 h-8 mx-auto rounded-full bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <div className="p-8 text-center bg-[#0d0d16]/60 border border-white/[0.06] rounded-xl space-y-2">
+            <div className="w-9 h-9 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="text-xs font-semibold text-zinc-200">You&apos;re all caught up.</p>
-            <p className="text-[11px] text-zinc-500">All safety gates, pipeline stages, and outreach approvals are operational.</p>
+            <p className="text-sm font-semibold text-zinc-200">Operational Queue Clear</p>
+            <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+              All safety gates, pipeline stages, and voice authorizations are active and operational.
+            </p>
           </div>
         ) : (
           actions.map((act) => (
             <Link
               key={act.id}
               href={act.href}
-              className="group p-3.5 bg-[#0e0e16] hover:bg-[#12121e] border border-white/[0.06] hover:border-white/[0.16] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all duration-150 cursor-pointer block hover:shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+              className={`group relative p-3.5 sm:p-4 bg-[#0c0c14]/80 hover:bg-[#11111c] border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all duration-150 cursor-pointer block hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)] ${
+                act.badge === "High Priority"
+                  ? "border-red-500/30 hover:border-red-500/50 bg-gradient-to-r from-red-950/[0.12] via-transparent to-transparent"
+                  : "border-white/[0.07] hover:border-white/[0.18]"
+              }`}
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${act.iconBg}`}>
+              <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+                <div className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${act.iconBg}`}>
                   {act.icon}
                 </div>
 
-                <div className="space-y-0.5 min-w-0">
+                <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border font-semibold tracking-wider ${act.badgeStyles}`}>
+                    <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border font-semibold tracking-wider ${act.badgeStyles}`}>
                       {act.badge}
                     </span>
-                    <h4 className="text-xs font-semibold text-white tracking-tight group-hover:text-white transition-colors">
+                    <h4 className="text-[13px] font-semibold text-white tracking-tight group-hover:text-zinc-100 transition-colors">
                       {act.title}
                     </h4>
                   </div>
-                  <p className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors leading-relaxed">
+                  <p className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors leading-relaxed">
                     {act.description}
                   </p>
                 </div>
               </div>
 
               {/* Real tactile button on the right */}
-              <div className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-md bg-white/[0.05] group-hover:bg-white text-zinc-300 group-hover:text-black border border-white/[0.08] group-hover:border-white transition-all shrink-0 self-end sm:self-center shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs font-mono font-medium px-3.5 py-1.5 rounded-lg bg-white/[0.05] group-hover:bg-white text-zinc-300 group-hover:text-black border border-white/[0.10] group-hover:border-white transition-all shrink-0 self-end sm:self-center shadow-sm">
                 <span>{act.actionText}</span>
                 <span className="text-zinc-500 group-hover:text-black group-hover:translate-x-0.5 transition-transform">→</span>
               </div>

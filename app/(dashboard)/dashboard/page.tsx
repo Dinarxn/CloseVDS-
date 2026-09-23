@@ -298,28 +298,24 @@ export default function DashboardOverviewPage() {
           { label: "Overview" },
         ]}
         action={
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <Link href="/leads">
-              <button className="px-3.5 py-1.5 rounded-lg bg-gradient-to-b from-[#161622] to-[#101018] hover:from-[#1c1c2b] hover:to-[#141420] border border-white/[0.1] hover:border-white/[0.25] text-xs font-medium text-zinc-200 hover:text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5">
-                <svg className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button className="px-3 py-1.5 rounded-lg bg-[#0e0e14] hover:bg-[#14141e] border border-white/[0.08] hover:border-white/[0.18] text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer">
+                <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <span>Find Leads</span>
               </button>
             </Link>
             <Link href="/operations">
-              <button className="px-3.5 py-1.5 rounded-lg bg-gradient-to-b from-[#161622] to-[#101018] hover:from-[#1c1c2b] hover:to-[#141420] border border-white/[0.1] hover:border-white/[0.25] text-xs font-medium text-zinc-200 hover:text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5">
-                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
+              <button className="px-3 py-1.5 rounded-lg bg-[#0e0e14] hover:bg-[#14141e] border border-white/[0.08] hover:border-white/[0.18] text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400/90" />
                 <span>Open Operations</span>
               </button>
             </Link>
             <Link href="/calling">
-              <button className="px-4 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-100 border border-white text-xs font-semibold transition-all shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:shadow-[0_0_25px_rgba(255,255,255,0.45)] flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5">
-                <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
-                </svg>
+              <button className="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 border border-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <span>AI Calling</span>
               </button>
             </Link>
