@@ -17,19 +17,19 @@ export function PermissionGateBanner({
       id: "research",
       gateNumber: "1",
       title: "AI Research",
-      description: "Extracts website gap facts",
+      description: "Extracts website gap facts & ICP relevance",
     },
     {
       id: "review",
       gateNumber: "2",
       title: "Human Review",
-      description: "Operator approves copy",
+      description: "Operator approves outreach & dialogue plan",
     },
     {
       id: "dispatch",
       gateNumber: "3",
       title: "Controlled Send",
-      description: "Dispatched within velocity bounds",
+      description: "Dispatched within daily velocity bounds",
     },
     {
       id: "followup",
@@ -41,38 +41,66 @@ export function PermissionGateBanner({
 
   return (
     <div
-      className={`p-4 bg-[#171717] border border-[#404040] rounded-lg space-y-3 ${className}`}
+      className={`relative rounded-xl p-3 sm:p-3.5 bg-[#0c0c14]/70 border border-white/[0.06] backdrop-blur-sm space-y-2.5 ${className}`}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div className="flex items-center space-x-2">
-          <span className="text-xs font-bold text-white uppercase tracking-wider">
+      {/* Header bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-white/[0.05]">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+          <h3 className="text-xs sm:text-sm font-semibold tracking-tight text-white">
             Permission-Gated Architecture
-          </span>
-          <Badge variant="solid">Human-in-the-Loop</Badge>
+          </h3>
+          <Badge variant="solid" size="sm" className="font-mono text-[9px] bg-white/[0.08] border border-white/[0.12] text-zinc-300 font-medium">
+            Human-in-the-Loop
+          </Badge>
+          <span className="hidden md:inline-block text-zinc-600 text-xs">•</span>
+          <p className="text-[11px] text-zinc-400 hidden md:block">
+            Multi-stage autonomous protocol enforcing operator authorization at outreach boundaries.
+          </p>
         </div>
-        <span className="text-[11px] text-[#737373] font-mono">
+
+        <span className="text-[10px] font-mono text-zinc-500 shrink-0 self-start sm:self-center">
           AI Prepares &bull; Operator Approves &bull; System Dispatches
         </span>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-1">
+      {/* 4 Gate Unified Sequence Rail */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 bg-[#07070c]/70 p-1.5 rounded-lg border border-white/[0.04]">
         {stages.map((stage) => {
           const isActive = stage.id === currentStage;
           return (
             <div
               key={stage.id}
-              className={`p-2.5 rounded-md border text-xs space-y-0.5 ${
+              className={`group relative p-2.5 sm:p-3 rounded-md border text-xs transition-all duration-150 ${
                 isActive
-                  ? "bg-[#0a0a0a] border-white/80"
-                  : "bg-[#0a0a0a]/60 border-[#404040]/60 opacity-60"
+                  ? "bg-emerald-950/20 border-emerald-500/35 text-white shadow-xs"
+                  : "bg-transparent border-transparent hover:border-white/[0.06] text-zinc-400"
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-[#737373]">Gate {stage.gateNumber}</span>
-                {isActive && <Badge variant="outline" className="text-[9px] px-1 py-0">Active Gate</Badge>}
+                <span className={`text-[10px] font-mono font-semibold ${isActive ? "text-emerald-400" : "text-zinc-500"}`}>
+                  Gate 0{stage.gateNumber}
+                </span>
+                {isActive ? (
+                  <span className="inline-flex items-center gap-1 text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                    Active Gate
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-mono text-zinc-600">
+                    Standby
+                  </span>
+                )}
               </div>
-              <p className="font-semibold text-white text-[11px]">{stage.title}</p>
-              <p className="text-[10px] text-[#737373] line-clamp-1">{stage.description}</p>
+
+              <div className="mt-1">
+                <p className={`font-medium text-xs tracking-tight ${isActive ? "text-white" : "text-zinc-300"}`}>
+                  {stage.title}
+                </p>
+                <p className={`text-[11px] leading-snug mt-0.5 ${isActive ? "text-zinc-300" : "text-zinc-500"}`}>
+                  {stage.description}
+                </p>
+              </div>
             </div>
           );
         })}
@@ -80,3 +108,4 @@ export function PermissionGateBanner({
     </div>
   );
 }
+

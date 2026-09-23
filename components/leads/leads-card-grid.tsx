@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Lead } from "@/types/leads";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { LeadStatusBadge, QualificationBadge } from "./lead-status-badge";
 import { LeadsEmptyState } from "./leads-empty-state";
 
@@ -32,41 +31,63 @@ export function LeadsCardGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {leads.map((lead) => (
-        <Card
+        <div
           key={lead.id}
-          variant="standard"
           onClick={() => onSelectLead?.(lead)}
-          className="cursor-pointer hover:border-white transition-colors"
+          className="group relative p-3.5 sm:p-4 bg-[#09090f]/95 hover:bg-[#10101a] border border-white/[0.08] hover:border-white/[0.18] rounded-xl transition-all duration-150 cursor-pointer flex flex-col justify-between space-y-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.35)] backdrop-blur-sm"
         >
-          <CardHeader className="mb-2">
+          {/* Top hairline specular highlight on hover */}
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+          {/* Card Header */}
+          <div className="space-y-1">
             <div className="flex items-start justify-between gap-2">
-              <CardTitle className="text-sm">{lead.companyName}</CardTitle>
+              <h4 className="text-sm font-semibold text-white tracking-tight group-hover:text-zinc-100 transition-colors">
+                {lead.companyName}
+              </h4>
               <LeadStatusBadge status={lead.status} />
             </div>
-            {lead.industry && (
-              <CardDescription className="text-[11px]">{lead.industry}</CardDescription>
-            )}
-          </CardHeader>
-          <CardContent className="space-y-3 pt-2 text-xs border-t border-[#404040]/40">
-            <div className="space-y-1">
-              <div className="text-[#d4d4d4] font-medium">{lead.contactName || "No contact named"}</div>
-              {lead.contactTitle && <div className="text-[11px] text-[#737373]">{lead.contactTitle}</div>}
-              {lead.city && <div className="text-[11px] text-[#737373]">{lead.city}</div>}
-            </div>
+            {lead.website ? (
+              <p className="text-[11px] font-mono text-zinc-400 truncate">
+                {lead.website}
+              </p>
+            ) : lead.industry ? (
+              <p className="text-[11px] text-zinc-500 truncate">
+                {lead.industry}
+              </p>
+            ) : null}
+          </div>
 
-            <div className="flex items-center justify-between pt-1">
-              <QualificationBadge
-                qualification={lead.qualification?.qualificationStatus}
-                score={lead.qualification?.totalScore}
-              />
-              <span className="text-[10px] text-[#737373] uppercase tracking-wider capitalize">
-                {lead.source.replace("_", " ")}
-              </span>
+          {/* Card Content */}
+          <div className="space-y-0.5 pt-2.5 border-t border-white/[0.06] text-xs">
+            <div className="text-zinc-200 font-medium text-xs">
+              {lead.contactName || "No contact named"}
             </div>
-          </CardContent>
-        </Card>
+            {lead.contactTitle && (
+              <div className="text-[11px] text-zinc-400">
+                {lead.contactTitle}
+              </div>
+            )}
+            {lead.city && (
+              <div className="text-[11px] text-zinc-400">
+                {lead.city}
+              </div>
+            )}
+          </div>
+
+          {/* Card Footer */}
+          <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.06]">
+            <QualificationBadge
+              qualification={lead.qualification?.qualificationStatus}
+              score={lead.qualification?.totalScore}
+            />
+            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+              {lead.source.replace("_", " ")}
+            </span>
+          </div>
+        </div>
       ))}
     </div>
   );

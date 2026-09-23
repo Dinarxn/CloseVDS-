@@ -3,7 +3,6 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { LeadFilterState } from "@/types/leads";
 
 export interface LeadsFiltersProps {
@@ -15,18 +14,32 @@ export interface LeadsFiltersProps {
 
 export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFiltersProps) {
   return (
-    <div className="p-4 bg-[#0d0d14] border border-white/[0.08] rounded-xl space-y-4">
-      <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-white">
-          Lead Filter Criteria
-        </h3>
+    <div className="relative p-3.5 sm:p-4 bg-[#09090f]/95 border border-white/[0.08] rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm space-y-3">
+      {/* Top specular hairline highlight */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+
+      <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+        <div>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-medium block">
+            Workspace Segmentation
+          </span>
+          <h3 className="text-xs font-semibold text-white tracking-tight">
+            Lead Filter Criteria
+          </h3>
+        </div>
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm" onClick={onReset} className="text-xs text-zinc-400 hover:text-white">
+          <button
+            onClick={onReset}
+            className="text-xs font-sans font-medium text-zinc-400 hover:text-white px-2 py-1 rounded transition-colors cursor-pointer"
+          >
             Reset all
-          </Button>
-          <Button variant="outline" size="sm" onClick={onClose} className="text-xs">
+          </button>
+          <button
+            onClick={onClose}
+            className="text-xs font-sans font-medium text-zinc-300 hover:text-white px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-colors cursor-pointer"
+          >
             Close
-          </Button>
+          </button>
         </div>
       </div>
 
