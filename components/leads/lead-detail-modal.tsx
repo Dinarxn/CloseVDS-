@@ -237,7 +237,7 @@ export function LeadDetailModal({
       }}
       title={lead?.businessName || "Lead Intelligence Dossier"}
       description="Prospect operational records, website gap audits, and LangGraph AI analysis."
-      className="max-w-4xl max-h-[90vh] overflow-y-auto"
+      className="!max-w-4xl max-h-[90vh] overflow-y-auto"
     >
       <div className="space-y-6 pt-2">
         {/* Loading State */}
@@ -293,18 +293,38 @@ export function LeadDetailModal({
               {/* Core Attributes Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
                 {/* Website / Domain (6 cols) */}
-                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                      </svg>
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
-                        Website / Domain
-                      </span>
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      Website / Domain
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      {lead.domain ? (
+                        <a
+                          href={getSafeWebsiteUrl(lead.domain)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open website: ${lead.domain}`}
+                          title={lead.domain}
+                          className="group inline-flex items-center gap-1.5 text-zinc-100 hover:text-white transition-colors max-w-full"
+                        >
+                          <span className="font-medium text-sm underline-offset-4 group-hover:underline truncate block">
+                            {lead.domain}
+                          </span>
+                        </a>
+                      ) : (
+                        <span className="text-zinc-500 italic text-xs">Not available</span>
+                      )}
                     </div>
+
                     {lead.domain && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           type="button"
                           onClick={() => handleCopy(lead.domain || "", "domain")}
@@ -345,37 +365,39 @@ export function LeadDetailModal({
                       </div>
                     )}
                   </div>
-                  {lead.domain ? (
-                    <a
-                      href={getSafeWebsiteUrl(lead.domain)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open website: ${lead.domain}`}
-                      title={lead.domain}
-                      className="group inline-flex items-center gap-1.5 text-zinc-100 hover:text-white transition-colors"
-                    >
-                      <span className="font-medium text-sm underline-offset-4 group-hover:underline truncate max-w-full">
-                        {lead.domain}
-                      </span>
-                    </a>
-                  ) : (
-                    <span className="text-zinc-500 italic text-xs">Not available</span>
-                  )}
                 </div>
 
                 {/* Phone Number (6 cols) */}
-                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
-                        Phone Number
-                      </span>
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      Phone Number
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      {lead.phone ? (
+                        <a
+                          href={`tel:${lead.phone.replace(/\s+/g, "")}`}
+                          aria-label={`Call ${lead.phone}`}
+                          title={`Call ${lead.phone}`}
+                          className="group inline-flex items-center gap-1.5 text-zinc-100 hover:text-white transition-colors"
+                        >
+                          <span className="font-mono text-sm font-medium tracking-wide underline-offset-4 group-hover:underline whitespace-nowrap">
+                            {lead.phone}
+                          </span>
+                        </a>
+                      ) : (
+                        <span className="text-zinc-500 italic text-xs">Not available</span>
+                      )}
                     </div>
+
                     {lead.phone && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           type="button"
                           onClick={() => handleCopy(lead.phone || "", "phone")}
@@ -414,36 +436,42 @@ export function LeadDetailModal({
                       </div>
                     )}
                   </div>
-                  {lead.phone ? (
-                    <a
-                      href={`tel:${lead.phone.replace(/\s+/g, "")}`}
-                      aria-label={`Call ${lead.phone}`}
-                      title={`Call ${lead.phone}`}
-                      className="group inline-flex items-center gap-1.5 text-zinc-100 hover:text-white transition-colors"
-                    >
-                      <span className="font-mono text-sm font-medium tracking-wide underline-offset-4 group-hover:underline whitespace-nowrap">
-                        {lead.phone}
-                      </span>
-                    </a>
-                  ) : (
-                    <span className="text-zinc-500 italic text-xs">Not available</span>
-                  )}
                 </div>
 
                 {/* Location / Address (8 cols) */}
-                <div className="sm:col-span-8 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
-                        Location / Address
-                      </span>
+                <div className="sm:col-span-8 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      Location / Address
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5">
+                    <div className="min-w-0 flex-1">
+                      {lead.address ? (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open address in maps: ${lead.address}`}
+                          title={`Open in maps: ${lead.address}`}
+                          className="group block"
+                        >
+                          <p className="text-zinc-200 text-sm leading-relaxed whitespace-normal break-words group-hover:text-white group-hover:underline underline-offset-4 transition-colors">
+                            {lead.address}
+                          </p>
+                        </a>
+                      ) : (
+                        <span className="text-zinc-500 italic text-xs">Not available</span>
+                      )}
                     </div>
+
                     {lead.address && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 shrink-0 pt-0.5 sm:pt-0">
                         <button
                           type="button"
                           onClick={() => handleCopy(lead.address || "", "address")}
@@ -484,37 +512,19 @@ export function LeadDetailModal({
                       </div>
                     )}
                   </div>
-
-                  {lead.address ? (
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.address)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open address in maps: ${lead.address}`}
-                      title={`Open in maps: ${lead.address}`}
-                      className="group block"
-                    >
-                      <p className="text-zinc-200 text-sm leading-relaxed whitespace-normal break-words group-hover:text-white group-hover:underline underline-offset-4 transition-colors">
-                        {lead.address}
-                      </p>
-                    </a>
-                  ) : (
-                    <span className="text-zinc-500 italic text-xs">Not available</span>
-                  )}
                 </div>
 
                 {/* Discovered Date (4 cols) */}
-                <div className="sm:col-span-4 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
-                        Discovered
-                      </span>
-                    </div>
+                <div className="sm:col-span-4 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      Discovered
+                    </span>
                   </div>
+
                   <span className="text-zinc-200 font-medium text-sm">
                     {lead.createdAt
                       ? new Date(lead.createdAt).toLocaleDateString("en-US", {
