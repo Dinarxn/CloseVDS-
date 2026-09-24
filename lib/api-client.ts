@@ -334,7 +334,10 @@ export const api = {
       apiRequest<{
         success: boolean;
         data: LeadAiWorkflowResult;
-      }>(`/leads/${id}/ai`, { method: 'POST' }),
+      }>(`/leads/${id}/ai`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      }),
 
     approve: (id: string, reason?: string) =>
       apiRequest<{

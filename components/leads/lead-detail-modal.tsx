@@ -15,6 +15,12 @@ export interface LeadDetailModalProps {
   onLeadUpdated?: () => void;
 }
 
+function getSafeWebsiteUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 export function LeadDetailModal({
   isOpen,
   leadId,
@@ -24,6 +30,17 @@ export function LeadDetailModal({
   const [lead, setLead] = useState<BackendLead | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopy = (text: string, field: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => {
+      setCopiedField((curr) => (curr === field ? null : curr));
+    }, 2000);
+  };
 
   const [isExecutingAi, setIsExecutingAi] = useState(false);
   const [aiResult, setAiResult] = useState<LeadAiWorkflowResult | null>(null);
@@ -167,6 +184,9 @@ export function LeadDetailModal({
       const response = await api.leads.runAi(leadId);
       if (response?.data) {
         setAiResult(response.data);
+        if (response.data.status) {
+          setLead((prev) => (prev ? { ...prev, status: response.data.status } : null));
+        }
         onLeadUpdated?.();
       } else {
         setAiError("AI workflow completed without returning output data.");
@@ -192,6 +212,20 @@ export function LeadDetailModal({
 
   const audit = lead?.websiteAudits?.[0] || lead?.websiteAudit;
   const score = lead?.leadScore;
+
+  const isApproved = aiResult?.approval?.status === "approved";
+  const isRejected = aiResult?.approval?.status === "rejected";
+  const isDisqualifiedOrSkipped =
+    !isApproved &&
+    !isRejected &&
+    (aiResult?.qualification?.qualified === false ||
+      aiResult?.currentStep === "human_approval_skipped" ||
+      aiResult?.status === "DISQUALIFIED" ||
+      lead?.status === "DISQUALIFIED");
+  const isPendingReview =
+    !isApproved &&
+    !isRejected &&
+    !isDisqualifiedOrSkipped;
 
   return (
     <Dialog
@@ -257,59 +291,238 @@ export function LeadDetailModal({
               </div>
 
               {/* Core Attributes Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                  <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500 block mb-1">
-                    Domain
-                  </span>
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+                {/* Website / Domain (6 cols) */}
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 text-zinc-400">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
+                        Website / Domain
+                      </span>
+                    </div>
+                    {lead.domain && (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(lead.domain || "", "domain")}
+                          aria-label="Copy website domain"
+                          title="Copy domain"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                        >
+                          {copiedField === "domain" ? (
+                            <>
+                              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                              </svg>
+                              <span className="text-emerald-400">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                              </svg>
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+
+                        <a
+                          href={getSafeWebsiteUrl(lead.domain)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open website: ${lead.domain}`}
+                          title="Open website in new tab"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
+                        >
+                          <span>Visit</span>
+                          <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      </div>
+                    )}
+                  </div>
                   {lead.domain ? (
                     <a
-                      href={
-                        lead.domain.startsWith("http")
-                          ? lead.domain
-                          : `https://${lead.domain}`
-                      }
+                      href={getSafeWebsiteUrl(lead.domain)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white hover:underline truncate block"
+                      aria-label={`Open website: ${lead.domain}`}
+                      title={lead.domain}
+                      className="group inline-flex items-center gap-1.5 text-zinc-100 hover:text-white transition-colors"
                     >
-                      {lead.domain}
+                      <span className="font-medium text-sm underline-offset-4 group-hover:underline truncate max-w-full">
+                        {lead.domain}
+                      </span>
                     </a>
                   ) : (
-                    <span className="text-zinc-500">—</span>
+                    <span className="text-zinc-500 italic text-xs">Not available</span>
                   )}
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                  <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500 block mb-1">
-                    Phone
-                  </span>
-                  <span className="text-zinc-200 truncate block">
-                    {lead.phone || "—"}
-                  </span>
+                {/* Phone Number (6 cols) */}
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 text-zinc-400">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
+                        Phone Number
+                      </span>
+                    </div>
+                    {lead.phone && (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(lead.phone || "", "phone")}
+                          aria-label="Copy phone number"
+                          title="Copy phone number"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                        >
+                          {copiedField === "phone" ? (
+                            <>
+                              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                              </svg>
+                              <span className="text-emerald-400">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                              </svg>
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+
+                        <a
+                          href={`tel:${lead.phone.replace(/\s+/g, "")}`}
+                          aria-label={`Call ${lead.phone}`}
+                          title={`Call ${lead.phone}`}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-emerald-300 hover:text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors"
+                        >
+                          <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <span>Call</span>
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                  {lead.phone ? (
+                    <a
+                      href={`tel:${lead.phone.replace(/\s+/g, "")}`}
+                      aria-label={`Call ${lead.phone}`}
+                      title={`Call ${lead.phone}`}
+                      className="group inline-flex items-center gap-1.5 text-zinc-100 hover:text-white transition-colors"
+                    >
+                      <span className="font-mono text-sm font-medium tracking-wide underline-offset-4 group-hover:underline whitespace-nowrap">
+                        {lead.phone}
+                      </span>
+                    </a>
+                  ) : (
+                    <span className="text-zinc-500 italic text-xs">Not available</span>
+                  )}
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                  <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500 block mb-1">
-                    Address
-                  </span>
-                  <span className="text-zinc-200 truncate block" title={lead.address || undefined}>
-                    {lead.address || "—"}
-                  </span>
+                {/* Location / Address (8 cols) */}
+                <div className="sm:col-span-8 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 text-zinc-400">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
+                        Location / Address
+                      </span>
+                    </div>
+                    {lead.address && (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(lead.address || "", "address")}
+                          aria-label="Copy address"
+                          title="Copy address"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                        >
+                          {copiedField === "address" ? (
+                            <>
+                              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                              </svg>
+                              <span className="text-emerald-400">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                              </svg>
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open address in maps: ${lead.address}`}
+                          title="Open address in maps"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
+                        >
+                          <span>Maps</span>
+                          <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  {lead.address ? (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Open address in maps: ${lead.address}`}
+                      title={`Open in maps: ${lead.address}`}
+                      className="group block"
+                    >
+                      <p className="text-zinc-200 text-sm leading-relaxed whitespace-normal break-words group-hover:text-white group-hover:underline underline-offset-4 transition-colors">
+                        {lead.address}
+                      </p>
+                    </a>
+                  ) : (
+                    <span className="text-zinc-500 italic text-xs">Not available</span>
+                  )}
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                  <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500 block mb-1">
-                    Discovered
-                  </span>
-                  <span className="text-zinc-200 block">
+                {/* Discovered Date (4 cols) */}
+                <div className="sm:col-span-4 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 text-zinc-400">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-medium text-zinc-400">
+                        Discovered
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-zinc-200 font-medium text-sm">
                     {lead.createdAt
                       ? new Date(lead.createdAt).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
                         })
-                      : "—"}
+                      : "Not available"}
                   </span>
                 </div>
               </div>
@@ -530,15 +743,15 @@ export function LeadDetailModal({
                     </div>
                   </div>
 
-                  {/* 1. AI Summary & Intent */}
+                  {/* 1. RESEARCH / AI INSIGHTS */}
                   <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
-                        1. Intelligence Synthesis &amp; Intent
+                        1. RESEARCH / AI INSIGHTS
                       </h5>
                       {aiResult.aiResult?.confidence !== undefined && (
                         <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/[0.08] text-zinc-300">
-                          Confidence: {Math.round(aiResult.aiResult.confidence * 100)}%
+                          Confidence: {Math.round(aiResult.aiResult.confidence <= 1 ? aiResult.aiResult.confidence * 100 : aiResult.aiResult.confidence)}%
                         </span>
                       )}
                     </div>
@@ -562,22 +775,24 @@ export function LeadDetailModal({
                     </div>
                   </div>
 
-                  {/* 2. Qualification Assessment */}
+                  {/* 2. AI QUALIFICATION */}
                   <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
-                        2. Qualification Assessment
+                        2. AI QUALIFICATION
                       </h5>
                       <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[11px] font-mono px-2 py-0.5 rounded font-semibold ${
-                            aiResult.qualification?.qualified
-                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                              : "bg-zinc-800 text-zinc-300 border border-zinc-700"
-                          }`}
-                        >
-                          {aiResult.qualification?.qualified ? "QUALIFIED" : "DISQUALIFIED"}
-                        </span>
+                        {aiResult.qualification?.qualified !== undefined && (
+                          <span
+                            className={`text-[11px] font-mono px-2 py-0.5 rounded font-semibold ${
+                              aiResult.qualification.qualified
+                                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                : "bg-zinc-800 text-zinc-300 border border-zinc-700"
+                            }`}
+                          >
+                            {aiResult.qualification.qualified ? "QUALIFIED" : "DISQUALIFIED"}
+                          </span>
+                        )}
                         {aiResult.qualification?.score !== undefined && (
                           <span className="text-[11px] font-mono text-zinc-400">
                             Score: {aiResult.qualification.score}/100
@@ -596,11 +811,16 @@ export function LeadDetailModal({
                     </div>
                   </div>
 
-                  {/* 3. Personalized Message */}
+                  {/* 3. PERSONALIZED OUTREACH DRAFT */}
                   <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
-                    <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
-                      3. Personalized Message
-                    </h5>
+                    <div className="flex items-center justify-between">
+                      <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
+                        3. PERSONALIZED OUTREACH DRAFT
+                      </h5>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">
+                        DRAFT (NOT SENT)
+                      </span>
+                    </div>
 
                     <div className="space-y-2 text-xs">
                       {aiResult.personalizedMessage?.subject && (
@@ -622,25 +842,41 @@ export function LeadDetailModal({
                           {aiResult.personalizedMessage?.body || "—"}
                         </div>
                       </div>
+
+                      <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04] text-[10px] text-zinc-500 flex items-center gap-1.5 mt-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        <span>Operator review draft only. Outbound dispatch is disabled.</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* 4. Quality Check */}
+                  {/* 4. QUALITY CHECK */}
                   <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
-                        4. Quality Check
+                        4. QUALITY CHECK
                       </h5>
                       <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[11px] font-mono px-2 py-0.5 rounded font-semibold ${
-                            aiResult.qualityCheck?.passed
-                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                              : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                          }`}
-                        >
-                          {aiResult.qualityCheck?.passed ? "PASSED" : "FLAGGED"}
-                        </span>
+                        {aiResult.qualityCheck?.passed === true && (
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            PASSED
+                          </span>
+                        )}
+                        {aiResult.qualityCheck?.passed === false && (
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            FLAGGED
+                          </span>
+                        )}
+                        {aiResult.qualityCheck && aiResult.qualityCheck.passed === undefined && (
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700">
+                            NOT ASSESSED
+                          </span>
+                        )}
+                        {!aiResult.qualityCheck && (
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700">
+                            SKIPPED
+                          </span>
+                        )}
                         {aiResult.qualityCheck?.score !== undefined && (
                           <span className="text-[11px] font-mono text-zinc-400">
                             QC Score: {aiResult.qualityCheck.score}/100
@@ -659,60 +895,72 @@ export function LeadDetailModal({
                             <li key={idx}>{issue}</li>
                           ))}
                         </ul>
-                      ) : (
+                      ) : aiResult.qualityCheck?.passed === false ? (
+                        <p className="text-amber-300/80 text-[11px] italic bg-amber-950/20 p-2 rounded border border-amber-800/30">
+                          Quality check did not pass.
+                        </p>
+                      ) : aiResult.qualityCheck?.passed === true ? (
                         <p className="text-zinc-400 text-[11px] italic">
                           No quality or compliance issues detected.
+                        </p>
+                      ) : (
+                        <p className="text-zinc-400 text-[11px] italic">
+                          Quality check was not executed for this lead.
                         </p>
                       )}
                     </div>
                   </div>
 
-                  {/* 5. Human Approval Workflow */}
+                  {/* 5. APPROVAL */}
                   <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
-                        5. Human Approval Workflow
+                        5. APPROVAL
                       </h5>
                       <span
                         className={`text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold uppercase ${
-                          aiResult.approval?.status === "approved"
+                          isApproved
                             ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                            : aiResult.approval?.status === "rejected"
+                            : isRejected
                             ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                            : isDisqualifiedOrSkipped
+                            ? "bg-zinc-800 text-zinc-300 border border-zinc-700"
                             : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                         }`}
                       >
-                        {aiResult.approval?.status === "approved"
+                        {isApproved
                           ? "APPROVED"
-                          : aiResult.approval?.status === "rejected"
+                          : isRejected
                           ? "REJECTED"
+                          : isDisqualifiedOrSkipped
+                          ? "NOT REQUIRED"
                           : "PENDING REVIEW"}
                       </span>
                     </div>
 
                     {/* Case A: Already Decided (Approved or Rejected) */}
-                    {aiResult.approval?.status && aiResult.approval.status !== "pending" ? (
+                    {(isApproved || isRejected) && (
                       <div className="space-y-2">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-zinc-400 pt-1">
                           <div>
                             <span className="text-zinc-500 block">
-                              {aiResult.approval.status === "approved" ? "Approved By:" : "Rejected By:"}
+                              {isApproved ? "Approved By:" : "Rejected By:"}
                             </span>
                             <span className="text-zinc-200 font-medium">
-                              {aiResult.approval.approvedBy || "Operator"}
+                              {aiResult.approval?.approvedBy || "Operator"}
                             </span>
                           </div>
                           <div>
                             <span className="text-zinc-500 block">Decision Timestamp:</span>
                             <span className="text-zinc-200">
-                              {aiResult.approval.approvedAt
+                              {aiResult.approval?.approvedAt
                                 ? new Date(aiResult.approval.approvedAt).toLocaleString()
                                 : "—"}
                             </span>
                           </div>
                         </div>
 
-                        {aiResult.approval.reason && (
+                        {aiResult.approval?.reason && (
                           <p className="text-[11px] text-zinc-300 pt-1 border-t border-white/[0.04] bg-white/[0.01] p-2 rounded">
                             <span className="text-zinc-500 font-mono uppercase text-[10px] block">Operator Notes:</span>
                             {aiResult.approval.reason}
@@ -720,16 +968,37 @@ export function LeadDetailModal({
                         )}
 
                         <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] text-[11px] text-zinc-400 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          <span className={`w-1.5 h-1.5 rounded-full ${isApproved ? "bg-emerald-400" : "bg-rose-400"}`} />
                           <span>
-                            {aiResult.approval.status === "approved"
+                            {isApproved
                               ? "Lead status transitioned to CALL_READY. Eligible for Call Queue."
                               : "Lead status transitioned to DISQUALIFIED. Excluded from outbound queue."}
                           </span>
                         </div>
                       </div>
-                    ) : (
-                      /* Case B: Pending Review (Interactive Operator Console) */
+                    )}
+
+                    {/* Case B: Disqualified / Approval Skipped */}
+                    {isDisqualifiedOrSkipped && (
+                      <div className="space-y-2 pt-1">
+                        <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] text-xs text-zinc-400 space-y-2">
+                          <div className="flex items-center gap-2 text-zinc-300">
+                            <svg className="w-4 h-4 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-medium">
+                              This lead was disqualified and did not enter the human approval queue.
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-zinc-500 pl-6 leading-relaxed">
+                            Human approval is not required when a lead does not meet qualification criteria. No outbound calling or outreach will be scheduled.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Case C: Qualified + Pending Review (Interactive Operator Console) */}
+                    {isPendingReview && (
                       <div className="space-y-3 pt-1">
                         <p className="text-xs text-zinc-400 leading-relaxed">
                           Review the AI intelligence summary, qualification score, and drafted message above.
