@@ -36,6 +36,7 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
   const [location, setLocation] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [batchSize, setBatchSize] = useState("10");
+  const [provider, setProvider] = useState<"osm" | "geoapify">("osm");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "error" | "info";
@@ -69,10 +70,12 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
         location: string;
         limit: number;
         countryCode?: string;
+        provider: "osm" | "geoapify";
       } = {
         niche: trimmedNiche,
         location: trimmedLocation,
         limit: parseInt(batchSize, 10) || 10,
+        provider,
       };
 
       const trimmedCountry = countryCode.trim().toUpperCase();
@@ -97,7 +100,7 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
         if (err.code === "PROVIDER_UNAVAILABLE" || err.statusCode === 503) {
           setStatusMessage({
             type: "info",
-            text: "Lead Discovery provider (SerpAPI/Google Maps) is unconfigured or in safe standby mode. You can configure your provider key in Workspace Settings.",
+            text: "Lead discovery provider is unavailable or in safe standby mode.",
           });
         } else {
           setStatusMessage({
@@ -354,6 +357,84 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
             </div>
           </div>
 
+          {/* Discovery Engine / Provider - Segmented Tactile Selector */}
+          <div className="space-y-1.5 pt-0.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-mono uppercase tracking-wider text-[#8B8F99] flex items-center gap-1.5">
+                <span>Discovery Engine / Provider</span>
+                <span className="text-emerald-400">• Multi-Source</span>
+              </label>
+              <span className="text-[10px] font-mono text-[#626773]">Server-side integration</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                {
+                  value: "osm" as const,
+                  title: "OpenStreetMap",
+                  desc: "Global POI Engine",
+                  disabled: false,
+                  badge: null,
+                },
+                {
+                  value: "geoapify" as const,
+                  title: "Geoapify",
+                  desc: "Commercial Places",
+                  disabled: false,
+                  badge: null,
+                },
+                {
+                  value: "google" as const,
+                  title: "Google Places",
+                  desc: "Coming Soon",
+                  disabled: true,
+                  badge: "SOON",
+                },
+              ].map((option) => {
+                const isSelected = !option.disabled && provider === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      if (option.disabled || option.value === "google") return;
+                      setProvider(option.value);
+                    }}
+                    disabled={isSubmitting || option.disabled}
+                    aria-disabled={option.disabled ? "true" : undefined}
+                    style={{ outline: "none" }}
+                    className={`relative p-2.5 rounded-lg border text-left transition-colors select-none ${
+                      option.disabled
+                        ? "bg-[#090A0D] border-[#1C1F26] text-[#555A66] cursor-not-allowed opacity-60"
+                        : isSelected
+                        ? "bg-[#131519] border-[#383D4A] text-[#E8E9EB] shadow-xs cursor-pointer"
+                        : "bg-[#131519] hover:bg-[#1A1D24] border-[#252932] hover:border-[#383D4A] text-[#8B8F99] hover:text-[#E8E9EB] cursor-pointer"
+                    }`}
+                  >
+                    {isSelected && (
+                      <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    )}
+                    {option.badge && (
+                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[8px] font-mono font-medium bg-[#14171F] border border-[#252932] text-[#626773]">
+                        {option.badge}
+                      </span>
+                    )}
+                    <div
+                      className={`text-xs font-semibold tracking-tight ${
+                        option.disabled ? "text-[#626773]" : "text-[#E8E9EB]"
+                      }`}
+                    >
+                      {option.title}
+                    </div>
+                    <div className="text-[10px] font-mono text-[#626773] mt-0.5">
+                      {option.desc}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Result Limit / Batch Size - Segmented Tactile Selector */}
           <div className="space-y-1.5 pt-0.5">
             <div className="flex items-center justify-between">
@@ -413,8 +494,18 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                 {countryCode.trim() ? ` (${countryCode.trim().toUpperCase()})` : ""}
               </span>
             </div>
-            <div className="shrink-0 pl-2 text-[10px] text-[#626773]">
-              Batch: <span className="text-emerald-400 font-semibold">{batchSize} candidates</span>
+            <div className="shrink-0 pl-2 flex items-center gap-2 text-[10px] text-[#626773]">
+              <span>
+                Engine:{" "}
+                <span className="text-emerald-400 font-semibold font-mono">
+                  {provider === "osm" ? "OSM" : "Geoapify"}
+                </span>
+              </span>
+              <span className="text-[#383D4A]">|</span>
+              <span>
+                Batch:{" "}
+                <span className="text-emerald-400 font-semibold">{batchSize} candidates</span>
+              </span>
             </div>
           </div>
         </div>

@@ -21,6 +21,16 @@ export type QualificationStatus = "unqualified" | "needs_review" | "qualified" |
 
 export type LeadSource = "google_maps" | "domain_search" | "directory" | "inbound" | "manual_upload";
 
+export type LeadDiscoveryProvider = "osm" | "geoapify" | "google";
+
+export interface LeadDiscoveryQueryPayload {
+  niche: string;
+  location: string;
+  limit: number;
+  countryCode?: string;
+  provider: LeadDiscoveryProvider;
+}
+
 export interface WebsiteAuditData {
   url: string;
   hasSsl: boolean;
