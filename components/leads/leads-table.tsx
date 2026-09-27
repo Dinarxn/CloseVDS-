@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Lead } from "@/types/leads";
-import { LeadStatusBadge, QualificationBadge } from "./lead-status-badge";
+import { LeadStatusBadge, QualificationBadge, ServiceRecommendationBadge } from "./lead-status-badge";
 import { LeadsEmptyState } from "./leads-empty-state";
 
 export interface LeadsTableProps {
@@ -45,6 +45,7 @@ export function LeadsTable({
               <th className="py-2.5 px-3.5">Contact</th>
               <th className="py-2.5 px-3.5">Location &amp; Industry</th>
               <th className="py-2.5 px-3.5">AI Qualification</th>
+              <th className="py-2.5 px-3.5 whitespace-nowrap">Service Opportunity</th>
               <th className="py-2.5 px-3.5">Status</th>
               <th className="py-2.5 px-3.5">Source</th>
               <th className="py-2.5 px-3.5 text-right">Actions</th>
@@ -91,6 +92,11 @@ export function LeadsTable({
                   <QualificationBadge
                     qualification={lead.qualification?.qualificationStatus}
                     score={lead.qualification?.totalScore}
+                  />
+                </td>
+                <td className="py-2.5 px-3.5">
+                  <ServiceRecommendationBadge
+                    recommendation={lead.serviceRecommendation}
                   />
                 </td>
                 <td className="py-2.5 px-3.5">

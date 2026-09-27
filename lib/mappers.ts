@@ -1,4 +1,4 @@
-import type { Lead, LeadStatus, QualificationStatus } from '@/types/leads';
+import type { Lead, LeadStatus, QualificationStatus, ServiceRecommendation } from '@/types/leads';
 import type { OutreachDraft, OutreachStage } from '@/types/outreach';
 import type { CrmDealItem, CrmStageId } from '@/types/crm';
 
@@ -47,6 +47,7 @@ export interface BackendLead {
   leadScore?: BackendLeadScore;
   websiteAudits?: BackendWebsiteAudit[];
   websiteAudit?: BackendWebsiteAudit;
+  serviceRecommendation?: ServiceRecommendation;
   aiAnalysis?: {
     id: string;
     summary: string;
@@ -139,6 +140,15 @@ export function mapBackendLeadToFrontend(bLead: BackendLead): Lead {
           hasBookingCta: audit.bookingCtaVisible,
           hasPhoneListed: Boolean(bLead.phone),
           observedGaps: audit.summary ? [audit.summary] : [],
+        }
+      : undefined,
+    serviceRecommendation: bLead.serviceRecommendation
+      ? {
+          hasOpportunity: Boolean(bLead.serviceRecommendation.hasOpportunity),
+          serviceOpportunity: bLead.serviceRecommendation.serviceOpportunity === "YES" ? "YES" : "NONE",
+          recommendedService: bLead.serviceRecommendation.recommendedService,
+          reason: bLead.serviceRecommendation.reason || "",
+          evidence: bLead.serviceRecommendation.evidence || "",
         }
       : undefined,
   };

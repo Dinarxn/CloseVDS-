@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Lead } from "@/types/leads";
-import { LeadStatusBadge, QualificationBadge } from "./lead-status-badge";
+import { LeadStatusBadge, QualificationBadge, ServiceRecommendationBadge } from "./lead-status-badge";
 import { LeadsEmptyState } from "./leads-empty-state";
 
 export interface LeadsCardGridProps {
@@ -75,6 +75,14 @@ export function LeadsCardGrid({
                 {lead.city}
               </div>
             )}
+          </div>
+
+          {/* Service Opportunity Recommendation */}
+          <div className="pt-2 border-t border-white/[0.06]">
+            <ServiceRecommendationBadge
+              recommendation={lead.serviceRecommendation}
+              compact
+            />
           </div>
 
           {/* Card Footer */}

@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge, BadgeProps } from "@/components/ui/badge";
-import { LeadStatus, QualificationStatus } from "@/types/leads";
+import { LeadStatus, QualificationStatus, ServiceRecommendation } from "@/types/leads";
 
 export interface LeadStatusBadgeProps {
   status: LeadStatus;
@@ -95,5 +95,57 @@ export function QualificationBadge({ qualification, score }: QualificationBadgeP
     >
       {config.label}
     </Badge>
+  );
+}
+
+export interface ServiceRecommendationBadgeProps {
+  recommendation?: ServiceRecommendation;
+  compact?: boolean;
+}
+
+export function ServiceRecommendationBadge({
+  recommendation,
+  compact = false,
+}: ServiceRecommendationBadgeProps) {
+  if (!recommendation) {
+    return (
+      <Badge
+        size="sm"
+        variant="outline"
+        className="font-mono text-[9px] text-zinc-500 border-zinc-800/80 px-1.5 py-0"
+      >
+        Not evaluated
+      </Badge>
+    );
+  }
+
+  const hasOpp = recommendation.serviceOpportunity === "YES";
+  const isNoneService = recommendation.recommendedService === "NONE";
+
+  return (
+    <div className={`flex flex-col ${compact ? "gap-0.5" : "gap-1"}`}>
+      <div className="flex items-center gap-1.5">
+        <Badge
+          size="sm"
+          variant={hasOpp ? "success" : "secondary"}
+          dot={hasOpp}
+          className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0"
+        >
+          {hasOpp ? "Opp: YES" : "Opp: NONE"}
+        </Badge>
+      </div>
+      <div
+        className={`text-[11px] leading-tight font-medium truncate max-w-[190px] ${
+          isNoneService
+            ? "text-zinc-500 font-mono"
+            : hasOpp
+            ? "text-zinc-200"
+            : "text-zinc-400"
+        }`}
+        title={recommendation.recommendedService}
+      >
+        {recommendation.recommendedService}
+      </div>
+    </div>
   );
 }

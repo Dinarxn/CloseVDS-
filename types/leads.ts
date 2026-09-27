@@ -48,6 +48,18 @@ export interface LeadQualificationData {
   reasoning: string;
 }
 
+export type ServiceRecommendation = {
+  hasOpportunity: boolean;
+  serviceOpportunity: "YES" | "NONE";
+  recommendedService:
+    | "Website Design / Development"
+    | "AI Automation"
+    | "Customer Acquisition System"
+    | "NONE";
+  reason: string;
+  evidence: string;
+};
+
 export interface Lead {
   id: string;
   companyName: string;
@@ -65,6 +77,7 @@ export interface Lead {
   status: LeadStatus;
   qualification?: LeadQualificationData;
   websiteAudit?: WebsiteAuditData;
+  serviceRecommendation?: ServiceRecommendation;
   campaignId?: string;
   campaignName?: string;
   discoveredAt: string;

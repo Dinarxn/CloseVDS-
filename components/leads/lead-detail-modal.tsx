@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { LeadStatusBadge } from "./lead-status-badge";
 import { api, ApiClientError } from "@/lib/api-client";
 import { type BackendLead, type BackendContact, mapBackendStatusToLeadStatus } from "@/lib/mappers";
@@ -636,6 +637,101 @@ export function LeadDetailModal({
                 )}
               </div>
             )}
+
+            {/* Service Opportunity & Recommendation Section */}
+            <div className="p-4 sm:p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                  <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
+                    Service Opportunity &amp; Recommended Service
+                  </h4>
+                </div>
+                {lead.serviceRecommendation ? (
+                  <Badge
+                    size="sm"
+                    variant={lead.serviceRecommendation.serviceOpportunity === "YES" ? "success" : "secondary"}
+                    dot={lead.serviceRecommendation.serviceOpportunity === "YES"}
+                    className="font-mono text-[10px] tracking-wide uppercase"
+                  >
+                    Opportunity: {lead.serviceRecommendation.serviceOpportunity}
+                  </Badge>
+                ) : (
+                  <Badge size="sm" variant="outline" className="font-mono text-[10px] text-zinc-500">
+                    Not evaluated
+                  </Badge>
+                )}
+              </div>
+
+              {lead.serviceRecommendation ? (
+                <div className="space-y-3 text-xs">
+                  {/* Service Opportunity & Recommended Service Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                        Service Opportunity
+                      </span>
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <span
+                          className={`text-sm font-semibold font-mono ${
+                            lead.serviceRecommendation.serviceOpportunity === "YES"
+                              ? "text-emerald-400"
+                              : "text-zinc-400"
+                          }`}
+                        >
+                          {lead.serviceRecommendation.serviceOpportunity}
+                        </span>
+                        <span className="text-[11px] text-zinc-500">
+                          {lead.serviceRecommendation.serviceOpportunity === "YES"
+                            ? "(Actionable client opportunity)"
+                            : "(No opportunity identified)"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                        Recommended Service
+                      </span>
+                      <div className="text-sm font-semibold text-white tracking-tight pt-0.5">
+                        {lead.serviceRecommendation.recommendedService}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Why / Reason */}
+                  <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                      Why
+                    </span>
+                    <p className="text-zinc-200 text-xs leading-relaxed break-words whitespace-pre-wrap">
+                      {lead.serviceRecommendation.reason || "Not specified."}
+                    </p>
+                  </div>
+
+                  {/* Evidence */}
+                  <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                      Evidence
+                    </span>
+                    <p className="text-zinc-300 text-xs leading-relaxed font-mono bg-black/30 p-2.5 rounded border border-white/[0.04] break-words whitespace-pre-wrap">
+                      {lead.serviceRecommendation.evidence || "Not specified."}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-5 text-center rounded-lg bg-white/[0.01] border border-dashed border-white/[0.06] space-y-1">
+                  <p className="text-xs text-zinc-400">
+                    Service opportunity has not been evaluated for this prospect.
+                  </p>
+                  <p className="text-[11px] text-zinc-600 font-mono">
+                    State: Not evaluated
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* AI Results & Execution Section */}
             <div className="p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-5">
