@@ -2,7 +2,14 @@
 
 import React from "react";
 import { Lead } from "@/types/leads";
-import { LeadStatusBadge, QualificationBadge, ServiceRecommendationBadge } from "./lead-status-badge";
+import {
+  ActionabilityBadge,
+  DataQualityBadge,
+  LeadStatusBadge,
+  MapsMatchStatusBadge,
+  QualificationBadge,
+  ServiceRecommendationBadge,
+} from "./lead-status-badge";
 import { LeadsEmptyState } from "./leads-empty-state";
 
 export interface LeadsTableProps {
@@ -46,7 +53,7 @@ export function LeadsTable({
               <th className="py-2.5 px-3.5">Location &amp; Industry</th>
               <th className="py-2.5 px-3.5">AI Qualification</th>
               <th className="py-2.5 px-3.5 whitespace-nowrap">Service Opportunity</th>
-              <th className="py-2.5 px-3.5">Status</th>
+              <th className="py-2.5 px-3.5 whitespace-nowrap">Status &amp; Actionability</th>
               <th className="py-2.5 px-3.5">Source</th>
               <th className="py-2.5 px-3.5 text-right">Actions</th>
             </tr>
@@ -82,11 +89,16 @@ export function LeadsTable({
                   <div className="text-[11px] text-zinc-200">
                     {lead.city || lead.address || "—"}
                   </div>
-                  {lead.industry && (
-                    <div className="text-[11px] text-zinc-500 mt-0.5">
-                      {lead.industry}
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                    {lead.industry && (
+                      <span className="text-[11px] text-zinc-500">
+                        {lead.industry}
+                      </span>
+                    )}
+                    {lead.mapsMatchStatus && (
+                      <MapsMatchStatusBadge status={lead.mapsMatchStatus} />
+                    )}
+                  </div>
                 </td>
                 <td className="py-2.5 px-3.5">
                   <QualificationBadge
@@ -100,7 +112,15 @@ export function LeadsTable({
                   />
                 </td>
                 <td className="py-2.5 px-3.5">
-                  <LeadStatusBadge status={lead.status} />
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <LeadStatusBadge status={lead.status} />
+                      {lead.dataQuality && <DataQualityBadge quality={lead.dataQuality} />}
+                    </div>
+                    {lead.actionability && (
+                      <ActionabilityBadge actionability={lead.actionability} />
+                    )}
+                  </div>
                 </td>
                 <td className="py-2.5 px-3.5 text-zinc-400 font-mono text-[10px] uppercase tracking-wider">
                   {lead.source.replace("_", " ")}

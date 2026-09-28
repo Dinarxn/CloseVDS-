@@ -60,6 +60,30 @@ export type ServiceRecommendation = {
   evidence: string;
 };
 
+// B1 — Data Quality
+export type DataQuality = "COMPLETE" | "GOOD" | "PARTIAL" | "MINIMAL";
+
+// B3 — Maps Match Status
+export type MapsMatchStatus = "TARGETED" | "UNVERIFIED";
+
+// B4 — Actionability Tier
+export type LeadActionabilityTier = "READY" | "ENRICHMENT_REQUIRED" | "ARCHIVED_WEAK";
+
+// B4 — Eligible Channels
+export type LeadEligibilityChannel = "VOICE" | "EMAIL" | "WEBSITE_AUDIT";
+
+// B4 — Missing Fields
+export type LeadMissingField = "PHONE" | "EMAIL" | "WEBSITE" | "ADDRESS" | "COORDINATES";
+
+// B4 — Lead Actionability
+export interface LeadActionability {
+  tier: LeadActionabilityTier;
+  isActionable: boolean;
+  eligibleChannels: LeadEligibilityChannel[];
+  missingFields: LeadMissingField[];
+  reasons: string[];
+}
+
 export interface Lead {
   id: string;
   companyName: string;
@@ -82,6 +106,25 @@ export interface Lead {
   campaignName?: string;
   discoveredAt: string;
   lastActivityAt?: string;
+
+  // B1 Intelligence
+  dataQuality?: DataQuality;
+  additionalPhones?: string[];
+  latitude?: number;
+  longitude?: number;
+
+  // B2 Intelligence
+  additionalEmails?: string[];
+  additionalWebsites?: string[];
+  placeDetailsEnriched?: boolean;
+
+  // B3 Intelligence
+  mapsUrl?: string;
+  mapsMatchStatus?: MapsMatchStatus;
+  placeId?: string;
+
+  // B4 Actionability
+  actionability?: LeadActionability;
 }
 
 export interface LeadFilterState {

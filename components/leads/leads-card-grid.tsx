@@ -2,7 +2,14 @@
 
 import React from "react";
 import { Lead } from "@/types/leads";
-import { LeadStatusBadge, QualificationBadge, ServiceRecommendationBadge } from "./lead-status-badge";
+import {
+  ActionabilityBadge,
+  DataQualityBadge,
+  LeadStatusBadge,
+  MapsMatchStatusBadge,
+  QualificationBadge,
+  ServiceRecommendationBadge,
+} from "./lead-status-badge";
 import { LeadsEmptyState } from "./leads-empty-state";
 
 export interface LeadsCardGridProps {
@@ -47,7 +54,10 @@ export function LeadsCardGrid({
               <h4 className="text-sm font-semibold text-white tracking-tight group-hover:text-zinc-100 transition-colors">
                 {lead.companyName}
               </h4>
-              <LeadStatusBadge status={lead.status} />
+              <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                {lead.dataQuality && <DataQualityBadge quality={lead.dataQuality} />}
+                <LeadStatusBadge status={lead.status} />
+              </div>
             </div>
             {lead.website ? (
               <p className="text-[11px] font-mono text-zinc-400 truncate">
@@ -77,6 +87,13 @@ export function LeadsCardGrid({
             )}
           </div>
 
+          {/* Actionability & Channel Eligibility (if present) */}
+          {lead.actionability && (
+            <div className="pt-2 border-t border-white/[0.06]">
+              <ActionabilityBadge actionability={lead.actionability} />
+            </div>
+          )}
+
           {/* Service Opportunity Recommendation */}
           <div className="pt-2 border-t border-white/[0.06]">
             <ServiceRecommendationBadge
@@ -87,10 +104,15 @@ export function LeadsCardGrid({
 
           {/* Card Footer */}
           <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.06]">
-            <QualificationBadge
-              qualification={lead.qualification?.qualificationStatus}
-              score={lead.qualification?.totalScore}
-            />
+            <div className="flex items-center gap-1.5">
+              <QualificationBadge
+                qualification={lead.qualification?.qualificationStatus}
+                score={lead.qualification?.totalScore}
+              />
+              {lead.mapsMatchStatus && (
+                <MapsMatchStatusBadge status={lead.mapsMatchStatus} />
+              )}
+            </div>
             <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
               {lead.source.replace("_", " ")}
             </span>

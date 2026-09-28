@@ -1,4 +1,12 @@
-import type { Lead, LeadStatus, QualificationStatus, ServiceRecommendation } from '@/types/leads';
+import type {
+  DataQuality,
+  Lead,
+  LeadActionability,
+  LeadStatus,
+  MapsMatchStatus,
+  QualificationStatus,
+  ServiceRecommendation,
+} from '@/types/leads';
 import type { OutreachDraft, OutreachStage } from '@/types/outreach';
 import type { CrmDealItem, CrmStageId } from '@/types/crm';
 
@@ -55,6 +63,26 @@ export interface BackendLead {
     riskFactors?: string[];
   } | null;
   campaign?: { id: string; name: string };
+
+  // B1 Intelligence
+  dataQuality?: DataQuality;
+  additionalPhones?: string[];
+  latitude?: number;
+  longitude?: number;
+
+  // B2 Intelligence
+  email?: string;
+  additionalEmails?: string[];
+  additionalWebsites?: string[];
+  placeDetailsEnriched?: boolean;
+
+  // B3 Intelligence
+  mapsUrl?: string;
+  mapsMatchStatus?: MapsMatchStatus;
+  placeId?: string;
+
+  // B4 Actionability
+  actionability?: LeadActionability;
 }
 
 export interface BackendEmailMessage {
@@ -112,7 +140,7 @@ export function mapBackendLeadToFrontend(bLead: BackendLead): Lead {
     companyName: bLead.businessName,
     contactName: primaryContact?.fullName,
     contactTitle: primaryContact?.title,
-    email: primaryContact?.email,
+    email: primaryContact?.email || bLead.email,
     phone: primaryContact?.phone || bLead.phone,
     website: bLead.domain ? (bLead.domain.startsWith('http') ? bLead.domain : `https://${bLead.domain}`) : undefined,
     address: bLead.address,
@@ -151,6 +179,25 @@ export function mapBackendLeadToFrontend(bLead: BackendLead): Lead {
           evidence: bLead.serviceRecommendation.evidence || "",
         }
       : undefined,
+
+    // B1 Intelligence
+    dataQuality: bLead.dataQuality,
+    additionalPhones: bLead.additionalPhones,
+    latitude: bLead.latitude,
+    longitude: bLead.longitude,
+
+    // B2 Intelligence
+    additionalEmails: bLead.additionalEmails,
+    additionalWebsites: bLead.additionalWebsites,
+    placeDetailsEnriched: bLead.placeDetailsEnriched,
+
+    // B3 Intelligence
+    mapsUrl: bLead.mapsUrl,
+    mapsMatchStatus: bLead.mapsMatchStatus,
+    placeId: bLead.placeId,
+
+    // B4 Actionability
+    actionability: bLead.actionability,
   };
 }
 

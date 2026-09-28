@@ -1,6 +1,13 @@
 import React from "react";
 import { Badge, BadgeProps } from "@/components/ui/badge";
-import { LeadStatus, QualificationStatus, ServiceRecommendation } from "@/types/leads";
+import {
+  DataQuality,
+  LeadActionability,
+  LeadStatus,
+  MapsMatchStatus,
+  QualificationStatus,
+  ServiceRecommendation,
+} from "@/types/leads";
 
 export interface LeadStatusBadgeProps {
   status: LeadStatus;
@@ -146,6 +153,108 @@ export function ServiceRecommendationBadge({
       >
         {recommendation.recommendedService}
       </div>
+    </div>
+  );
+}
+
+export interface DataQualityBadgeProps {
+  quality?: DataQuality;
+}
+
+export function DataQualityBadge({ quality }: DataQualityBadgeProps) {
+  if (!quality) return null;
+
+  const variant: BadgeProps["variant"] =
+    quality === "COMPLETE" || quality === "GOOD"
+      ? "success"
+      : quality === "PARTIAL"
+      ? "warning"
+      : "secondary";
+
+  return (
+    <Badge
+      size="sm"
+      variant={variant}
+      dot
+      className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0"
+      title={`Data Quality: ${quality}`}
+    >
+      {quality}
+    </Badge>
+  );
+}
+
+export interface MapsMatchStatusBadgeProps {
+  status?: MapsMatchStatus;
+}
+
+export function MapsMatchStatusBadge({ status }: MapsMatchStatusBadgeProps) {
+  if (!status) return null;
+
+  return (
+    <Badge
+      size="sm"
+      variant={status === "TARGETED" ? "success" : "secondary"}
+      dot={status === "TARGETED"}
+      className="font-mono text-[9px] uppercase px-1.5 py-0"
+      title={`Maps Match Status: ${status}`}
+    >
+      Maps: {status}
+    </Badge>
+  );
+}
+
+export interface ActionabilityBadgeProps {
+  actionability?: LeadActionability;
+  compact?: boolean;
+}
+
+export function ActionabilityBadge({
+  actionability,
+  compact = false,
+}: ActionabilityBadgeProps) {
+  if (!actionability) return null;
+
+  const variant: BadgeProps["variant"] =
+    actionability.tier === "READY"
+      ? "success"
+      : actionability.tier === "ENRICHMENT_REQUIRED"
+      ? "warning"
+      : "secondary";
+
+  const tierLabel = actionability.tier.replace(/_/g, " ");
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <Badge
+        size="sm"
+        variant={variant}
+        dot={actionability.isActionable}
+        className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0"
+        title={
+          actionability.reasons && actionability.reasons.length > 0
+            ? actionability.reasons.join(" • ")
+            : tierLabel
+        }
+      >
+        {tierLabel}
+      </Badge>
+
+      {!compact &&
+        actionability.eligibleChannels &&
+        actionability.eligibleChannels.length > 0 && (
+          <div className="flex items-center gap-1">
+            {actionability.eligibleChannels.map((channel) => (
+              <span
+                key={channel}
+                className="text-[9px] font-mono px-1 py-0 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.06]"
+                title={`Eligible channel: ${channel}`}
+              >
+                {channel === "WEBSITE_AUDIT" ? "AUDIT" : channel}
+              </span>
+            ))}
+          </div>
+        )}
     </div>
   );
 }

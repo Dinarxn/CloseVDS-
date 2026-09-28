@@ -214,6 +214,18 @@ export function LeadDetailModal({
   const audit = lead?.websiteAudits?.[0] || lead?.websiteAudit;
   const score = lead?.leadScore;
 
+  const primaryEmail = lead?.email;
+  const extraEmails = (lead?.additionalEmails || []).filter((e) => e !== primaryEmail);
+  const hasEmail = Boolean(primaryEmail || extraEmails.length > 0);
+
+  const extraPhones = (lead?.additionalPhones || []).filter(
+    (p) => p !== lead?.phone && p.replace(/\s+/g, "") !== lead?.phone?.replace(/\s+/g, "")
+  );
+
+  const extraWebsites = (lead?.additionalWebsites || []).filter(
+    (w) => w !== lead?.domain && getSafeWebsiteUrl(w) !== (lead?.domain ? getSafeWebsiteUrl(lead.domain) : "")
+  );
+
   const isApproved = aiResult?.approval?.status === "approved";
   const isRejected = aiResult?.approval?.status === "rejected";
   const isDisqualifiedOrSkipped =
@@ -287,6 +299,22 @@ export function LeadDetailModal({
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {lead.dataQuality && (
+                    <Badge
+                      size="sm"
+                      variant={
+                        lead.dataQuality === "COMPLETE" || lead.dataQuality === "GOOD"
+                          ? "success"
+                          : lead.dataQuality === "PARTIAL"
+                          ? "warning"
+                          : "secondary"
+                      }
+                      dot
+                      className="font-mono text-[10px] tracking-wide uppercase"
+                    >
+                      Quality: {lead.dataQuality}
+                    </Badge>
+                  )}
                   <LeadStatusBadge status={mapBackendStatusToLeadStatus(lead.status)} />
                 </div>
               </div>
@@ -295,13 +323,26 @@ export function LeadDetailModal({
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
                 {/* Website / Domain (6 cols) */}
                 <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 text-zinc-400">
-                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                    </svg>
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
-                      Website / Domain
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-zinc-400">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                        Website / Domain
+                      </span>
+                    </div>
+
+                    {lead.placeDetailsEnriched !== undefined && (
+                      <Badge
+                        size="sm"
+                        variant={lead.placeDetailsEnriched ? "success" : "secondary"}
+                        dot={lead.placeDetailsEnriched}
+                        className="font-mono text-[9px] px-1.5 py-0 uppercase"
+                      >
+                        Enriched: {lead.placeDetailsEnriched ? "Yes" : "No"}
+                      </Badge>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -366,6 +407,25 @@ export function LeadDetailModal({
                       </div>
                     )}
                   </div>
+
+                  {extraWebsites.length > 0 && (
+                    <div className="pt-2 border-t border-white/[0.04] space-y-1">
+                      <span className="text-[10px] text-zinc-500 font-mono uppercase block">Additional Websites</span>
+                      <div className="flex flex-wrap gap-2">
+                        {extraWebsites.map((w, idx) => (
+                          <a
+                            key={idx}
+                            href={getSafeWebsiteUrl(w)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.02] hover:bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.04] transition-colors"
+                          >
+                            {w}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Phone Number (6 cols) */}
@@ -437,35 +497,189 @@ export function LeadDetailModal({
                       </div>
                     )}
                   </div>
+
+                  {extraPhones.length > 0 && (
+                    <div className="pt-2 border-t border-white/[0.04] space-y-1">
+                      <span className="text-[10px] text-zinc-500 font-mono uppercase block">Additional Phones</span>
+                      <div className="flex flex-wrap gap-2">
+                        {extraPhones.map((p, idx) => (
+                          <div key={idx} className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-300 bg-white/[0.02] px-2 py-0.5 rounded border border-white/[0.04]">
+                            <span>{p}</span>
+                            <a
+                              href={`tel:${p.replace(/\s+/g, "")}`}
+                              aria-label={`Call ${p}`}
+                              title={`Call ${p}`}
+                              className="text-emerald-400 hover:text-emerald-300"
+                            >
+                              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Location / Address (8 cols) */}
-                <div className="sm:col-span-8 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                {/* Public Business Email (6 cols, only when email data present) */}
+                {hasEmail && (
+                  <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                    <div className="flex items-center gap-1.5 text-zinc-400">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                        Business Email
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        {primaryEmail ? (
+                          <a
+                            href={`mailto:${primaryEmail}`}
+                            aria-label={`Email ${primaryEmail}`}
+                            title={`Email ${primaryEmail}`}
+                            className="group inline-flex items-center gap-1.5 text-zinc-100 hover:text-white transition-colors"
+                          >
+                            <span className="font-mono text-sm font-medium tracking-wide underline-offset-4 group-hover:underline truncate block">
+                              {primaryEmail}
+                            </span>
+                          </a>
+                        ) : (
+                          <span className="text-zinc-500 italic text-xs">Primary not set</span>
+                        )}
+                      </div>
+
+                      {primaryEmail && (
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(primaryEmail, "email")}
+                            aria-label="Copy email address"
+                            title="Copy email address"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                          >
+                            {copiedField === "email" ? (
+                              <>
+                                <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span className="text-emerald-400">Copied</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                </svg>
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+
+                          <a
+                            href={`mailto:${primaryEmail}`}
+                            aria-label={`Send email to ${primaryEmail}`}
+                            title={`Send email to ${primaryEmail}`}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-cyan-300 hover:text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition-colors"
+                          >
+                            <svg className="w-3 h-3 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span>Email</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    {extraEmails.length > 0 && (
+                      <div className="pt-2 border-t border-white/[0.04] space-y-1">
+                        <span className="text-[10px] text-zinc-500 font-mono uppercase block">Additional Emails</span>
+                        <div className="flex flex-wrap gap-2">
+                          {extraEmails.map((em, idx) => (
+                            <a
+                              key={idx}
+                              href={`mailto:${em}`}
+                              className="text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.02] hover:bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.04] transition-colors"
+                            >
+                              {em}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Discovered Date */}
+                <div className={`${hasEmail ? "sm:col-span-6" : "sm:col-span-4"} p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5`}>
                   <div className="flex items-center gap-1.5 text-zinc-400">
                     <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
-                      Location / Address
+                      Discovered
                     </span>
+                  </div>
+
+                  <span className="text-zinc-200 font-medium text-sm">
+                    {lead.createdAt
+                      ? new Date(lead.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "Not available"}
+                  </span>
+                </div>
+
+                {/* Location / Address */}
+                <div className={`${hasEmail ? "sm:col-span-12" : "sm:col-span-8"} p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-zinc-400">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                        Location / Address
+                      </span>
+                    </div>
+
+                    {lead.mapsMatchStatus && (
+                      <Badge
+                        size="sm"
+                        variant={lead.mapsMatchStatus === "TARGETED" ? "success" : "secondary"}
+                        dot={lead.mapsMatchStatus === "TARGETED"}
+                        className="font-mono text-[9px] px-1.5 py-0 uppercase"
+                      >
+                        Maps: {lead.mapsMatchStatus}
+                      </Badge>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5">
                     <div className="min-w-0 flex-1">
                       {lead.address ? (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.address)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Open address in maps: ${lead.address}`}
-                          title={`Open in maps: ${lead.address}`}
-                          className="group block"
-                        >
-                          <p className="text-zinc-200 text-sm leading-relaxed whitespace-normal break-words group-hover:text-white group-hover:underline underline-offset-4 transition-colors">
+                        lead.mapsUrl ? (
+                          <a
+                            href={lead.mapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open address in maps: ${lead.address}`}
+                            title={`Open in maps: ${lead.address}`}
+                            className="group block"
+                          >
+                            <p className="text-zinc-200 text-sm leading-relaxed whitespace-normal break-words group-hover:text-white group-hover:underline underline-offset-4 transition-colors">
+                              {lead.address}
+                            </p>
+                          </a>
+                        ) : (
+                          <p className="text-zinc-200 text-sm leading-relaxed whitespace-normal break-words">
                             {lead.address}
                           </p>
-                        </a>
+                        )
                       ) : (
                         <span className="text-zinc-500 italic text-xs">Not available</span>
                       )}
@@ -497,44 +711,56 @@ export function LeadDetailModal({
                           )}
                         </button>
 
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.address)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Open address in maps: ${lead.address}`}
-                          title="Open address in maps"
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
-                        >
-                          <span>Maps</span>
-                          <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </a>
+                        {lead.mapsUrl && (
+                          <a
+                            href={lead.mapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open address in maps: ${lead.address}`}
+                            title="Open address in maps"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
+                          >
+                            <span>Maps</span>
+                            <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        )}
                       </div>
                     )}
                   </div>
-                </div>
 
-                {/* Discovered Date (4 cols) */}
-                <div className="sm:col-span-4 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 text-zinc-400">
-                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
-                      Discovered
-                    </span>
-                  </div>
-
-                  <span className="text-zinc-200 font-medium text-sm">
-                    {lead.createdAt
-                      ? new Date(lead.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : "Not available"}
-                  </span>
+                  {((lead.latitude !== undefined && lead.longitude !== undefined) || lead.placeId) && (
+                    <div className="pt-2 border-t border-white/[0.04] flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-mono text-zinc-400">
+                      {lead.latitude !== undefined && lead.longitude !== undefined && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-zinc-500 text-[10px] uppercase">Coords:</span>
+                          <span className="text-zinc-300">{lead.latitude.toFixed(6)}, {lead.longitude.toFixed(6)}</span>
+                        </div>
+                      )}
+                      {lead.placeId && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-zinc-500 text-[10px] uppercase">Provider Place ID:</span>
+                          <span className="text-zinc-300 truncate max-w-[200px]" title={lead.placeId}>{lead.placeId}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(lead.placeId || "", "placeId")}
+                            aria-label="Copy Provider Place ID"
+                            title="Copy Provider Place ID"
+                            className="text-zinc-500 hover:text-zinc-300"
+                          >
+                            {copiedField === "placeId" ? (
+                              <span className="text-[10px] text-emerald-400">Copied</span>
+                            ) : (
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -633,6 +859,106 @@ export function LeadDetailModal({
                         {audit.summary}
                       </p>
                     )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* B4 Lead Actionability Section */}
+            {lead.actionability && (
+              <div className="p-4 sm:p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
+                      Lead Actionability (B4 Intelligence)
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      size="sm"
+                      variant={
+                        lead.actionability.tier === "READY"
+                          ? "success"
+                          : lead.actionability.tier === "ENRICHMENT_REQUIRED"
+                          ? "warning"
+                          : "secondary"
+                      }
+                      dot={lead.actionability.isActionable}
+                      className="font-mono text-[10px] tracking-wide uppercase"
+                    >
+                      {lead.actionability.tier.replace(/_/g, " ")}
+                    </Badge>
+                    <Badge
+                      size="sm"
+                      variant={lead.actionability.isActionable ? "success" : "secondary"}
+                      className="font-mono text-[10px] tracking-wide uppercase"
+                    >
+                      {lead.actionability.isActionable ? "Actionable" : "Not Actionable"}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  {/* Eligible Channels */}
+                  <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1.5">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                      Eligible Outbound Channels
+                    </span>
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {lead.actionability.eligibleChannels && lead.actionability.eligibleChannels.length > 0 ? (
+                        lead.actionability.eligibleChannels.map((channel) => (
+                          <span
+                            key={channel}
+                            className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                          >
+                            {channel}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-zinc-500 italic text-[11px]">None eligible</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Missing Fields */}
+                  <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1.5">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                      Missing Required Fields
+                    </span>
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {lead.actionability.missingFields && lead.actionability.missingFields.length > 0 ? (
+                        lead.actionability.missingFields.map((field) => (
+                          <span
+                            key={field}
+                            className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20"
+                          >
+                            {field}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-emerald-400/80 text-[11px] font-mono">None (Complete)</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actionability Reasons */}
+                {lead.actionability.reasons && lead.actionability.reasons.length > 0 && (
+                  <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1.5">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                      Evaluation Reasons
+                    </span>
+                    <ul className="space-y-1 text-zinc-300 text-xs">
+                      {lead.actionability.reasons.map((reason, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="text-cyan-400 mt-0.5">•</span>
+                          <span className="leading-relaxed">{reason}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>

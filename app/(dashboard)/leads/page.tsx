@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { LeadsToolbar } from "@/components/leads/leads-toolbar";
@@ -30,6 +30,7 @@ const INITIAL_FILTERS: LeadFilterState = {
 
 export default function LeadsPage() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filters, setFilters] = useState<LeadFilterState>(INITIAL_FILTERS);
   const [sortOption, setSortOption] = useState<LeadSortOption>("discovered_desc");
   const [viewMode, setViewMode] = useState<LeadViewMode>("table");
@@ -37,19 +38,39 @@ export default function LeadsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Pagination state backed by existing API contract
+  const [page, setPage] = useState<number>(1);
+  const [pageSize] = useState<number>(20);
+  const [total, setTotal] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [selectedLeadForCall, setSelectedLeadForCall] = useState<Lead | null>(null);
 
   const filterDisclosure = useDisclosure({ defaultIsOpen: false });
   const discoveryModal = useDisclosure({ defaultIsOpen: false });
 
+  // Debounce search input to avoid unnecessary requests while typing
+  useEffect(() => {
+    if (!search) {
+      setDebouncedSearch("");
+      return;
+    }
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const fetchLeads = useCallback(async () => {
     setIsLoading(true);
     setErrorMsg(null);
     try {
       const response = await api.leads.list({
-        search: search.trim() || undefined,
+        search: debouncedSearch.trim() || undefined,
         status: filters.status ? filters.status.toUpperCase() : undefined,
+        page,
+        limit: pageSize,
       });
 
       const rawItems = Array.isArray(response?.data)
@@ -57,6 +78,12 @@ export default function LeadsPage() {
         : [];
 
       setLeads(rawItems.map(mapBackendLeadToFrontend));
+      const respTotal = typeof response?.total === "number" ? response.total : rawItems.length;
+      setTotal(respTotal);
+      const respTotalPages = typeof response?.totalPages === "number" && response.totalPages > 0
+        ? response.totalPages
+        : Math.max(1, Math.ceil(respTotal / pageSize));
+      setTotalPages(respTotalPages);
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
         if (err.statusCode === 503 || err.code === "DATABASE_UNAVAILABLE") {
@@ -72,23 +99,74 @@ export default function LeadsPage() {
         setErrorMsg("Unable to connect to backend API server.");
       }
       setLeads([]);
+      setTotal(0);
+      setTotalPages(1);
     } finally {
       setIsLoading(false);
     }
-  }, [search, filters.status]);
+  }, [debouncedSearch, filters.status, page, pageSize]);
 
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
 
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setPage(1);
+  };
+
   const handleFilterChange = (field: keyof LeadFilterState, value: unknown) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
+    setPage(1);
   };
 
   const handleResetFilters = () => {
     setFilters(INITIAL_FILTERS);
     setSearch("");
+    setDebouncedSearch("");
+    setSortOption("discovered_desc");
+    setPage(1);
   };
+
+  // Safe client-side sorting of loaded dataset
+  const sortedLeads = useMemo(() => {
+    const list = [...leads];
+    switch (sortOption) {
+      case "discovered_desc":
+        return list.sort((a, b) => {
+          const timeA = a.discoveredAt ? new Date(a.discoveredAt).getTime() : 0;
+          const timeB = b.discoveredAt ? new Date(b.discoveredAt).getTime() : 0;
+          return timeB - timeA;
+        });
+      case "discovered_asc":
+        return list.sort((a, b) => {
+          const timeA = a.discoveredAt ? new Date(a.discoveredAt).getTime() : 0;
+          const timeB = b.discoveredAt ? new Date(b.discoveredAt).getTime() : 0;
+          return timeA - timeB;
+        });
+      case "company_asc":
+        return list.sort((a, b) =>
+          (a.companyName || "").localeCompare(b.companyName || "", undefined, {
+            sensitivity: "base",
+            numeric: true,
+          })
+        );
+      case "score_desc":
+        return list.sort((a, b) => {
+          const scoreA = a.qualification?.totalScore ?? -1;
+          const scoreB = b.qualification?.totalScore ?? -1;
+          return scoreB - scoreA;
+        });
+      case "score_asc":
+        return list.sort((a, b) => {
+          const scoreA = a.qualification?.totalScore ?? 999;
+          const scoreB = b.qualification?.totalScore ?? 999;
+          return scoreA - scoreB;
+        });
+      default:
+        return list;
+    }
+  }, [leads, sortOption]);
 
   // Count active non-default filters
   const activeFilterCount =
@@ -98,6 +176,11 @@ export default function LeadsPage() {
     }).length + (filters.minScore > 0 ? 1 : 0);
 
   const isFiltered = Boolean(search.trim()) || activeFilterCount > 0;
+
+  // Pagination display values
+  const startItem = total > 0 ? (page - 1) * pageSize + 1 : (leads.length > 0 ? 1 : 0);
+  const endItem = total > 0 ? Math.min(page * pageSize, total) : leads.length;
+  const totalCount = total > 0 ? total : leads.length;
 
   return (
     <PageContainer maxWidth="xl" className="space-y-3.5 sm:space-y-4">
@@ -125,7 +208,7 @@ export default function LeadsPage() {
       {/* Lead Workspace Control Surface (The Hero) */}
       <LeadsToolbar
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={handleSearchChange}
         isFilterOpen={filterDisclosure.isOpen}
         onToggleFilter={filterDisclosure.onToggle}
         activeFilterCount={activeFilterCount}
@@ -155,7 +238,7 @@ export default function LeadsPage() {
         </div>
       ) : viewMode === "table" ? (
         <LeadsTable
-          leads={leads}
+          leads={sortedLeads}
           onFindLeads={discoveryModal.onOpen}
           isFiltered={isFiltered}
           onClearFilters={handleResetFilters}
@@ -164,7 +247,7 @@ export default function LeadsPage() {
         />
       ) : (
         <LeadsCardGrid
-          leads={leads}
+          leads={sortedLeads}
           onFindLeads={discoveryModal.onOpen}
           isFiltered={isFiltered}
           onClearFilters={handleResetFilters}
@@ -172,29 +255,71 @@ export default function LeadsPage() {
         />
       )}
 
-        {/* Lead Discovery Modal */}
-        <LeadDiscoveryModal
-          isOpen={discoveryModal.isOpen}
-          onClose={() => {
-            discoveryModal.onClose();
-            fetchLeads();
-          }}
-        />
+      {/* Pagination Surface */}
+      {!isLoading && leads.length > 0 && (
+        <div className="relative p-2.5 sm:p-3 bg-[#09090f]/95 border border-white/[0.08] rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-2.5">
+          {/* Top specular hairline highlight */}
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
 
-        {/* Lead Detail & AI Analysis Dossier Modal */}
-        <LeadDetailModal
-          isOpen={Boolean(selectedLeadId)}
-          leadId={selectedLeadId}
-          onClose={() => setSelectedLeadId(null)}
-          onLeadUpdated={fetchLeads}
-        />
+          <div className="text-[11px] font-mono text-zinc-400">
+            Showing <span className="text-white font-medium">{startItem}</span>–<span className="text-white font-medium">{endItem}</span> of{" "}
+            <span className="text-white font-medium">{totalCount}</span> leads
+          </div>
 
-        {/* Call Preparation Modal */}
-        <CallPreparationModal
-          isOpen={Boolean(selectedLeadForCall)}
-          initialLeadId={selectedLeadForCall?.id || ""}
-          onClose={() => setSelectedLeadForCall(null)}
-        />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1 || isLoading}
+              className="h-7.5 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border-white/[0.08] disabled:hover:bg-white/[0.04] disabled:hover:text-zinc-300"
+              aria-label="Previous page"
+            >
+              <span>←</span>
+              <span>Previous</span>
+            </button>
+
+            <div className="h-7.5 px-3 rounded-lg border border-white/[0.06] bg-[#07070c] flex items-center text-xs font-mono text-zinc-400">
+              <span>Page</span>
+              <span className="text-white font-semibold mx-1.5">{page}</span>
+              <span>of</span>
+              <span className="text-white font-semibold ml-1.5">{totalPages}</span>
+            </div>
+
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages || isLoading}
+              className="h-7.5 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border-white/[0.08] disabled:hover:bg-white/[0.04] disabled:hover:text-zinc-300"
+              aria-label="Next page"
+            >
+              <span>Next</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Lead Discovery Modal */}
+      <LeadDiscoveryModal
+        isOpen={discoveryModal.isOpen}
+        onClose={() => {
+          discoveryModal.onClose();
+          fetchLeads();
+        }}
+      />
+
+      {/* Lead Detail & AI Analysis Dossier Modal */}
+      <LeadDetailModal
+        isOpen={Boolean(selectedLeadId)}
+        leadId={selectedLeadId}
+        onClose={() => setSelectedLeadId(null)}
+        onLeadUpdated={fetchLeads}
+      />
+
+      {/* Call Preparation Modal */}
+      <CallPreparationModal
+        isOpen={Boolean(selectedLeadForCall)}
+        initialLeadId={selectedLeadForCall?.id || ""}
+        onClose={() => setSelectedLeadForCall(null)}
+      />
     </PageContainer>
   );
 }
