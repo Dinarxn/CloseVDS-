@@ -40,22 +40,22 @@ export function LeadsTable({
   }
 
   return (
-    <div className="relative border border-white/[0.08] rounded-xl overflow-hidden bg-[#09090f]/95 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm">
+    <div className="relative border border-white/[0.06] rounded-xl overflow-hidden bg-[#0a0a0f] shadow-xs backdrop-blur-sm">
       {/* Top specular hairline highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-white/[0.07] bg-[#0c0c14]/90 text-zinc-400 text-[10px] font-mono uppercase tracking-widest font-semibold">
-              <th className="py-2.5 px-3.5">Company &amp; Domain</th>
-              <th className="py-2.5 px-3.5">Contact</th>
-              <th className="py-2.5 px-3.5">Location &amp; Industry</th>
-              <th className="py-2.5 px-3.5">AI Qualification</th>
-              <th className="py-2.5 px-3.5 whitespace-nowrap">Service Opportunity</th>
-              <th className="py-2.5 px-3.5 whitespace-nowrap">Status &amp; Actionability</th>
-              <th className="py-2.5 px-3.5">Source</th>
-              <th className="py-2.5 px-3.5 text-right">Actions</th>
+            <tr className="border-b border-white/[0.06] bg-[#0c0c12]/95 text-zinc-400 text-[10px] font-mono uppercase tracking-wider font-semibold">
+              <th className="py-3 px-4">Company &amp; Domain</th>
+              <th className="py-3 px-3.5">Contact</th>
+              <th className="py-3 px-3.5">Location &amp; Industry</th>
+              <th className="py-3 px-3.5 whitespace-nowrap">AI Qualification</th>
+              <th className="py-3 px-3.5 whitespace-nowrap">Service Opportunity</th>
+              <th className="py-3 px-3.5 whitespace-nowrap">Status &amp; Actionability</th>
+              <th className="py-3 px-3.5 whitespace-nowrap">Source</th>
+              <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04] text-zinc-200">
@@ -63,35 +63,39 @@ export function LeadsTable({
               <tr
                 key={lead.id}
                 onClick={() => onSelectLead?.(lead)}
-                className="group hover:bg-white/[0.03] transition-colors cursor-pointer"
+                className="group hover:bg-white/[0.025] transition-colors cursor-pointer"
               >
-                <td className="py-2.5 px-3.5 font-medium text-white">
-                  <div className="font-semibold text-white tracking-tight group-hover:text-zinc-100 transition-colors">
+                <td className="py-3 px-4">
+                  <div className="font-semibold text-zinc-100 text-xs sm:text-[13px] tracking-tight leading-snug group-hover:text-white transition-colors">
                     {lead.companyName}
                   </div>
                   {lead.website && (
-                    <div className="text-[11px] font-mono text-zinc-400 mt-0.5">
+                    <div className="text-[11px] font-mono text-zinc-400 mt-0.5 truncate max-w-[210px] block hover:text-zinc-300 transition-colors">
                       {lead.website}
                     </div>
                   )}
                 </td>
-                <td className="py-2.5 px-3.5 text-zinc-300">
-                  <div className="text-zinc-200 text-xs font-medium">
-                    {lead.contactName || "—"}
-                  </div>
+                <td className="py-3 px-3.5 text-zinc-300">
+                  {lead.contactName ? (
+                    <div className="text-zinc-200 text-xs font-medium">
+                      {lead.contactName}
+                    </div>
+                  ) : (
+                    <span className="text-zinc-600 font-mono text-xs">—</span>
+                  )}
                   {lead.contactTitle && (
-                    <div className="text-[11px] text-zinc-400 mt-0.5">
+                    <div className="text-[11px] text-zinc-400 mt-0.5 truncate max-w-[150px]">
                       {lead.contactTitle}
                     </div>
                   )}
                 </td>
-                <td className="py-2.5 px-3.5 text-zinc-300">
-                  <div className="text-[11px] text-zinc-200">
-                    {lead.city || lead.address || "—"}
+                <td className="py-3 px-3.5 text-zinc-300">
+                  <div className="text-[11px] text-zinc-300 font-normal leading-tight">
+                    {lead.city || lead.address || <span className="text-zinc-600 font-mono text-xs">—</span>}
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                     {lead.industry && (
-                      <span className="text-[11px] text-zinc-500">
+                      <span className="text-[11px] text-zinc-500 leading-tight">
                         {lead.industry}
                       </span>
                     )}
@@ -100,18 +104,18 @@ export function LeadsTable({
                     )}
                   </div>
                 </td>
-                <td className="py-2.5 px-3.5">
+                <td className="py-3 px-3.5 whitespace-nowrap">
                   <QualificationBadge
                     qualification={lead.qualification?.qualificationStatus}
                     score={lead.qualification?.totalScore}
                   />
                 </td>
-                <td className="py-2.5 px-3.5">
+                <td className="py-3 px-3.5">
                   <ServiceRecommendationBadge
                     recommendation={lead.serviceRecommendation}
                   />
                 </td>
-                <td className="py-2.5 px-3.5">
+                <td className="py-3 px-3.5">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <LeadStatusBadge status={lead.status} />
@@ -122,15 +126,15 @@ export function LeadsTable({
                     )}
                   </div>
                 </td>
-                <td className="py-2.5 px-3.5 text-zinc-400 font-mono text-[10px] uppercase tracking-wider">
+                <td className="py-3 px-3.5 text-zinc-400 font-mono text-[10px] uppercase tracking-wider whitespace-nowrap">
                   {lead.source.replace("_", " ")}
                 </td>
-                <td className="py-2.5 px-3.5 text-right">
-                  <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                <td className="py-3 px-4 text-right whitespace-nowrap">
+                  <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                     {onPrepareCall && (
                       <button
                         onClick={() => onPrepareCall(lead)}
-                        className="text-xs font-sans font-medium px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white text-zinc-300 hover:text-black border border-white/[0.10] hover:border-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                        className="h-7 px-2.5 rounded-md bg-white/[0.04] hover:bg-purple-500/15 text-zinc-300 hover:text-purple-300 border border-white/[0.08] hover:border-purple-500/30 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                         title="Prepare AI Voice Call"
                       >
                         <svg className="w-3 h-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,7 +145,7 @@ export function LeadsTable({
                     )}
                     <button
                       onClick={() => onSelectLead?.(lead)}
-                      className="text-xs font-sans font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                      className="h-7 px-2 text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <span>Inspect</span>
                       <span className="text-zinc-500">→</span>

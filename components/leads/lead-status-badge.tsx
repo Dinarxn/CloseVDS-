@@ -1,5 +1,4 @@
 import React from "react";
-import { Badge, BadgeProps } from "@/components/ui/badge";
 import {
   DataQuality,
   LeadActionability,
@@ -16,37 +15,38 @@ export interface LeadStatusBadgeProps {
 export function LeadStatusBadge({ status }: LeadStatusBadgeProps) {
   const statusLabels: Record<
     LeadStatus,
-    { label: string; variant: BadgeProps["variant"]; dot?: boolean }
+    { label: string; dotColor?: string; textColor: string; bgClass: string; dot: boolean }
   > = {
-    discovered: { label: "Discovered", variant: "secondary", dot: true },
-    analyzing: { label: "Auditing", variant: "warning", dot: true },
-    qualified: { label: "Qualified", variant: "success", dot: true },
-    disqualified: { label: "Disqualified", variant: "outline", dot: false },
-    outreach_ready: { label: "Call Ready", variant: "info", dot: true },
-    contacted: { label: "Contacted", variant: "info", dot: true },
-    in_followup: { label: "In Follow-up", variant: "warning", dot: true },
-    replied: { label: "Replied", variant: "success", dot: true },
-    meeting_booked: { label: "Meeting Booked", variant: "success", dot: true },
-    opted_out: { label: "Opted Out", variant: "danger", dot: false },
-    closed_won: { label: "Closed Won", variant: "success", dot: true },
-    closed_lost: { label: "Closed Lost", variant: "outline", dot: false },
+    discovered: { label: "Discovered", dotColor: "bg-zinc-400", textColor: "text-zinc-300", bgClass: "bg-white/[0.04] border-white/[0.07]", dot: true },
+    analyzing: { label: "Auditing", dotColor: "bg-amber-400", textColor: "text-amber-300", bgClass: "bg-amber-500/[0.08] border-amber-500/20", dot: true },
+    qualified: { label: "Qualified", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
+    disqualified: { label: "Disqualified", textColor: "text-zinc-500", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
+    outreach_ready: { label: "Call Ready", dotColor: "bg-sky-400", textColor: "text-sky-300", bgClass: "bg-sky-500/[0.08] border-sky-500/20", dot: true },
+    contacted: { label: "Contacted", dotColor: "bg-indigo-400", textColor: "text-indigo-300", bgClass: "bg-indigo-500/[0.08] border-indigo-500/20", dot: true },
+    in_followup: { label: "In Follow-up", dotColor: "bg-amber-400", textColor: "text-amber-300", bgClass: "bg-amber-500/[0.08] border-amber-500/20", dot: true },
+    replied: { label: "Replied", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
+    meeting_booked: { label: "Meeting Booked", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
+    opted_out: { label: "Opted Out", dotColor: "bg-rose-400", textColor: "text-rose-400", bgClass: "bg-rose-500/[0.08] border-rose-500/20", dot: false },
+    closed_won: { label: "Closed Won", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
+    closed_lost: { label: "Closed Lost", textColor: "text-zinc-500", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
   };
 
   const config = statusLabels[status] || {
     label: status,
-    variant: "default" as const,
+    textColor: "text-zinc-400",
+    bgClass: "bg-white/[0.04] border-white/[0.07]",
     dot: false,
   };
 
   return (
-    <Badge
-      size="sm"
-      variant={config.variant}
-      dot={config.dot}
-      className="font-mono text-[10px] tracking-wide"
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-mono tracking-tight font-medium ${config.bgClass} ${config.textColor}`}
     >
-      {config.label}
-    </Badge>
+      {config.dot && (
+        <span className={`w-1 h-1 rounded-full shrink-0 ${config.dotColor || "bg-current"}`} />
+      )}
+      <span>{config.label}</span>
+    </span>
   );
 }
 
@@ -61,47 +61,51 @@ export function QualificationBadge({ qualification, score }: QualificationBadgeP
     const isQualified = score >= 70;
     const isModerate = score >= 50;
 
-    const variant: BadgeProps["variant"] = isHigh || isQualified
-      ? "success"
+    const colorClasses = isHigh || isQualified
+      ? "text-emerald-300 bg-emerald-500/[0.08] border-emerald-500/20"
       : isModerate
-      ? "warning"
-      : "secondary";
+      ? "text-amber-300 bg-amber-500/[0.08] border-amber-500/20"
+      : "text-zinc-400 bg-white/[0.03] border-white/[0.06]";
+
+    const dotColor = isHigh || isQualified
+      ? "bg-emerald-400"
+      : isModerate
+      ? "bg-amber-400"
+      : "bg-zinc-500";
 
     return (
-      <Badge
-        size="sm"
-        variant={variant}
-        dot={isHigh}
-        className="font-mono text-[10px] tabular-nums"
+      <span
+        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-mono tabular-nums font-medium ${colorClasses}`}
       >
-        Score {score}/100
-      </Badge>
+        <span className={`w-1 h-1 rounded-full shrink-0 ${dotColor}`} />
+        <span>Score {score}/100</span>
+      </span>
     );
   }
 
   const qualLabels: Record<
     QualificationStatus,
-    { label: string; variant: BadgeProps["variant"]; dot?: boolean }
+    { label: string; textColor: string; bgClass: string; dot?: boolean; dotColor?: string }
   > = {
-    unqualified: { label: "Unqualified", variant: "secondary", dot: false },
-    needs_review: { label: "Needs Review", variant: "warning", dot: true },
-    qualified: { label: "Qualified", variant: "success", dot: true },
-    high_priority: { label: "High Priority", variant: "success", dot: true },
+    unqualified: { label: "Unqualified", textColor: "text-zinc-500", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
+    needs_review: { label: "Needs Review", textColor: "text-amber-300", bgClass: "bg-amber-500/[0.08] border-amber-500/20", dot: true, dotColor: "bg-amber-400" },
+    qualified: { label: "Qualified", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true, dotColor: "bg-emerald-400" },
+    high_priority: { label: "High Priority", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.12] border-emerald-500/25", dot: true, dotColor: "bg-emerald-400" },
   };
 
   const config = qualification
     ? qualLabels[qualification]
-    : { label: "Unscored", variant: "outline" as const, dot: false };
+    : { label: "Unscored", textColor: "text-zinc-400", bgClass: "bg-white/[0.03] border-white/[0.07]", dot: false };
 
   return (
-    <Badge
-      size="sm"
-      variant={config.variant}
-      dot={config.dot}
-      className="font-mono text-[10px] tracking-wide"
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-mono tracking-tight font-medium ${config.bgClass} ${config.textColor}`}
     >
-      {config.label}
-    </Badge>
+      {config.dot && (
+        <span className={`w-1 h-1 rounded-full shrink-0 ${config.dotColor || "bg-current"}`} />
+      )}
+      <span>{config.label}</span>
+    </span>
   );
 }
 
@@ -116,13 +120,9 @@ export function ServiceRecommendationBadge({
 }: ServiceRecommendationBadgeProps) {
   if (!recommendation) {
     return (
-      <Badge
-        size="sm"
-        variant="outline"
-        className="font-mono text-[9px] text-zinc-500 border-zinc-800/80 px-1.5 py-0"
-      >
+      <span className="inline-flex items-center px-1.5 py-0.2 rounded border text-[9px] font-mono text-zinc-500 bg-white/[0.02] border-white/[0.05]">
         Not evaluated
-      </Badge>
+      </span>
     );
   }
 
@@ -132,22 +132,24 @@ export function ServiceRecommendationBadge({
   return (
     <div className={`flex flex-col ${compact ? "gap-0.5" : "gap-1"}`}>
       <div className="flex items-center gap-1.5">
-        <Badge
-          size="sm"
-          variant={hasOpp ? "success" : "secondary"}
-          dot={hasOpp}
-          className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0"
-        >
-          {hasOpp ? "Opp: YES" : "Opp: NONE"}
-        </Badge>
+        {hasOpp ? (
+          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-emerald-500/[0.08] text-emerald-400 border border-emerald-500/20">
+            <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />
+            OPP: YES
+          </span>
+        ) : (
+          <span className="inline-flex items-center text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-white/[0.03] text-zinc-500 border border-white/[0.06]">
+            OPP: NONE
+          </span>
+        )}
       </div>
       <div
-        className={`text-[11px] leading-tight font-medium truncate max-w-[190px] ${
+        className={`leading-tight truncate max-w-[190px] ${
           isNoneService
-            ? "text-zinc-500 font-mono"
+            ? "text-zinc-500 font-mono text-[11px]"
             : hasOpp
-            ? "text-zinc-200"
-            : "text-zinc-400"
+            ? "text-zinc-200 font-medium text-xs"
+            : "text-zinc-400 text-xs font-normal"
         }`}
         title={recommendation.recommendedService}
       >
@@ -164,23 +166,23 @@ export interface DataQualityBadgeProps {
 export function DataQualityBadge({ quality }: DataQualityBadgeProps) {
   if (!quality) return null;
 
-  const variant: BadgeProps["variant"] =
-    quality === "COMPLETE" || quality === "GOOD"
-      ? "success"
-      : quality === "PARTIAL"
-      ? "warning"
-      : "secondary";
+  const isGood = quality === "COMPLETE" || quality === "GOOD";
+  const isPartial = quality === "PARTIAL";
 
   return (
-    <Badge
-      size="sm"
-      variant={variant}
-      dot
-      className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0"
+    <span
+      className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded border text-[9px] font-mono uppercase tracking-wider font-medium ${
+        isGood
+          ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
+          : isPartial
+          ? "bg-amber-500/[0.08] border-amber-500/20 text-amber-400"
+          : "bg-white/[0.03] border-white/[0.06] text-zinc-500"
+      }`}
       title={`Data Quality: ${quality}`}
     >
-      {quality}
-    </Badge>
+      <span className={`w-1 h-1 rounded-full shrink-0 ${isGood ? "bg-emerald-400" : isPartial ? "bg-amber-400" : "bg-zinc-500"}`} />
+      <span>{quality}</span>
+    </span>
   );
 }
 
@@ -191,16 +193,20 @@ export interface MapsMatchStatusBadgeProps {
 export function MapsMatchStatusBadge({ status }: MapsMatchStatusBadgeProps) {
   if (!status) return null;
 
+  const isTargeted = status === "TARGETED";
+
   return (
-    <Badge
-      size="sm"
-      variant={status === "TARGETED" ? "success" : "secondary"}
-      dot={status === "TARGETED"}
-      className="font-mono text-[9px] uppercase px-1.5 py-0"
+    <span
+      className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded border text-[9px] font-mono uppercase font-medium ${
+        isTargeted
+          ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
+          : "bg-white/[0.03] border-white/[0.06] text-zinc-500"
+      }`}
       title={`Maps Match Status: ${status}`}
     >
-      Maps: {status}
-    </Badge>
+      {isTargeted && <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />}
+      <span>Maps: {status}</span>
+    </span>
   );
 }
 
@@ -215,30 +221,31 @@ export function ActionabilityBadge({
 }: ActionabilityBadgeProps) {
   if (!actionability) return null;
 
-  const variant: BadgeProps["variant"] =
-    actionability.tier === "READY"
-      ? "success"
-      : actionability.tier === "ENRICHMENT_REQUIRED"
-      ? "warning"
-      : "secondary";
-
+  const isReady = actionability.tier === "READY";
+  const isEnrichment = actionability.tier === "ENRICHMENT_REQUIRED";
   const tierLabel = actionability.tier.replace(/_/g, " ");
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <Badge
-        size="sm"
-        variant={variant}
-        dot={actionability.isActionable}
-        className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0"
+      <span
+        className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded border text-[9px] font-mono uppercase tracking-wider font-medium ${
+          isReady
+            ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
+            : isEnrichment
+            ? "bg-amber-500/[0.08] border-amber-500/20 text-amber-400"
+            : "bg-white/[0.03] border-white/[0.06] text-zinc-500"
+        }`}
         title={
           actionability.reasons && actionability.reasons.length > 0
             ? actionability.reasons.join(" • ")
             : tierLabel
         }
       >
-        {tierLabel}
-      </Badge>
+        {actionability.isActionable && (
+          <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />
+        )}
+        <span>{tierLabel}</span>
+      </span>
 
       {!compact &&
         actionability.eligibleChannels &&
@@ -247,7 +254,7 @@ export function ActionabilityBadge({
             {actionability.eligibleChannels.map((channel) => (
               <span
                 key={channel}
-                className="text-[9px] font-mono px-1 py-0 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.06]"
+                className="text-[9px] font-mono px-1 py-0.2 rounded bg-white/[0.03] text-zinc-400 border border-white/[0.05]"
                 title={`Eligible channel: ${channel}`}
               >
                 {channel === "WEBSITE_AUDIT" ? "AUDIT" : channel}

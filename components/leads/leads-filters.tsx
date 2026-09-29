@@ -14,16 +14,16 @@ export interface LeadsFiltersProps {
 
 export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFiltersProps) {
   return (
-    <div className="relative p-3.5 sm:p-4 bg-[#09090f]/95 border border-white/[0.08] rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm space-y-3">
+    <div className="relative p-3.5 sm:p-4 bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm space-y-3">
       {/* Top specular hairline highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
 
-      <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+      <div className="flex items-center justify-between border-b border-white/[0.05] pb-2.5">
         <div>
           <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-medium block">
             Workspace Segmentation
           </span>
-          <h3 className="text-xs font-semibold text-white tracking-tight">
+          <h3 className="text-xs font-semibold text-zinc-100 tracking-tight">
             Lead Filter Criteria
           </h3>
         </div>
@@ -50,7 +50,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
           placeholder="e.g., London, Austin, CA"
           value={filters.location}
           onChange={(e) => onChange("location", e.target.value)}
-          className="h-8 text-xs"
+          className="h-9 text-xs"
         />
 
         <Select
@@ -66,7 +66,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "technology", label: "Technology & Software" },
             { value: "ecommerce", label: "E-Commerce & Retail" },
           ]}
-          className="h-8 text-xs py-1"
+          className="h-9 text-xs"
         />
 
         <Select
@@ -81,7 +81,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "51-200", label: "51-200 Employees" },
             { value: "201+", label: "201+ Employees" },
           ]}
-          className="h-8 text-xs py-1"
+          className="h-9 text-xs"
         />
 
         <Select
@@ -98,7 +98,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "replied", label: "Replied" },
             { value: "opted_out", label: "Opted Out" },
           ]}
-          className="h-8 text-xs py-1"
+          className="h-9 text-xs"
         />
       </div>
 
@@ -115,7 +115,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "directory", label: "B2B Directory" },
             { value: "inbound", label: "Inbound Capture" },
           ]}
-          className="h-8 text-xs py-1"
+          className="h-9 text-xs"
         />
 
         <Select
@@ -129,7 +129,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "70", label: "Score >= 70 (Qualified)" },
             { value: "85", label: "Score >= 85 (High Priority)" },
           ]}
-          className="h-8 text-xs py-1"
+          className="h-9 text-xs"
         />
 
         <Select
@@ -142,7 +142,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "ready", label: "Call Ready (Qualified)" },
             { value: "new", label: "Needs Research / Discovery" },
           ]}
-          className="h-8 text-xs py-1"
+          className="h-9 text-xs"
         />
       </div>
     </div>

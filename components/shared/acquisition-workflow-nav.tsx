@@ -81,23 +81,23 @@ export function AcquisitionWorkflowNav() {
                   href={step.href}
                   className={`group flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-150 shrink-0 cursor-pointer active:scale-95 ${
                     isActive
-                      ? "bg-gradient-to-r from-white/[0.12] to-white/[0.06] border border-white/[0.2] text-white font-semibold shadow-[0_2px_12px_rgba(0,0,0,0.4)] ring-1 ring-white/10"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.05] border border-transparent hover:border-white/[0.08]"
+                      ? "bg-white/[0.08] border border-white/[0.14] text-white font-medium shadow-xs"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent hover:border-white/[0.06]"
                   }`}
                   title={`${step.name}: ${step.description}`}
                 >
                   <span
                     className={`font-mono text-[9px] px-1.5 py-0.5 rounded transition-colors ${
                       isActive
-                        ? "bg-white/20 text-white font-bold"
-                        : "bg-white/[0.05] text-zinc-500 group-hover:text-zinc-300"
+                        ? "bg-white/[0.12] text-white font-medium"
+                        : "bg-white/[0.04] text-zinc-500 group-hover:text-zinc-400"
                     }`}
                   >
                     {step.stepNumber}
                   </span>
                   <span className="tracking-tight whitespace-nowrap">{step.name}</span>
                   {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)] shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
                   )}
                 </Link>
 

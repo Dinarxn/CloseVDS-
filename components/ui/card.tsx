@@ -2,19 +2,22 @@ import React from "react";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "standard" | "elevated" | "bordered" | "interactive";
+  specular?: boolean;
 }
 
 export function Card({
   variant = "standard",
+  specular = true,
   className = "",
   children,
   ...props
 }: CardProps) {
   const variantStyles = {
-    standard: "bg-[#121216] border border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)]",
-    elevated: "bg-[#16161c] border border-white/[0.12] shadow-[0_4px_20px_rgba(0,0,0,0.6)]",
+    standard: "bg-[#121218] border border-white/[0.07] shadow-[0_1px_3px_rgba(0,0,0,0.5)]",
+    elevated: "bg-[#171720] border border-white/[0.10] shadow-[0_4px_20px_rgba(0,0,0,0.6)]",
     bordered: "bg-transparent border border-white/[0.08]",
-    interactive: "bg-[#121216] border border-white/[0.08] hover:border-white/[0.18] hover:bg-[#16161c] transition-all duration-150 cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.5)]",
+    interactive:
+      "bg-[#121218] border border-white/[0.07] hover:border-white/[0.16] hover:bg-[#171720] transition-all duration-150 cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-[0.995]",
   };
 
   return (
@@ -22,11 +25,13 @@ export function Card({
       className={`rounded-xl p-5 text-white relative overflow-hidden transition-colors duration-150 ${variantStyles[variant]} ${className}`}
       {...props}
     >
-      {/* Subtle top-edge light reflection */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none"
-        aria-hidden="true"
-      />
+      {/* Consolidated specular top hairline reflection */}
+      {specular && variant !== "bordered" && (
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+      )}
       {children}
     </div>
   );

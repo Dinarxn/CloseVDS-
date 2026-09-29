@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { CloseIcon } from "./icons";
 
 export interface DialogProps {
   open: boolean;
@@ -96,14 +97,14 @@ export function Dialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      {/* Backdrop */}
+      {/* Backdrop: deep obsidian with medium blur */}
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity duration-150 animate-in fade-in-0"
         onClick={() => onOpenChange(false)}
         aria-hidden="true"
       />
 
-      {/* Dialog Panel */}
+      {/* Dialog Shell */}
       <div
         ref={dialogRef}
         role="dialog"
@@ -111,11 +112,17 @@ export function Dialog({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
-        className={`relative w-full max-w-lg bg-[#09090f] border border-white/[0.1] rounded-2xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-4 z-10 text-left ${className}`}
+        className={`relative w-full max-w-lg bg-[#0D0D12] border border-white/[0.10] rounded-xl sm:rounded-2xl p-6 shadow-[0_24px_64px_rgba(0,0,0,0.85)] space-y-4 z-10 text-left overflow-hidden transition-all duration-150 animate-in fade-in-0 zoom-in-95 ${className}`}
       >
+        {/* Specular hairline top reflection */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h3 id={titleId} className="text-base font-bold text-white tracking-tight">
+            <h3 id={titleId} className="text-base font-semibold text-white tracking-tight">
               {title}
             </h3>
             {description && (
@@ -127,13 +134,13 @@ export function Dialog({
           <button
             onClick={() => onOpenChange(false)}
             aria-label="Close dialog"
-            className="text-zinc-500 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white"
+            className="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 cursor-pointer shrink-0"
           >
-            ✕
+            <CloseIcon size={16} />
           </button>
         </div>
 
-        <div className="pt-2">{children}</div>
+        <div className="pt-1">{children}</div>
       </div>
     </div>
   );

@@ -30,9 +30,9 @@ export function LeadsToolbar({
   onFindLeads,
 }: LeadsToolbarProps) {
   return (
-    <div className="relative p-2.5 sm:p-3 bg-[#09090f]/95 border border-white/[0.08] rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+    <div className="relative p-2.5 sm:p-3 bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm">
       {/* Top specular hairline highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
         {/* Search Bar - Primary Workspace Control */}
@@ -42,9 +42,9 @@ export function LeadsToolbar({
             placeholder="Search leads by company, contact, or location..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full h-8.5 pl-8.5 pr-7 bg-[#07070c] text-white text-xs rounded-lg border border-white/[0.08] placeholder-zinc-500 focus:placeholder-zinc-400 focus:outline-none focus:border-white/[0.22] focus:ring-1 focus:ring-emerald-500/25 transition-all font-sans"
+            className="w-full h-9 pl-9 pr-7 bg-[#07070a] text-zinc-100 text-xs rounded-lg border border-white/[0.07] placeholder-zinc-500 focus:placeholder-zinc-400 focus:outline-none focus:border-white/[0.22] transition-colors font-sans"
           />
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-zinc-500">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
             <svg className="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2">
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
@@ -53,7 +53,7 @@ export function LeadsToolbar({
           {search && (
             <button
               onClick={() => onSearchChange("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-zinc-500 hover:text-white transition-colors"
+              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-zinc-500 hover:text-white transition-colors cursor-pointer"
               aria-label="Clear search"
             >
               ✕
@@ -66,10 +66,10 @@ export function LeadsToolbar({
           {/* Filter Toggle */}
           <button
             onClick={onToggleFilter}
-            className={`h-8.5 px-3 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`h-9 px-3 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
               isFilterOpen
                 ? "bg-white text-black border-white shadow-xs font-semibold"
-                : "bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border-white/[0.08]"
+                : "bg-[#07070a] hover:bg-white/[0.04] text-zinc-300 hover:text-white border-white/[0.07]"
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,7 +77,7 @@ export function LeadsToolbar({
             </svg>
             <span>Filters</span>
             {activeFilterCount > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono leading-none ${
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono leading-none ${
                 isFilterOpen ? "bg-black text-white" : "bg-white text-black font-semibold"
               }`}>
                 {activeFilterCount}
@@ -98,21 +98,21 @@ export function LeadsToolbar({
                 { value: "score_desc", label: "Score: Highest" },
                 { value: "score_asc", label: "Score: Lowest" },
               ]}
-              className="h-8.5 text-xs py-0.5 bg-[#07070c] border-white/[0.08]"
+              className="h-9 text-xs bg-[#07070a] border-white/[0.07]"
             />
           </div>
 
           {/* Subtle separator */}
-          <div className="hidden sm:block h-4 w-[1px] bg-white/[0.08] mx-0.5" />
+          <div className="hidden sm:block h-4 w-[1px] bg-white/[0.06] mx-0.5" />
 
           {/* View Mode Toggle */}
-          <div className="flex items-center border border-white/[0.08] rounded-lg overflow-hidden bg-[#07070c] p-0.5 h-8.5">
+          <div className="flex items-center border border-white/[0.07] rounded-lg overflow-hidden bg-[#07070a] p-0.5 h-9">
             <button
               onClick={() => onViewModeChange("table")}
-              className={`p-1 px-1.5 rounded-md text-xs transition-all ${
+              className={`p-1 px-1.5 rounded-md text-xs transition-colors cursor-pointer ${
                 viewMode === "table"
-                  ? "bg-white text-black font-semibold shadow-xs"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white/[0.12] text-white font-medium shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
               aria-label="Table view"
               title="Table view"
@@ -123,10 +123,10 @@ export function LeadsToolbar({
             </button>
             <button
               onClick={() => onViewModeChange("cards")}
-              className={`p-1 px-1.5 rounded-md text-xs transition-all ${
+              className={`p-1 px-1.5 rounded-md text-xs transition-colors cursor-pointer ${
                 viewMode === "cards"
-                  ? "bg-white text-black font-semibold shadow-xs"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white/[0.12] text-white font-medium shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
               aria-label="Cards view"
               title="Cards view"
@@ -138,12 +138,12 @@ export function LeadsToolbar({
           </div>
 
           {/* Subtle separator */}
-          <div className="hidden sm:block h-4 w-[1px] bg-white/[0.08] mx-0.5" />
+          <div className="hidden sm:block h-4 w-[1px] bg-white/[0.06] mx-0.5" />
 
           {/* Primary Find Leads CTA */}
           <button
             onClick={onFindLeads}
-            className="h-8.5 px-3.5 rounded-lg bg-white hover:bg-zinc-200 text-black text-xs font-semibold font-sans tracking-tight transition-all flex items-center gap-1.5 shadow-xs active:scale-[0.98] cursor-pointer shrink-0"
+            className="h-9 px-3.5 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold font-sans tracking-tight transition-all flex items-center gap-1.5 shadow-xs active:scale-[0.98] cursor-pointer shrink-0"
           >
             <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />

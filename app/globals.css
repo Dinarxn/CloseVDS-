@@ -6,19 +6,19 @@
 
   /* Obsidian Precision Layered Surfaces */
   --surface-canvas: #09090b;
-  --surface-panel: #0d0d11;
-  --surface-card: #131318;
-  --surface-card-hover: #181820;
-  --surface-elevated: #1f1f28;
+  --surface-panel: #0d0d12;
+  --surface-card: #121218;
+  --surface-card-hover: #171720;
+  --surface-elevated: #171720;
 
   /* 1px Precision Borders */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-medium: rgba(255, 255, 255, 0.12);
-  --border-highlight: rgba(255, 255, 255, 0.20);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.10);
+  --border-highlight: rgba(255, 255, 255, 0.16);
 
   /* Approved Phase 0 Neutral Scale */
   --neutral-950: #09090b;
-  --neutral-900: #131318;
+  --neutral-900: #121218;
   --neutral-800: #27272a;
   --neutral-700: #3f3f46;
   --neutral-600: #52525b;
@@ -41,6 +41,22 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Consolidated Specular Top Hairline Utility */
+.specular-border-t {
+  position: relative;
+}
+
+.specular-border-t::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.10) 50%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
 /* Subtle Ambient Glow Utilities */
 .glow-card {
   position: relative;
@@ -55,7 +71,7 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.10) 50%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
 }
 
