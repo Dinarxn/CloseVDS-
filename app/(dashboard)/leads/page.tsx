@@ -8,6 +8,7 @@ import { LeadsFilters } from "@/components/leads/leads-filters";
 import { LeadsTable } from "@/components/leads/leads-table";
 import { LeadsCardGrid } from "@/components/leads/leads-card-grid";
 import { LeadDiscoveryModal } from "@/components/leads/lead-discovery-modal";
+import { LeadImportModal } from "@/components/leads/lead-import-modal";
 import { LeadDetailModal } from "@/components/leads/lead-detail-modal";
 import { PermissionGateBanner } from "@/components/shared/permission-gate-banner";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -49,6 +50,7 @@ export default function LeadsPage() {
 
   const filterDisclosure = useDisclosure({ defaultIsOpen: false });
   const discoveryModal = useDisclosure({ defaultIsOpen: false });
+  const importModal = useDisclosure({ defaultIsOpen: false });
 
   // Debounce search input to avoid unnecessary requests while typing
   useEffect(() => {
@@ -217,6 +219,7 @@ export default function LeadsPage() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onFindLeads={discoveryModal.onOpen}
+        onImportLeads={importModal.onOpen}
       />
 
       {/* Collapsible Filter Panel */}
@@ -240,6 +243,7 @@ export default function LeadsPage() {
         <LeadsTable
           leads={sortedLeads}
           onFindLeads={discoveryModal.onOpen}
+          onImportLeads={importModal.onOpen}
           isFiltered={isFiltered}
           onClearFilters={handleResetFilters}
           onSelectLead={(lead) => setSelectedLeadId(lead.id)}
@@ -249,6 +253,7 @@ export default function LeadsPage() {
         <LeadsCardGrid
           leads={sortedLeads}
           onFindLeads={discoveryModal.onOpen}
+          onImportLeads={importModal.onOpen}
           isFiltered={isFiltered}
           onClearFilters={handleResetFilters}
           onSelectLead={(lead) => setSelectedLeadId(lead.id)}
@@ -304,6 +309,14 @@ export default function LeadsPage() {
           discoveryModal.onClose();
           fetchLeads();
         }}
+      />
+
+      {/* Lead Import Modal (V2 Import-First Foundation) */}
+      <LeadImportModal
+        isOpen={importModal.isOpen}
+        onClose={importModal.onClose}
+        onSuccess={fetchLeads}
+        existingLeads={leads}
       />
 
       {/* Lead Detail & AI Analysis Dossier Modal */}

@@ -2,11 +2,12 @@ import React from "react";
 
 export interface LeadsEmptyStateProps {
   onFindLeads?: () => void;
+  onImportLeads?: () => void;
   isFiltered?: boolean;
   onClearFilters?: () => void;
 }
 
-export function LeadsEmptyState({ onFindLeads, isFiltered, onClearFilters }: LeadsEmptyStateProps) {
+export function LeadsEmptyState({ onFindLeads, onImportLeads, isFiltered, onClearFilters }: LeadsEmptyStateProps) {
   if (isFiltered) {
     return (
       <div className="relative p-7 sm:p-8 text-center bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm space-y-2.5">
@@ -45,26 +46,38 @@ export function LeadsEmptyState({ onFindLeads, isFiltered, onClearFilters }: Lea
 
         <div className="w-9 h-9 mx-auto rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-zinc-400">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
         </div>
 
         <p className="text-sm sm:text-base font-semibold text-zinc-100 tracking-tight">No leads yet</p>
         <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
-          Your acquisition workspace is ready. Discover your first prospects to begin research and qualification.
+          Your lead workspace is ready. Import your prospect list (.csv) or discover leads to begin qualification and outreach.
         </p>
 
-        {onFindLeads && (
-          <div className="pt-1.5">
+        <div className="pt-2 flex items-center justify-center gap-2 flex-wrap">
+          {onImportLeads && (
             <button
-              onClick={onFindLeads}
+              onClick={onImportLeads}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold font-sans tracking-tight shadow-xs transition-all active:scale-[0.98] cursor-pointer"
             >
-              <span>Find Leads</span>
+              <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span>Import Leads</span>
               <span className="text-xs">→</span>
             </button>
-          </div>
-        )}
+          )}
+
+          {onFindLeads && (
+            <button
+              onClick={onFindLeads}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border border-white/[0.08] text-xs font-medium font-sans tracking-tight transition-all cursor-pointer shadow-xs"
+            >
+              <span>Find Leads</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Acquisition OS Lifecycle System Footer (Quiet Surface) */}

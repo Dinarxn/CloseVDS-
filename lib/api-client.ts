@@ -144,7 +144,12 @@ import type {
   N8nIntegrationKey,
   N8nWebhookDelivery,
 } from '@/types/calling';
-import type { LeadAiWorkflowResult } from '@/types/leads';
+import type {
+  LeadAiWorkflowResult,
+  CreateLeadInput,
+  ImportLeadCandidateInput,
+  ImportLeadsResponse,
+} from '@/types/leads';
 import type { BackendLead } from '@/lib/mappers';
 import type { OperationsSummary, OperationTask, QueueItem } from '@/types/operations';
 
@@ -375,6 +380,86 @@ export const api = {
       }>(`/leads/${id}/reject`, {
         method: 'POST',
         body: JSON.stringify({ reason }),
+      }),
+
+    create: (body: CreateLeadInput) =>
+      apiRequest<{
+        success: boolean;
+        lead: BackendLead;
+        serviceRecommendation?: unknown;
+      }>('/leads', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    importBatch: (body: { leads: ImportLeadCandidateInput[] }) =>
+      apiRequest<ImportLeadsResponse>('/lead-discovery/import-closebds', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+  },
+
+  campaigns: {
+    list: (params?: { search?: string; status?: string; page?: number; limit?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.set('search', params.search);
+      if (params?.status) searchParams.set('status', params.status);
+      if (params?.page) searchParams.set('page', String(params.page));
+      if (params?.limit) searchParams.set('limit', String(params.limit));
+      const qs = searchParams.toString();
+      return apiRequest<{
+        success: boolean;
+        data: Array<{
+          id: string;
+          name: string;
+          niche?: string;
+          location?: string;
+          targetOffer?: string;
+          dailyCap?: number;
+          status?: string;
+          _count?: { leads: number };
+        }>;
+        total?: number;
+        page?: number;
+        limit?: number;
+        totalPages?: number;
+      }>(qs ? `/campaigns?${qs}` : '/campaigns');
+    },
+
+    get: (id: string) =>
+      apiRequest<{
+        success: boolean;
+        campaign: {
+          id: string;
+          name: string;
+          niche?: string;
+          location?: string;
+          targetOffer?: string;
+          dailyCap?: number;
+          status?: string;
+        };
+      }>(`/campaigns/${id}`),
+
+    create: (body: {
+      name: string;
+      niche: string;
+      location: string;
+      targetOffer: string;
+      dailyCap?: number;
+    }) =>
+      apiRequest<{
+        success: boolean;
+        campaign: {
+          id: string;
+          name: string;
+          niche: string;
+          location: string;
+          targetOffer: string;
+          dailyCap?: number;
+        };
+      }>('/campaigns', {
+        method: 'POST',
+        body: JSON.stringify(body),
       }),
   },
 

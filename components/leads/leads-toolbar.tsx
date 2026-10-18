@@ -15,6 +15,7 @@ export interface LeadsToolbarProps {
   viewMode: LeadViewMode;
   onViewModeChange: (val: LeadViewMode) => void;
   onFindLeads: () => void;
+  onImportLeads?: () => void;
 }
 
 export function LeadsToolbar({
@@ -28,6 +29,7 @@ export function LeadsToolbar({
   viewMode,
   onViewModeChange,
   onFindLeads,
+  onImportLeads,
 }: LeadsToolbarProps) {
   return (
     <div className="relative p-2.5 sm:p-3 bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm">
@@ -140,16 +142,29 @@ export function LeadsToolbar({
           {/* Subtle separator */}
           <div className="hidden sm:block h-4 w-[1px] bg-white/[0.06] mx-0.5" />
 
-          {/* Primary Find Leads CTA */}
+          {/* Action CTAs */}
+          {onImportLeads && (
+            <button
+              onClick={onImportLeads}
+              className="h-9 px-3.5 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold font-sans tracking-tight transition-all flex items-center gap-1.5 shadow-xs active:scale-[0.98] cursor-pointer shrink-0"
+            >
+              <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span>Import Leads</span>
+              <span className="text-xs">→</span>
+            </button>
+          )}
+
           <button
             onClick={onFindLeads}
-            className="h-9 px-3.5 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold font-sans tracking-tight transition-all flex items-center gap-1.5 shadow-xs active:scale-[0.98] cursor-pointer shrink-0"
+            className="h-9 px-3 rounded-lg bg-[#07070a] hover:bg-white/[0.04] text-zinc-300 hover:text-white border border-white/[0.07] text-xs font-medium font-sans tracking-tight transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+            title="Automated lead discovery"
           >
-            <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
             <span>Find Leads</span>
-            <span className="text-xs">→</span>
           </button>
         </div>
       </div>

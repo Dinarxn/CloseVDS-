@@ -15,6 +15,7 @@ import { LeadsEmptyState } from "./leads-empty-state";
 export interface LeadsTableProps {
   leads: Lead[];
   onFindLeads?: () => void;
+  onImportLeads?: () => void;
   isFiltered?: boolean;
   onClearFilters?: () => void;
   onSelectLead?: (lead: Lead) => void;
@@ -24,6 +25,7 @@ export interface LeadsTableProps {
 export function LeadsTable({
   leads,
   onFindLeads,
+  onImportLeads,
   isFiltered,
   onClearFilters,
   onSelectLead,
@@ -33,6 +35,7 @@ export function LeadsTable({
     return (
       <LeadsEmptyState
         onFindLeads={onFindLeads}
+        onImportLeads={onImportLeads}
         isFiltered={isFiltered}
         onClearFilters={onClearFilters}
       />

@@ -188,3 +188,52 @@ export interface LeadAiWorkflowResult {
   qualityCheck?: LeadAiQualityCheck;
   approval?: LeadAiApproval;
 }
+
+export interface ImportLeadContactInput {
+  fullName: string;
+  email: string;
+  title?: string | null;
+  phone?: string | null;
+  isPrimary?: boolean;
+}
+
+export interface ImportLeadCandidateInput {
+  externalId: string;
+  businessName: string;
+  domain?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  contact?: ImportLeadContactInput | null;
+  metadata?: Record<string, unknown> | null;
+}
+
+export interface ImportLeadsResponse {
+  success: boolean;
+  importedCount: number;
+  updatedCount: number;
+  skippedDuplicateCount: number;
+  leads: Array<{
+    id: string;
+    externalId: string;
+    businessName: string;
+    status: string;
+  }>;
+}
+
+export interface CreateContactInput {
+  fullName: string;
+  email: string;
+  title?: string;
+  phone?: string;
+  isPrimary?: boolean;
+}
+
+export interface CreateLeadInput {
+  campaignId: string;
+  businessName: string;
+  domain?: string;
+  phone?: string;
+  address?: string;
+  status?: LeadStatus | string;
+  contacts?: CreateContactInput[];
+}

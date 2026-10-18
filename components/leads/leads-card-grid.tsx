@@ -15,6 +15,7 @@ import { LeadsEmptyState } from "./leads-empty-state";
 export interface LeadsCardGridProps {
   leads: Lead[];
   onFindLeads?: () => void;
+  onImportLeads?: () => void;
   isFiltered?: boolean;
   onClearFilters?: () => void;
   onSelectLead?: (lead: Lead) => void;
@@ -23,6 +24,7 @@ export interface LeadsCardGridProps {
 export function LeadsCardGrid({
   leads,
   onFindLeads,
+  onImportLeads,
   isFiltered,
   onClearFilters,
   onSelectLead,
@@ -31,6 +33,7 @@ export function LeadsCardGrid({
     return (
       <LeadsEmptyState
         onFindLeads={onFindLeads}
+        onImportLeads={onImportLeads}
         isFiltered={isFiltered}
         onClearFilters={onClearFilters}
       />
