@@ -33,24 +33,24 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
-              Discovery Source &amp; Lead Pool
+              Lead Intake &amp; Workspace
             </span>
             <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
-              closeBDS Engine
+              Import-first workflow
             </span>
           </div>
           <h3 className="text-lg font-bold tracking-tight text-white">
-            closeBDS Discovery Status &amp; Lead Pool Preview
+            Lead Intake &amp; Recent Imports
           </h3>
           <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
-            closeBDS discovers business prospects. closeVDS researches, qualifies, and prepares them for AI calling.
+            Bring your own lead list. Import CSV data or add leads manually; CloseVDS organizes, qualifies, and prepares your contacts for outreach.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
           <Link href="/settings">
             <button className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer">
-              Connection Settings
+              Import Guide
             </button>
           </Link>
           <Link href="/leads">
@@ -66,29 +66,29 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-3.5 bg-[#0c0c14]/80 border border-white/[0.06] rounded-xl space-y-1">
           <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold">
-            closeBDS Status
+            Lead Intake
           </span>
           <p className="text-xs font-semibold text-zinc-200 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]" />
-            Connected &amp; Standby
+            Ready for your list
           </p>
         </div>
 
         <div className="p-3.5 bg-[#0c0c14]/80 border border-white/[0.06] rounded-xl space-y-1">
           <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold">
-            Sync Pipeline
+            Import Workflow
           </span>
           <p className="text-xs font-semibold text-zinc-200 truncate">
-            Direct Ingestion to Lead Pool
+            CSV / Excel / Manual
           </p>
         </div>
 
         <div className="p-3.5 bg-[#0c0c14]/80 border border-white/[0.06] rounded-xl space-y-1">
           <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold">
-            Ingested Prospects
+            Current Lead Preview
           </span>
           <p className="text-xs font-semibold font-mono text-white tabular-nums">
-            {isLoading ? "..." : `${recentLeads.length} Synced Records`}
+            {isLoading ? "..." : `${recentLeads.length} Loaded Records`}
           </p>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
       <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-[#07070c]">
         <div className="px-4 py-3 bg-[#0c0c14]/90 border-b border-white/[0.07] flex items-center justify-between">
           <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
-            Recent Prospects in Lead Pool
+            Recent Leads
           </span>
           <Link
             href="/leads"
@@ -141,7 +141,7 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
                         No prospects in your Lead Pool
                       </p>
                       <p className="text-xs text-zinc-400 leading-relaxed">
-                        Connect closeBDS or import your first target accounts to begin acquisition.
+                        Import a CSV/Excel list or add your first lead manually to begin acquisition.
                       </p>
                       <div className="pt-2">
                         <Link
