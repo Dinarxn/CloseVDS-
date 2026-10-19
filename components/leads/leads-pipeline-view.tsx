@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Lead, LeadStatus } from "@/types/leads";
 import { LeadStatusSelect } from "./lead-status-select";
 import { QualificationBadge } from "./lead-status-badge";
@@ -98,6 +98,15 @@ export function LeadsPipelineView({
 }: LeadsPipelineViewProps) {
   const [advancingLeadId, setAdvancingLeadId] = useState<string | null>(null);
   const [stageError, setStageError] = useState<{ leadId: string; message: string } | null>(null);
+
+  // Auto-dismiss stage error after 8 seconds
+  useEffect(() => {
+    if (!stageError) return;
+    const timer = setTimeout(() => {
+      setStageError(null);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [stageError]);
 
   const handleQuickAdvance = async (e: React.MouseEvent, lead: Lead, targetStatus: LeadStatus) => {
     e.stopPropagation();

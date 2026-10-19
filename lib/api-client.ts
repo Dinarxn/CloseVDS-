@@ -14,12 +14,91 @@ export class ApiClientError extends Error {
   public readonly requestId?: string;
 
   constructor(statusCode: number, errorData?: ApiErrorResponse['error']) {
-    super(errorData?.message || `HTTP Error ${statusCode}`);
+    let resolvedMessage = errorData?.message;
+
+    // Structured formatting for Zod validation errors
+    if (
+      (!resolvedMessage || resolvedMessage === 'Invalid request payload or parameters' || resolvedMessage === 'Validation Failed') &&
+      Array.isArray(errorData?.details) &&
+      errorData.details.length > 0
+    ) {
+      const issueSummary = (errorData.details as Array<{ path?: string; message?: string }>)
+        .map((iss) => (iss.path ? `${iss.path}: ${iss.message}` : iss.message))
+        .filter(Boolean)
+        .join(', ');
+      if (issueSummary) {
+        resolvedMessage = `Validation failed: ${issueSummary}`;
+      }
+    }
+
+    // Meaningful status-code fallback messaging
+    if (!resolvedMessage) {
+      switch (statusCode) {
+        case 400:
+          resolvedMessage = 'Bad Request: The submission could not be processed.';
+          break;
+        case 401:
+          resolvedMessage = 'Session expired or authentication invalid. Please log in again.';
+          break;
+        case 403:
+          resolvedMessage = errorData?.code === 'PERMISSION_GATE_REQUIRED'
+            ? 'Human operator approval is required before this action can execute.'
+            : 'Access denied: You do not have permission for this workspace action.';
+          break;
+        case 404:
+          resolvedMessage = 'The requested lead or resource was not found.';
+          break;
+        case 408:
+          resolvedMessage = 'Request timed out. Please check your network connection and try again.';
+          break;
+        case 409:
+          resolvedMessage = 'Resource conflict: A record with these details already exists.';
+          break;
+        case 422:
+          resolvedMessage = 'Unprocessable entity: The submitted payload contains invalid data.';
+          break;
+        case 429:
+          resolvedMessage = 'Too many requests. Please slow down and try again shortly.';
+          break;
+        case 503:
+          resolvedMessage = errorData?.code === 'DATABASE_UNAVAILABLE'
+            ? 'Cannot reach database server. PostgreSQL connection offline.'
+            : errorData?.code === 'KILL_SWITCH_ACTIVE'
+            ? 'Global outreach kill switch is currently active.'
+            : 'Service temporarily unavailable. Please try again in a moment.';
+          break;
+        default:
+          resolvedMessage = statusCode >= 500
+            ? 'An unexpected backend error occurred. Please try again later.'
+            : `HTTP Error ${statusCode}`;
+      }
+    }
+
+    super(resolvedMessage);
     this.name = 'ApiClientError';
     this.statusCode = statusCode;
-    this.code = errorData?.code || 'UNKNOWN_ERROR';
+    this.code = errorData?.code || (statusCode >= 500 ? 'INTERNAL_SERVER_ERROR' : 'HTTP_ERROR');
     this.details = errorData?.details;
     this.requestId = errorData?.requestId;
+  }
+}
+
+/**
+ * Sanitizes URLs before diagnostic logging to ensure authentication tokens,
+ * passwords, or sensitive query parameters are never leaked.
+ */
+export function sanitizeUrlForDiagnostics(rawUrl: string): string {
+  try {
+    const parsed = new URL(rawUrl, 'http://localhost');
+    const sensitiveKeys = ['token', 'secret', 'key', 'password', 'authorization', 'api_key', 'apikey'];
+    for (const key of sensitiveKeys) {
+      if (parsed.searchParams.has(key)) {
+        parsed.searchParams.set(key, 'REDACTED');
+      }
+    }
+    return parsed.pathname + (parsed.search ? parsed.search : '');
+  } catch {
+    return rawUrl.split('?')[0] || rawUrl;
   }
 }
 
@@ -44,9 +123,13 @@ export function getApiBaseUrl(): string {
   return envUrl.replace(/\/$/, '');
 }
 
+export interface ApiRequestOptions extends RequestInit {
+  timeoutMs?: number;
+}
+
 export async function apiRequest<T = unknown>(
   endpoint: string,
-  options: RequestInit = {}
+  options: ApiRequestOptions = {}
 ): Promise<T> {
   const baseUrl = getApiBaseUrl();
   const url = endpoint.startsWith('http')
@@ -66,8 +149,23 @@ export async function apiRequest<T = unknown>(
     }
   }
 
+  // Timeout management with cross-compatible AbortController
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let internalController: AbortController | undefined;
+  let signal = options.signal;
+
+  if (!signal) {
+    internalController = new AbortController();
+    signal = internalController.signal;
+    const timeoutMs = options.timeoutMs ?? 30000;
+    timeoutId = setTimeout(() => {
+      internalController?.abort();
+    }, timeoutMs);
+  }
+
   const config: RequestInit = {
     ...options,
+    signal,
     headers,
     credentials: 'include', // Ensure session cookies are sent/received
   };
@@ -82,22 +180,35 @@ export async function apiRequest<T = unknown>(
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      // Handle authentication expiry: clear token and notify auth context for non-auth endpoints
+      if (response.status === 401 && typeof window !== 'undefined') {
+        const isAuthEndpoint = endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
+        if (!isAuthEndpoint) {
+          try {
+            localStorage.removeItem('closevds_token');
+          } catch {
+            // Non-blocking storage removal
+          }
+          window.dispatchEvent(new CustomEvent('closevds:session_expired'));
+        }
+      }
+
       const errorPayload = data?.error;
       const message =
         typeof errorPayload === 'object' && errorPayload?.message
           ? errorPayload.message
           : typeof errorPayload === 'string'
           ? errorPayload
-          : data?.message || `HTTP ${response.status}: ${response.statusText || 'Request failed'}`;
+          : data?.message;
 
       const code =
         typeof errorPayload === 'object' && errorPayload?.code
           ? errorPayload.code
-          : 'HTTP_ERROR';
+          : undefined;
 
       throw new ApiClientError(response.status, {
-        code,
-        message,
+        code: code || 'HTTP_ERROR',
+        message: message || '',
         details: typeof errorPayload === 'object' ? errorPayload?.details : undefined,
         requestId: typeof errorPayload === 'object' ? errorPayload?.requestId : undefined,
       });
@@ -108,22 +219,37 @@ export async function apiRequest<T = unknown>(
     if (error instanceof ApiClientError) {
       throw error;
     }
-    // Network or parse error with helpful diagnostics
+
+    // Handle network timeout aborts
+    const isAbort = error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError');
+    if (isAbort && internalController?.signal.aborted) {
+      throw new ApiClientError(408, {
+        code: 'REQUEST_TIMEOUT',
+        message: 'The request timed out after 30 seconds. Please check your network connection and try again.',
+      });
+    }
+
+    // Network or parse error with helpful diagnostics without exposing sensitive parameters
     const rawMsg = error instanceof Error ? error.message : 'Network request failed';
     const isFetchFail = rawMsg.toLowerCase().includes('failed to fetch') || rawMsg.toLowerCase().includes('networkerror');
+    const sanitizedPath = sanitizeUrlForDiagnostics(url);
 
     if (process.env.NODE_ENV === 'development' && isFetchFail && typeof window !== 'undefined') {
       console.warn(
-        `[closeVDS API Client] Connection failed to ${url}. Verify that the backend API server is running on port 4000.`
+        `[closeVDS API Client] Connection failed to ${sanitizedPath}. Verify that the backend API server is running on port 4000.`
       );
     }
 
     throw new ApiClientError(0, {
       code: 'NETWORK_ERROR',
       message: isFetchFail
-        ? `Unable to connect to the closeVDS backend API at ${url}. Please verify the backend server is running.`
+        ? `Unable to connect to the closeVDS backend API at ${sanitizedPath}. Please verify the backend server is running.`
         : rawMsg,
     });
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
   }
 }
 

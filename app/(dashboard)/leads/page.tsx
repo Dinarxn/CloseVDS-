@@ -208,11 +208,20 @@ export default function LeadsPage() {
       <PermissionGateBanner currentStage="research" />
 
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-rose-950/25 border border-rose-500/30 text-rose-300 text-xs flex items-start space-x-2.5 backdrop-blur-sm">
-          <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <span className="leading-relaxed font-mono">{errorMsg}</span>
+        <div className="p-3 rounded-xl bg-rose-950/25 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-2.5 backdrop-blur-sm">
+          <div className="flex items-start space-x-2.5">
+            <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="leading-relaxed font-mono">{errorMsg}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchLeads}
+            className="px-2.5 py-1 rounded-md bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/30 transition-colors shrink-0 text-xs font-sans cursor-pointer"
+          >
+            Retry
+          </button>
         </div>
       )}
 

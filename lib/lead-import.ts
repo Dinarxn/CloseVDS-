@@ -755,6 +755,7 @@ export interface ImportBatchChunkResult {
   skippedDuplicateCount: number;
   failedCount: number;
   error?: string;
+  failedCandidates?: ImportLeadCandidateInput[];
 }
 
 export interface ImportExecutionResult {
@@ -766,6 +767,7 @@ export interface ImportExecutionResult {
   failedCount: number;
   chunkResults: ImportBatchChunkResult[];
   errors: string[];
+  failedCandidates: ImportLeadCandidateInput[];
 }
 
 /**
@@ -839,9 +841,14 @@ export async function executeLeadImport(
         skippedDuplicateCount: 0,
         failedCount: chunk.length,
         error: msg,
+        failedCandidates: chunk,
       });
     }
   }
+
+  const failedCandidates = chunkResults
+    .filter((cr) => !cr.success && Array.isArray(cr.failedCandidates))
+    .flatMap((cr) => cr.failedCandidates!);
 
   const success = failedCount === 0 && (importedCount > 0 || updatedCount > 0 || skippedDuplicateCount > 0);
 
@@ -854,6 +861,7 @@ export async function executeLeadImport(
     failedCount,
     chunkResults,
     errors,
+    failedCandidates,
   };
 }
 

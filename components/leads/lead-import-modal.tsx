@@ -285,6 +285,53 @@ export function LeadImportModal({
     }
   };
 
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  const handleRetryFailed = async () => {
+    if (!importResult || importResult.failedCandidates.length === 0 || isRetrying) return;
+
+    setIsRetrying(true);
+    setErrorMessage(null);
+    setProgressText(`Retrying ${importResult.failedCandidates.length} failed leads...`);
+    setProgressPercent(10);
+    setStep("importing");
+
+    try {
+      const retryResult = await executeLeadImport(
+        importResult.failedCandidates,
+        (completed, total) => {
+          const pct = Math.round((completed / total) * 100);
+          setProgressPercent(pct);
+          setProgressText(`Retrying: processed ${completed} of ${total} leads...`);
+        }
+      );
+
+      // Merge results cumulatively without duplicating earlier successes
+      setImportResult((prev) => {
+        if (!prev) return retryResult;
+        return {
+          success: retryResult.failedCount === 0,
+          totalRequested: prev.totalRequested,
+          importedCount: prev.importedCount + retryResult.importedCount,
+          updatedCount: prev.updatedCount + retryResult.updatedCount,
+          skippedDuplicateCount: prev.skippedDuplicateCount + retryResult.skippedDuplicateCount,
+          failedCount: retryResult.failedCount,
+          chunkResults: [...prev.chunkResults, ...retryResult.chunkResults],
+          errors: retryResult.errors,
+          failedCandidates: retryResult.failedCandidates,
+        };
+      });
+      setStep("result");
+    } catch (err: unknown) {
+      setErrorMessage(
+        err instanceof Error ? err.message : "Unexpected error during retry."
+      );
+      setStep("result");
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -855,17 +902,41 @@ export function LeadImportModal({
               </button>
             )}
 
-            {step === "result" && (
-              <button
-                type="button"
-                onClick={() => {
-                  onSuccess();
-                  onClose();
-                }}
-                className="h-8.5 px-4 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer"
-              >
-                Done &amp; View Leads →
-              </button>
+            {step === "result" && importResult && (
+              <>
+                {importResult.failedCandidates.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleRetryFailed}
+                    disabled={isRetrying}
+                    className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    <span>Retry Failed ({importResult.failedCandidates.length})</span>
+                  </button>
+                )}
+
+                {importResult.importedCount > 0 || importResult.updatedCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSuccess();
+                      onClose();
+                    }}
+                    className="h-8.5 px-4 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    Done &amp; View Leads ({importResult.importedCount + importResult.updatedCount}) →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="h-8.5 px-4 rounded-lg bg-white/[0.08] hover:bg-white/[0.12] text-white text-xs font-medium border border-white/[0.1] transition-colors cursor-pointer"
+                  >
+                    Close
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>

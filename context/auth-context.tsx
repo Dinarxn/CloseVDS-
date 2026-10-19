@@ -109,6 +109,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshSession();
   }, [refreshSession]);
 
+  // Handle proactive session expiration emitted by api-client upon receiving HTTP 401
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleExpired = () => {
+      setUser(null);
+      setWorkspace(null);
+    };
+    window.addEventListener("closevds:session_expired", handleExpired);
+    return () => {
+      window.removeEventListener("closevds:session_expired", handleExpired);
+    };
+  }, []);
+
   const login = async (email: string, password: string) => {
     const response = await api.post<{
       success?: boolean;
