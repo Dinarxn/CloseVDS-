@@ -140,16 +140,24 @@ export function OutreachComposer({
       return;
     }
 
+    // Strict backend schema requires campaignId (UUID) and contactId (UUID)
+    if (!lead.campaignId || !lead.contactId) {
+      setErrorMessage(
+        "Queueing a server-managed draft requires assigning this lead to an active Campaign with a verified Contact. For standalone leads, use 'Open Email App' or 'Open WhatsApp Web' with manual CRM logging below."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
       await api.outreach.create({
-        leadId: lead.id,
+        campaignId: lead.campaignId,
+        contactId: lead.contactId,
+        channel: activeChannel === "whatsapp" ? "WHATSAPP" : activeChannel === "phone" ? "CALL" : "EMAIL",
         subject: subject.trim() || `Outreach to ${lead.companyName}`,
         bodyText: body.trim(),
-        toEmail: lead.email,
-        fromName: "closeVDS Operator",
       });
 
       setSuccessMessage("Draft created and placed in the Permission Review Queue (Gate 1).");
@@ -300,7 +308,7 @@ export function OutreachComposer({
         });
       } else if (callOutcome === "CONNECTED_FOLLOWUP") {
         await api.crm.updateStage(lead.id, {
-          status: "IN_FOLLOWUP",
+          status: "INTERESTED",
           note: `Follow-up requested on call: ${callNotes.trim()}`,
         });
       } else if (lead.status === "discovered" || lead.status === "analyzing" || lead.status === "qualified" || lead.status === "outreach_ready") {

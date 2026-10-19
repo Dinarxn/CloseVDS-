@@ -155,19 +155,14 @@ export default function SettingsPage() {
     setIsSaving(true);
     try {
       await api.patch("/settings/workspace", {
-        name: settings.general.workspaceName,
-        workspaceName: settings.general.workspaceName,
+        name: settings.general.workspaceName.trim() || undefined,
         defaultDailyCap: settings.safety.dailyOutreachCap,
-        dailyEmailCap: settings.safety.dailyOutreachCap,
-        requireHumanApproval: true,
-        antiHallucinationEnforced: settings.ai.strictAntiHallucination,
-        autoSuppressionOnOptOut: settings.suppression.requireOneClickUnsubscribe,
-        autoSuppressionOnHardBounce: true,
+        killSwitchActive: settings.safety.globalKillSwitchActive,
       });
 
       addToast({
         title: "Settings Saved",
-        description: "Workspace configuration updated successfully in PostgreSQL persistence.",
+        description: "Workspace name and daily outreach limits saved to workspace settings.",
         variant: "success",
       });
     } catch (err: unknown) {

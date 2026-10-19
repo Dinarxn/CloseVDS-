@@ -699,19 +699,26 @@ export const api = {
       }>(`/outreach/${id}`),
 
     create: (body: {
-      leadId: string;
+      campaignId: string;
+      contactId: string;
+      channel?: 'EMAIL' | 'WHATSAPP' | 'CALL';
       subject: string;
       bodyText: string;
-      toEmail?: string;
-      fromName?: string;
     }) =>
       apiRequest<{
         success: boolean;
-        data: BackendEmailMessage;
+        draft?: BackendEmailMessage;
+        data?: BackendEmailMessage;
         message?: string;
       }>('/outreach', {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          channel: body.channel || 'EMAIL',
+          campaignId: body.campaignId,
+          contactId: body.contactId,
+          subject: body.subject,
+          bodyText: body.bodyText,
+        }),
       }),
 
     update: (

@@ -180,6 +180,7 @@ export function mapBackendLeadToFrontend(bLead: BackendLead): Lead {
     companyName: bLead.businessName,
     contactName: primaryContact?.fullName,
     contactTitle: primaryContact?.title,
+    contactId: primaryContact?.id,
     email: primaryContact?.email || bLead.email,
     phone: primaryContact?.phone || bLead.phone,
     website: bLead.domain ? (bLead.domain.startsWith('http') ? bLead.domain : `https://${bLead.domain}`) : undefined,
@@ -258,24 +259,37 @@ export function mapBackendOutreachToFrontend(msg: BackendEmailMessage): Outreach
   else if (msg.status === 'FAILED' || msg.status === 'CANCELLED') stage = 'suppressed';
 
   const lead = msg.lead;
+  const rawContact = (msg as { contact?: { fullName?: string; firstName?: string; lastName?: string } }).contact;
   const primaryContact = lead?.contacts?.find((c) => c.isPrimary) || lead?.contacts?.[0];
+
+  const recipientEmail = msg.toEmail || (msg as { recipientEmail?: string }).recipientEmail || '';
+  const contactName =
+    (msg as { contactName?: string }).contactName ||
+    primaryContact?.fullName ||
+    (rawContact?.fullName || (rawContact?.firstName ? `${rawContact.firstName} ${rawContact.lastName || ''}`.trim() : '')) ||
+    (recipientEmail ? recipientEmail.split('@')[0] : 'Contact');
+  const companyName =
+    (msg as { leadBusinessName?: string }).leadBusinessName ||
+    lead?.businessName ||
+    (lead as { companyName?: string })?.companyName ||
+    'Target Business';
 
   return {
     id: msg.id,
     leadId: msg.leadId,
-    companyName: lead?.businessName || 'Target Business',
-    contactName: primaryContact?.fullName || msg.toEmail.split('@')[0],
-    contactEmail: msg.toEmail,
+    companyName,
+    contactName,
+    contactEmail: recipientEmail || undefined,
     contactPhone: lead?.phone,
     websiteUrl: lead?.domain ? `https://${lead.domain}` : undefined,
     channel: 'email',
     touchType: 'initial_touch',
     touchNumber: 1,
     subjectLine: msg.subject,
-    openingHook: msg.bodyText.substring(0, 100),
-    bodyContent: msg.bodyText,
+    openingHook: msg.bodyText ? msg.bodyText.substring(0, 100) : '',
+    bodyContent: msg.bodyText || '',
     callToAction: 'Would you be open to a 3-minute walkthrough?',
-    observedFacts: [lead?.businessName || 'Business Profile', 'Online booking gap'],
+    observedFacts: [companyName, 'Online booking gap'],
     qualificationScore: lead?.leadScore?.totalScore || 85,
     qualificationReasoning: lead?.leadScore?.reasoningRationale || 'Factual gap analysis confirmed opportunity score.',
     stage,
@@ -283,6 +297,36 @@ export function mapBackendOutreachToFrontend(msg: BackendEmailMessage): Outreach
     approvedAt: msg.approvedAt,
     sentAt: msg.sentAt,
   };
+}
+
+/**
+ * Maps frontend filter status to the strict backend leadQuerySchema enum:
+ * ['NEW', 'QUALIFIED', 'CALL_READY', 'DISQUALIFIED', 'CONTACTED', 'REPLIED', 'OPT_OUT']
+ * Prevents HTTP 400 errors from backend Zod validation.
+ */
+export function mapLeadFilterStatusToBackendQuery(statusFilter?: string): string | undefined {
+  if (!statusFilter) return undefined;
+  const upper = statusFilter.toUpperCase();
+
+  const validBackendQueryStatuses = new Set([
+    'NEW',
+    'QUALIFIED',
+    'CALL_READY',
+    'DISQUALIFIED',
+    'CONTACTED',
+    'REPLIED',
+    'OPT_OUT',
+  ]);
+
+  if (validBackendQueryStatuses.has(upper)) {
+    return upper;
+  }
+
+  if (upper === 'DISCOVERED' || upper === 'IMPORTED') return 'NEW';
+  if (upper === 'OUTREACH_READY') return 'CALL_READY';
+  if (upper === 'OPTED_OUT') return 'OPT_OUT';
+
+  return undefined;
 }
 
 export function mapBackendLeadToCrmDeal(bLead: BackendLead): CrmDealItem {

@@ -89,6 +89,7 @@ export interface Lead {
   companyName: string;
   contactName?: string;
   contactTitle?: string;
+  contactId?: string;
   email?: string;
   phone?: string;
   website?: string;

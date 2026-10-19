@@ -9,7 +9,8 @@ import { OutreachEmptyState } from "./outreach-empty-state";
 import { PermissionReviewCard } from "./permission-review-card";
 import { PermissionApprovalDialog } from "./permission-approval-dialog";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import { api } from "@/lib/api-client";
+import { useToast } from "@/hooks/use-toast";
+import { api, ApiClientError } from "@/lib/api-client";
 
 export interface OutreachQueueTabsProps {
   drafts?: OutreachDraft[];
@@ -20,6 +21,7 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
   const [activeStage, setActiveStage] = useState<OutreachStage>("pending_approval");
   const [selectedDraft, setSelectedDraft] = useState<OutreachDraft | null>(null);
   const approvalDialog = useDisclosure({ defaultIsOpen: false });
+  const { addToast } = useToast();
 
   const handleOpenApproval = (draft: OutreachDraft) => {
     setSelectedDraft(draft);
@@ -28,9 +30,40 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
 
   const handleReject = async (draftId: string) => {
     try {
-      await api.outreach.cancel(draftId);
+      await api.outreach.reject(draftId);
+      addToast({
+        title: "Draft Rejected",
+        description: "Outreach draft was rejected and removed from queue.",
+        variant: "default",
+      });
       if (onRefresh) onRefresh();
-    } catch (err) {
+    } catch (err: unknown) {
+      const msg = err instanceof ApiClientError ? err.message : "Failed to reject outreach draft.";
+      addToast({
+        title: "Rejection Failed",
+        description: msg,
+        variant: "error",
+      });
+      console.error("Failed to reject draft:", err);
+    }
+  };
+
+  const handleCancel = async (draftId: string) => {
+    try {
+      await api.outreach.cancel(draftId);
+      addToast({
+        title: "Dispatch Cancelled",
+        description: "Outreach dispatch was cancelled.",
+        variant: "default",
+      });
+      if (onRefresh) onRefresh();
+    } catch (err: unknown) {
+      const msg = err instanceof ApiClientError ? err.message : "Failed to cancel outreach dispatch.";
+      addToast({
+        title: "Cancellation Failed",
+        description: msg,
+        variant: "error",
+      });
       console.error("Failed to cancel draft:", err);
     }
   };
@@ -38,8 +71,22 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
   const handleDispatch = async (draftId: string) => {
     try {
       await api.outreach.dispatch(draftId);
+      addToast({
+        title: "Outreach Dispatched",
+        description: "Draft dispatched to provider successfully.",
+        variant: "success",
+      });
       if (onRefresh) onRefresh();
-    } catch (err) {
+    } catch (err: unknown) {
+      const msg =
+        err instanceof ApiClientError
+          ? err.message
+          : "Outbound dispatch failed. Please check provider credentials and safety gates.";
+      addToast({
+        title: "Dispatch Failed",
+        description: msg,
+        variant: "error",
+      });
       console.error("Failed to dispatch draft:", err);
     }
   };
@@ -85,6 +132,7 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
                     draft={draft}
                     onApprove={handleOpenApproval}
                     onReject={handleReject}
+                    onCancel={handleCancel}
                     onDispatch={handleDispatch}
                   />
                 ))}

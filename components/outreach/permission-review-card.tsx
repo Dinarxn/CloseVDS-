@@ -10,6 +10,7 @@ export interface PermissionReviewCardProps {
   draft: OutreachDraft;
   onApprove: (draft: OutreachDraft) => void;
   onReject: (draftId: string) => Promise<void> | void;
+  onCancel?: (draftId: string) => Promise<void> | void;
   onDispatch?: (draftId: string) => Promise<void> | void;
 }
 
@@ -17,9 +18,11 @@ export function PermissionReviewCard({
   draft,
   onApprove,
   onReject,
+  onCancel,
   onDispatch,
 }: PermissionReviewCardProps) {
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
 
   const handleRejectClick = async () => {
@@ -28,6 +31,19 @@ export function PermissionReviewCard({
       await onReject(draft.id);
     } finally {
       setIsRejecting(false);
+    }
+  };
+
+  const handleCancelClick = async () => {
+    setIsCancelling(true);
+    try {
+      if (onCancel) {
+        await onCancel(draft.id);
+      } else {
+        await onReject(draft.id);
+      }
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -111,11 +127,11 @@ export function PermissionReviewCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={handleRejectClick}
-              disabled={isRejecting}
+              onClick={handleCancelClick}
+              disabled={isCancelling}
               className="text-xs text-zinc-400 hover:text-rose-300"
             >
-              {isRejecting ? "Cancelling..." : "Cancel Queue"}
+              {isCancelling ? "Cancelling..." : "Cancel Queue"}
             </Button>
             <Button
               variant="primary"

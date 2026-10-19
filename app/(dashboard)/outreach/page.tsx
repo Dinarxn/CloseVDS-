@@ -15,6 +15,7 @@ import { api, ApiClientError } from "@/lib/api-client";
 import {
   mapBackendOutreachToFrontend,
   mapBackendLeadToFrontend,
+  mapLeadFilterStatusToBackendQuery,
   type BackendEmailMessage,
 } from "@/lib/mappers";
 import type { OutreachDraft, OutreachOverviewStats } from "@/types/outreach";
@@ -94,15 +95,21 @@ export default function OutreachPage() {
     setIsLoadingLeads(true);
     setLeadsError(null);
     try {
+      const backendStatus = mapLeadFilterStatusToBackendQuery(statusFilter);
       const response = await api.leads.list({
         search: debouncedSearch.trim() || undefined,
-        status: statusFilter ? statusFilter.toUpperCase() : undefined,
+        status: backendStatus,
         page,
         limit: 12,
       });
 
       const rawItems = Array.isArray(response?.data) ? response.data : [];
-      const mapped = rawItems.map(mapBackendLeadToFrontend);
+      let mapped = rawItems.map(mapBackendLeadToFrontend);
+      if (statusFilter && !backendStatus) {
+        mapped = mapped.filter(
+          (l) => l.status.toLowerCase() === statusFilter.toLowerCase()
+        );
+      }
       setLeads(mapped);
 
       const respTotal = typeof response?.total === "number" ? response.total : rawItems.length;

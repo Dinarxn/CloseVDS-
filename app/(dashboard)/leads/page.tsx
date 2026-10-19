@@ -15,7 +15,7 @@ import { PermissionGateBanner } from "@/components/shared/permission-gate-banner
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Lead, LeadFilterState, LeadSortOption, LeadStatus, LeadViewMode } from "@/types/leads";
 import { api, ApiClientError } from "@/lib/api-client";
-import { mapBackendLeadToFrontend } from "@/lib/mappers";
+import { mapBackendLeadToFrontend, mapLeadFilterStatusToBackendQuery } from "@/lib/mappers";
 import { CallPreparationModal } from "@/components/calling/call-preparation-modal";
 
 const INITIAL_FILTERS: LeadFilterState = {
@@ -69,9 +69,10 @@ export default function LeadsPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      const backendStatus = mapLeadFilterStatusToBackendQuery(filters.status);
       const response = await api.leads.list({
         search: debouncedSearch.trim() || undefined,
-        status: filters.status ? filters.status.toUpperCase() : undefined,
+        status: backendStatus,
         page,
         limit: pageSize,
       });
@@ -80,7 +81,13 @@ export default function LeadsPage() {
         ? response.data
         : [];
 
-      setLeads(rawItems.map(mapBackendLeadToFrontend));
+      let mapped = rawItems.map(mapBackendLeadToFrontend);
+      if (filters.status && !backendStatus) {
+        mapped = mapped.filter(
+          (l) => l.status.toLowerCase() === filters.status.toLowerCase()
+        );
+      }
+      setLeads(mapped);
       const respTotal = typeof response?.total === "number" ? response.total : rawItems.length;
       setTotal(respTotal);
       const respTotalPages = typeof response?.totalPages === "number" && response.totalPages > 0
