@@ -180,7 +180,18 @@ export async function apiRequest<T = unknown>(
       return {} as T;
     }
 
-    const data = await response.json().catch(() => ({}));
+    const contentType = response.headers.get('content-type') || '';
+    const isTextOrCsv = contentType.includes('text/csv') || contentType.includes('text/plain');
+
+    let data: unknown;
+    if (response.ok && isTextOrCsv) {
+      data = await response.text();
+    } else {
+      data = await response.json().catch(async () => {
+        const text = await response.text().catch(() => '');
+        return text ? { message: text } : {};
+      });
+    }
 
     if (!response.ok) {
       // Handle authentication expiry: clear token and notify auth context for non-auth endpoints
@@ -196,24 +207,27 @@ export async function apiRequest<T = unknown>(
         }
       }
 
-      const errorPayload = data?.error;
+      const dataObj = typeof data === 'object' && data !== null ? (data as Record<string, unknown>) : undefined;
+      const errorPayload = dataObj?.error;
       const message =
-        typeof errorPayload === 'object' && errorPayload?.message
-          ? errorPayload.message
+        typeof errorPayload === 'object' && errorPayload !== null && 'message' in errorPayload && typeof (errorPayload as Record<string, unknown>).message === 'string'
+          ? ((errorPayload as Record<string, unknown>).message as string)
+          : typeof dataObj?.message === 'string'
+          ? dataObj.message
           : typeof errorPayload === 'string'
           ? errorPayload
-          : data?.message;
+          : undefined;
 
       const code =
-        typeof errorPayload === 'object' && errorPayload?.code
-          ? errorPayload.code
+        typeof errorPayload === 'object' && errorPayload !== null && 'code' in errorPayload && typeof (errorPayload as Record<string, unknown>).code === 'string'
+          ? ((errorPayload as Record<string, unknown>).code as string)
           : undefined;
 
       throw new ApiClientError(response.status, {
         code: code || 'HTTP_ERROR',
         message: message || '',
-        details: typeof errorPayload === 'object' ? errorPayload?.details : undefined,
-        requestId: typeof errorPayload === 'object' ? errorPayload?.requestId : undefined,
+        details: typeof errorPayload === 'object' && errorPayload !== null ? (errorPayload as Record<string, unknown>)?.details : undefined,
+        requestId: typeof errorPayload === 'object' && errorPayload !== null ? ((errorPayload as Record<string, unknown>)?.requestId as string | undefined) : undefined,
       });
     }
 
@@ -286,6 +300,22 @@ import type {
 import type { BackendLead, BackendEmailMessage } from '@/lib/mappers';
 import type { OperationsSummary, OperationTask, QueueItem } from '@/types/operations';
 import type { CRMActivity } from '@/types/crm';
+import type {
+  OverviewMetrics,
+  LeadsAnalytics,
+  VoiceAnalytics,
+  OutreachAnalytics,
+  ActivityTrends,
+  AcquisitionFunnelData,
+  DateRangeFilter,
+} from '@/types/analytics';
+import type {
+  FollowUpTaskItem,
+  CreateTaskInput,
+  UpdateTaskInput,
+  ListTasksQueryParams,
+  ListTasksResponse,
+} from '@/types/follow-ups';
 
 export const api = {
   get: <T = unknown>(endpoint: string, options?: RequestInit) =>
@@ -710,6 +740,37 @@ export const api = {
     getCallReady: () =>
       apiRequest<{ success: boolean; data: OperationTask[] }>('/operations/call-ready'),
 
+    getFollowUps: () =>
+      apiRequest<{ success: boolean; data: OperationTask[] }>('/operations/follow-ups'),
+
+    listTasks: (params?: { category?: string; priority?: string; page?: number; limit?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.category) sp.set('category', params.category);
+      if (params?.priority) sp.set('priority', params.priority);
+      if (params?.page) sp.set('page', String(params.page));
+      if (params?.limit) sp.set('limit', String(params.limit));
+      const qs = sp.toString();
+      return apiRequest<{ success: boolean; data: OperationTask[] }>(qs ? `/operations/tasks?${qs}` : '/operations/tasks');
+    },
+
+    executeTask: (taskId: string) =>
+      apiRequest<{ success: boolean; data: unknown; message: string }>(
+        `/operations/tasks/${taskId}/execute`,
+        { method: 'POST' }
+      ),
+
+    approveTask: (taskId: string) =>
+      apiRequest<{ success: boolean; data: unknown; message: string }>(
+        `/operations/tasks/${taskId}/approve`,
+        { method: 'POST' }
+      ),
+
+    rejectTask: (taskId: string, reason?: string) =>
+      apiRequest<{ success: boolean; data: unknown; message: string }>(
+        `/operations/tasks/${taskId}/reject`,
+        { method: 'POST', body: JSON.stringify({ reason }) }
+      ),
+
     prioritizeQueueItem: (itemId: string, priority: number) =>
       apiRequest<{ success: boolean; data: unknown; message: string }>(
         `/operations/queue/${itemId}/prioritize`,
@@ -799,6 +860,105 @@ export const api = {
       apiRequest<{ success: boolean; message?: string }>(`/outreach/${id}/dispatch`, {
         method: 'POST',
       }),
+  },
+
+  followUps: {
+    list: (params?: ListTasksQueryParams) => {
+      const sp = new URLSearchParams();
+      if (params?.leadId) sp.set('leadId', params.leadId);
+      if (params?.assignedToUserId) sp.set('assignedToUserId', params.assignedToUserId);
+      if (params?.status) sp.set('status', params.status);
+      if (params?.search) sp.set('search', params.search);
+      if (params?.page) sp.set('page', String(params.page));
+      if (params?.limit) sp.set('limit', String(params.limit));
+      const qs = sp.toString();
+      return apiRequest<ListTasksResponse>(qs ? `/follow-ups?${qs}` : '/follow-ups');
+    },
+
+    get: (id: string) =>
+      apiRequest<{ success: boolean; task: FollowUpTaskItem }>(`/follow-ups/${id}`),
+
+    create: (body: CreateTaskInput) =>
+      apiRequest<{ success: boolean; task: FollowUpTaskItem }>('/follow-ups', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    update: (id: string, body: UpdateTaskInput) =>
+      apiRequest<{ success: boolean; task: FollowUpTaskItem }>(`/follow-ups/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }),
+
+    delete: (id: string) =>
+      apiRequest<{ success: boolean; message: string }>(`/follow-ups/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+
+  analytics: {
+    getOverview: (filter?: DateRangeFilter) => {
+      const sp = new URLSearchParams();
+      if (filter?.from) sp.set('from', filter.from);
+      if (filter?.to) sp.set('to', filter.to);
+      if (filter?.campaignId) sp.set('campaignId', filter.campaignId);
+      const qs = sp.toString();
+      return apiRequest<{ success: boolean; metrics: OverviewMetrics }>(qs ? `/analytics/overview?${qs}` : '/analytics/overview');
+    },
+
+    getLeads: (filter?: DateRangeFilter) => {
+      const sp = new URLSearchParams();
+      if (filter?.from) sp.set('from', filter.from);
+      if (filter?.to) sp.set('to', filter.to);
+      if (filter?.campaignId) sp.set('campaignId', filter.campaignId);
+      const qs = sp.toString();
+      return apiRequest<{ success: boolean; leads: LeadsAnalytics }>(qs ? `/analytics/leads?${qs}` : '/analytics/leads');
+    },
+
+    getVoice: (filter?: DateRangeFilter) => {
+      const sp = new URLSearchParams();
+      if (filter?.from) sp.set('from', filter.from);
+      if (filter?.to) sp.set('to', filter.to);
+      if (filter?.campaignId) sp.set('campaignId', filter.campaignId);
+      const qs = sp.toString();
+      return apiRequest<{ success: boolean; voice: VoiceAnalytics }>(qs ? `/analytics/voice?${qs}` : '/analytics/voice');
+    },
+
+    getOutreach: (filter?: DateRangeFilter) => {
+      const sp = new URLSearchParams();
+      if (filter?.from) sp.set('from', filter.from);
+      if (filter?.to) sp.set('to', filter.to);
+      if (filter?.campaignId) sp.set('campaignId', filter.campaignId);
+      const qs = sp.toString();
+      return apiRequest<{ success: boolean; outreach: OutreachAnalytics }>(qs ? `/analytics/outreach?${qs}` : '/analytics/outreach');
+    },
+
+    getActivity: (filter?: DateRangeFilter) => {
+      const sp = new URLSearchParams();
+      if (filter?.from) sp.set('from', filter.from);
+      if (filter?.to) sp.set('to', filter.to);
+      if (filter?.campaignId) sp.set('campaignId', filter.campaignId);
+      const qs = sp.toString();
+      return apiRequest<{ success: boolean; activity: ActivityTrends }>(qs ? `/analytics/activity?${qs}` : '/analytics/activity');
+    },
+
+    getAcquisitionFunnel: (filter?: DateRangeFilter) => {
+      const sp = new URLSearchParams();
+      if (filter?.from) sp.set('from', filter.from);
+      if (filter?.to) sp.set('to', filter.to);
+      const qs = sp.toString();
+      return apiRequest<{ success: boolean; data: AcquisitionFunnelData }>(qs ? `/analytics/acquisition-funnel?${qs}` : '/analytics/acquisition-funnel');
+    },
+
+    exportReport: (params?: { format?: 'csv' | 'json'; from?: string; to?: string; campaignId?: string }) => {
+      const sp = new URLSearchParams();
+      if (params?.format) sp.set('format', params.format);
+      if (params?.from) sp.set('from', params.from);
+      if (params?.to) sp.set('to', params.to);
+      if (params?.campaignId) sp.set('campaignId', params.campaignId);
+      const qs = sp.toString();
+      return apiRequest<string | { success: boolean; data: unknown }>(qs ? `/analytics/export?${qs}` : '/analytics/export');
+    },
   },
 };
 

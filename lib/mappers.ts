@@ -8,7 +8,8 @@ import type {
   ServiceRecommendation,
 } from '@/types/leads';
 import type { OutreachDraft, OutreachStage } from '@/types/outreach';
-import type { CrmDealItem, CrmStageId } from '@/types/crm';
+import type { CrmDealItem, CrmStageId, CanonicalLeadStatus } from '@/types/crm';
+import { ALLOWED_STAGE_TRANSITIONS } from '@/types/crm';
 
 export interface BackendContact {
   id: string;
@@ -63,6 +64,7 @@ export interface BackendLead {
     riskFactors?: string[];
   } | null;
   campaign?: { id: string; name: string };
+  source?: string;
 
   // B1 Intelligence
   dataQuality?: DataQuality;
@@ -333,27 +335,50 @@ export function mapBackendLeadToCrmDeal(bLead: BackendLead): CrmDealItem {
   const primaryContact = bLead.contacts?.find((c) => c.isPrimary) || bLead.contacts?.[0];
 
   let stage: CrmStageId = 'discovered';
-  const statusStr = bLead.status.toUpperCase();
-  if (statusStr === 'DISCOVERED' || statusStr === 'AUDITING' || statusStr === 'RESEARCHED') stage = 'discovered';
-  else if (statusStr === 'QUALIFIED') stage = 'qualified';
-  else if (statusStr === 'OUTREACH_READY') stage = 'outreach_approved';
-  else if (statusStr === 'CONTACTED') stage = 'contacted';
-  else if (statusStr === 'IN_FOLLOWUP' || statusStr === 'REPLIED') stage = 'in_followup';
-  else if (statusStr === 'MEETING_BOOKED') stage = 'meeting_booked';
-  else if (statusStr === 'CLOSED_WON') stage = 'closed_won';
-  else if (statusStr === 'CLOSED_LOST' || statusStr === 'DISQUALIFIED' || statusStr === 'OPT_OUT') stage = 'closed_lost';
+  const statusStr = (bLead.status || '').toUpperCase();
+  if (statusStr === 'DISCOVERED' || statusStr === 'IMPORTED' || statusStr === 'NEW' || statusStr === 'RESEARCH_PENDING' || statusStr === 'RESEARCHED' || statusStr === 'AUDITING') {
+    stage = 'discovered';
+  } else if (statusStr === 'QUALIFIED' || statusStr === 'CALL_READY' || statusStr === 'QUALIFICATION_PENDING') {
+    stage = 'qualified';
+  } else if (statusStr === 'OUTREACH_READY' || statusStr === 'OUTREACH_APPROVED') {
+    stage = 'outreach_approved';
+  } else if (statusStr === 'CONTACTED') {
+    stage = 'contacted';
+  } else if (statusStr === 'IN_FOLLOWUP' || statusStr === 'REPLIED' || statusStr === 'INTERESTED') {
+    stage = 'in_followup';
+  } else if (statusStr === 'MEETING' || statusStr === 'MEETING_BOOKED') {
+    stage = 'meeting_booked';
+  } else if (statusStr === 'WON' || statusStr === 'CLOSED_WON') {
+    stage = 'closed_won';
+  } else if (statusStr === 'LOST' || statusStr === 'CLOSED_LOST' || statusStr === 'DISQUALIFIED' || statusStr === 'OPT_OUT') {
+    stage = 'closed_lost';
+  }
 
   return {
     id: `deal_${bLead.id}`,
     leadId: bLead.id,
     companyName: bLead.businessName,
     contactName: primaryContact?.fullName,
+    contactEmail: primaryContact?.email,
+    contactPhone: primaryContact?.phone || bLead.phone,
     valueEstimate: 3500,
     stage,
+    rawStatus: bLead.status as CanonicalLeadStatus,
     qualificationScore: bLead.leadScore?.totalScore || 80,
+    leadSource: bLead.source || 'google_maps',
     lastTouchDate: bLead.updatedAt,
     notesCount: 1,
   };
+}
+
+export function getAllowedNextStages(currentStatus: string): CanonicalLeadStatus[] {
+  const norm = currentStatus.toUpperCase() as CanonicalLeadStatus;
+  return ALLOWED_STAGE_TRANSITIONS[norm] || [];
+}
+
+export function isStageTransitionAllowed(currentStatus: string, nextStatus: string): boolean {
+  const allowed = getAllowedNextStages(currentStatus);
+  return allowed.includes(nextStatus.toUpperCase() as CanonicalLeadStatus);
 }
 
 export function formatCallDuration(seconds?: number | null): string {

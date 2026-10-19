@@ -6,10 +6,11 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { api, ApiClientError } from "@/lib/api-client";
+import { FollowUpWorkspace } from "@/components/operations";
 import type { QueueItem, OperationTask, OperationsSummary } from "@/types/operations";
 
 export default function OperationsPage() {
-  const [activeTab, setActiveTab] = useState<"queue" | "call-ready">("queue");
+  const [activeTab, setActiveTab] = useState<"followups" | "queue" | "call-ready">("followups");
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -156,55 +157,71 @@ export default function OperationsPage() {
       )}
 
       {/* SECTION 3: Operational Readiness Telemetry Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {/* Card 1: Active Call Queue */}
-        <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.07] p-4.5 transition-all duration-150 hover:border-white/[0.12] shadow-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        {/* Card 1: Follow-ups Due */}
+        <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.12] shadow-xs">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
+              Follow-Ups Due
+            </span>
+            <span className={`w-1.5 h-1.5 rounded-full ${(summary?.followUpsDueCount ?? 0) > 0 ? "bg-amber-400" : "bg-zinc-600"}`} />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-white font-mono tracking-tight">
+              {summary?.followUpsDueCount ?? 0}
+            </span>
+            <span className="text-[11px] text-zinc-400">due in CRM</span>
+          </div>
+        </div>
+
+        {/* Card 2: Active Call Queue */}
+        <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.12] shadow-xs">
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
               Active Call Queue
             </span>
             <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
           </div>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-bold text-white font-mono tracking-tight">
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-white font-mono tracking-tight">
               {queueItems.length}
             </span>
-            <span className="text-xs text-zinc-400">calls queued</span>
+            <span className="text-[11px] text-zinc-400">calls queued</span>
           </div>
         </div>
 
-        {/* Card 2: Call-Ready Prospects */}
-        <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.07] p-4.5 transition-all duration-150 hover:border-white/[0.12] shadow-xs">
+        {/* Card 3: Call-Ready Prospects */}
+        <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.12] shadow-xs">
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
-              Call-Ready Prospects
+              Call-Ready
             </span>
             <span className={`w-1.5 h-1.5 rounded-full ${(summary?.callReadyCount ?? callReadyTasks.length) > 0 ? "bg-emerald-400" : "bg-zinc-600"}`} />
           </div>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono tracking-tight">
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-emerald-400 font-mono tracking-tight">
               {summary?.callReadyCount ?? callReadyTasks.length}
             </span>
-            <span className="text-xs text-zinc-400">approved &amp; eligible</span>
+            <span className="text-[11px] text-zinc-400">approved</span>
           </div>
         </div>
 
-        {/* Card 3: Outbound Readiness */}
-        <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.07] p-4.5 transition-all duration-150 hover:border-white/[0.12] shadow-xs">
+        {/* Card 4: Outbound Readiness */}
+        <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.12] shadow-xs">
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
-              Outbound Readiness
+              Readiness
             </span>
             <span className={`w-1.5 h-1.5 rounded-full ${(summary?.systemHealth?.telephonyConfigured && summary?.systemHealth?.voiceAiConfigured) ? "bg-emerald-400" : "bg-amber-400"}`} />
           </div>
-          <div className="flex items-center gap-2 pt-0.5">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${summary?.systemHealth?.telephonyConfigured ? "bg-emerald-400" : "bg-amber-400"}`} />
-              <span className="text-xs text-zinc-300 font-mono font-medium">Telephony</span>
+          <div className="flex items-center gap-1.5 pt-0.5">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/[0.02] border border-white/[0.05]">
+              <span className={`w-1 h-1 rounded-full shrink-0 ${summary?.systemHealth?.telephonyConfigured ? "bg-emerald-400" : "bg-amber-400"}`} />
+              <span className="text-[10px] text-zinc-300 font-mono font-medium">Tel</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${summary?.systemHealth?.voiceAiConfigured ? "bg-emerald-400" : "bg-amber-400"}`} />
-              <span className="text-xs text-zinc-300 font-mono font-medium">Voice AI</span>
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/[0.02] border border-white/[0.05]">
+              <span className={`w-1 h-1 rounded-full shrink-0 ${summary?.systemHealth?.voiceAiConfigured ? "bg-emerald-400" : "bg-amber-400"}`} />
+              <span className="text-[10px] text-zinc-300 font-mono font-medium">Voice</span>
             </div>
           </div>
         </div>
@@ -212,6 +229,18 @@ export default function OperationsPage() {
 
       {/* SECTION 4: View Tabs */}
       <div className="p-1 rounded-xl bg-[#0a0a10] border border-white/[0.07] inline-flex items-center gap-1 shadow-xs">
+        <button
+          type="button"
+          onClick={() => setActiveTab("followups")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer ${
+            activeTab === "followups"
+              ? "bg-white/[0.09] text-white border border-white/[0.12] shadow-xs"
+              : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03] border border-transparent"
+          }`}
+        >
+          <span>Follow-Up Tasks</span>
+        </button>
+
         <button
           type="button"
           onClick={() => setActiveTab("queue")}
@@ -253,6 +282,9 @@ export default function OperationsPage() {
           <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-xs text-zinc-400 font-mono">Synchronizing operations queue...</p>
         </div>
+      ) : activeTab === "followups" ? (
+        /* TAB 0: Follow-Up Workspace */
+        <FollowUpWorkspace onTaskChange={loadOperationsData} />
       ) : activeTab === "queue" ? (
         /* TAB 1: Active Call Queue View */
         <div className="space-y-3">

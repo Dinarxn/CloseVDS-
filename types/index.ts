@@ -1,6 +1,5 @@
 /**
  * Global shared TypeScript interfaces for closeVDS frontend.
- * Feature-specific domain types will be added in Phase 2+.
  */
 
 export interface BaseComponentProps {
@@ -9,4 +8,7 @@ export interface BaseComponentProps {
 }
 
 export * from './calling';
-
+export * from './crm';
+export * from './analytics';
+export * from './follow-ups';
+export * from './operations';

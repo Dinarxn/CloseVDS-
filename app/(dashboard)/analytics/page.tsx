@@ -10,82 +10,173 @@ import { AnalyticsEmptyState } from "@/components/analytics/analytics-empty-stat
 import { INITIAL_ZERO_KPIS } from "@/components/analytics/analytics-constants";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { AnalyticsTimeframe, AcquisitionKpis } from "@/types/analytics";
-import { api, ApiClientError } from "@/lib/api-client";
-
 import { Tabs, TabList, Tab, TabPanel } from "@/components/ui/tabs";
-import { VoiceAnalyticsData } from "@/types/calling";
+import { api, ApiClientError } from "@/lib/api-client";
 import { formatCallDuration } from "@/lib/mappers";
+import type {
+  AnalyticsTimeframe,
+  AcquisitionKpis,
+  OverviewMetrics,
+  LeadsAnalytics,
+  VoiceAnalytics,
+  AcquisitionFunnelData,
+  DateRangeFilter,
+  FunnelStageMetric,
+} from "@/types/analytics";
 
-interface BackendOverviewMetrics {
-  leads?: {
-    total?: number;
-    qualificationRate?: number;
-    replyRate?: number;
-    byStatus?: Record<string, number>;
+function getDateRange(timeframe: AnalyticsTimeframe): DateRangeFilter {
+  if (timeframe === "all") return {};
+  const days = timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 90;
+  const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  return {
+    from: fromDate.toISOString(),
+    to: new Date().toISOString(),
   };
-  outreach?: {
-    total?: number;
-    sent?: number;
-    approved?: number;
-    draft?: number;
-  };
-  crm?: {
-    totalActivities?: number;
-  };
-  tasks?: {
-    completed?: number;
-  };
-  totalLeads?: number;
-  qualificationRate?: number;
-  deliveredMessages?: number;
-  replyRate?: number;
-  repliesCount?: number;
-  wonDeals?: number;
 }
 
 export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [timeframe, setTimeframe] = useState<AnalyticsTimeframe>("30d");
+
+  const [, setOverview] = useState<OverviewMetrics | null>(null);
+  const [leadsAnalytics, setLeadsAnalytics] = useState<LeadsAnalytics | null>(null);
+  const [voiceAnalytics, setVoiceAnalytics] = useState<VoiceAnalytics | null>(null);
+  const [, setFunnelData] = useState<AcquisitionFunnelData | null>(null);
+
   const [kpis, setKpis] = useState<AcquisitionKpis>(INITIAL_ZERO_KPIS);
-  const [voiceAnalytics, setVoiceAnalytics] = useState<VoiceAnalyticsData | null>(null);
+  const [funnelStages, setFunnelStages] = useState<FunnelStageMetric[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const fetchAnalytics = useCallback(async () => {
     setIsLoading(true);
     setErrorMsg(null);
+
+    const filter = getDateRange(timeframe);
+
     try {
-      const [overviewRes, voiceRes] = await Promise.allSettled([
-        api.get<{ metrics?: BackendOverviewMetrics; data?: BackendOverviewMetrics }>("/analytics/overview"),
-        api.voice.getVoiceAnalytics(),
+      const [overviewRes, leadsRes, voiceRes, funnelRes] = await Promise.allSettled([
+        api.analytics.getOverview(filter),
+        api.analytics.getLeads(filter),
+        api.analytics.getVoice(filter),
+        api.analytics.getAcquisitionFunnel(filter),
       ]);
 
-      if (overviewRes.status === "fulfilled" && overviewRes.value) {
-        const val = overviewRes.value;
-        const m = val.metrics || val.data;
-        if (m) {
-          const leadsTotal = m.leads?.total ?? m.totalLeads ?? 0;
-          const qualRate = m.leads?.qualificationRate ?? m.qualificationRate ?? 0;
-          const dispatches = m.outreach?.sent ?? m.outreach?.approved ?? m.deliveredMessages ?? 0;
-          const repRate = m.leads?.replyRate ?? m.replyRate ?? 0;
-          const meetings = m.crm?.totalActivities ?? m.repliesCount ?? 0;
-          const closed = m.leads?.byStatus?.CLOSED_DEAL ?? m.wonDeals ?? 0;
+      let loadedOverview: OverviewMetrics | null = null;
+      let loadedVoice: VoiceAnalytics | null = null;
+      let loadedFunnel: AcquisitionFunnelData | null = null;
 
-          setKpis({
-            leadsDiscovered: leadsTotal,
-            qualificationRate: Math.round(qualRate),
-            approvedDispatches: dispatches,
-            replyRate: Math.round(repRate),
-            meetingsBooked: meetings,
-            clientsClosed: closed,
-          });
-        }
+      if (overviewRes.status === "fulfilled" && overviewRes.value?.metrics) {
+        loadedOverview = overviewRes.value.metrics;
+        setOverview(loadedOverview);
+      }
+
+      if (leadsRes.status === "fulfilled" && leadsRes.value?.leads) {
+        setLeadsAnalytics(leadsRes.value.leads);
       }
 
       if (voiceRes.status === "fulfilled" && voiceRes.value?.voice) {
-        setVoiceAnalytics(voiceRes.value.voice);
+        loadedVoice = voiceRes.value.voice;
+        setVoiceAnalytics(loadedVoice);
+      }
+
+      if (funnelRes.status === "fulfilled" && funnelRes.value?.data) {
+        loadedFunnel = funnelRes.value.data;
+        setFunnelData(loadedFunnel);
+      }
+
+      // Compute consistent KPIs with safe zero-division handling
+      const totalLeads = loadedOverview?.leads?.total ?? 0;
+      const qualRate = loadedOverview?.leads?.qualificationRate ?? 0;
+      const dispatches = loadedOverview?.outreach?.sent ?? 0;
+      const replyRate = loadedOverview?.leads?.replyRate ?? 0;
+      const meetings = loadedVoice?.meetingsRequested ?? 0;
+      const closed = loadedOverview?.leads?.byStatus?.WON ?? 0;
+
+      setKpis({
+        leadsDiscovered: totalLeads,
+        qualificationRate: Math.round(qualRate),
+        approvedDispatches: dispatches,
+        replyRate: Math.round(replyRate),
+        meetingsBooked: meetings,
+        clientsClosed: closed,
+      });
+
+      // Construct live dynamic 7-stage acquisition funnel from verified nested backend contract
+      if (
+        loadedFunnel &&
+        loadedFunnel.leadPool &&
+        loadedFunnel.voiceQueue &&
+        loadedFunnel.conversions
+      ) {
+        const pool = loadedFunnel.leadPool.total;
+        const qualified = loadedFunnel.leadPool.qualified;
+        const queuedCalls = loadedFunnel.voiceQueue.queued;
+        const approvedCalls = loadedFunnel.voiceQueue.approved;
+        const queuedOrApproved = queuedCalls + approvedCalls;
+        const callsCount = loadedFunnel.voiceQueue.totalCalls;
+        const completedCalls = loadedFunnel.voiceQueue.completed;
+        const connectRate = loadedFunnel.voiceQueue.connectRate;
+        const meetingsCount = loadedFunnel.conversions.meetings;
+        const clientsWon = loadedFunnel.conversions.won;
+
+        setFunnelStages([
+          {
+            stageId: "pool",
+            stageLabel: "01 Candidate Lead Pool",
+            count: pool,
+            conversionRateFromPrevious: 100,
+            description: "Prospect dental clinics imported into workspace",
+          },
+          {
+            stageId: "qualification",
+            stageLabel: "02 AI Qualified Prospects",
+            count: qualified,
+            conversionRateFromPrevious: pool > 0 ? Math.round((qualified / pool) * 100) : 0,
+            description: "Website audited & scored above qualification threshold",
+          },
+          {
+            stageId: "readiness",
+            stageLabel: "03 Outbound Call-Ready & Approved",
+            count: queuedOrApproved,
+            conversionRateFromPrevious: qualified > 0 ? Math.round((queuedOrApproved / qualified) * 100) : 0,
+            description: "Passed human review & queued for voice outreach",
+          },
+          {
+            stageId: "outreach",
+            stageLabel: "04 Voice Outreach Dispatched",
+            count: callsCount,
+            conversionRateFromPrevious: queuedOrApproved > 0 ? Math.round((callsCount / queuedOrApproved) * 100) : 0,
+            description: "Outbound calling sessions initiated by AI agent",
+          },
+          {
+            stageId: "completed",
+            stageLabel: "05 Voice Calls Completed",
+            count: completedCalls,
+            conversionRateFromPrevious: callsCount > 0 ? Math.round((completedCalls / callsCount) * 100) : 0,
+            description: `Calling sessions completed (${connectRate}% connect rate)`,
+          },
+          {
+            stageId: "meeting",
+            stageLabel: "06 Discovery Meetings & Callbacks",
+            count: meetingsCount,
+            conversionRateFromPrevious: completedCalls > 0 ? Math.round((meetingsCount / completedCalls) * 100) : 0,
+            description: "Positive intent confirmed; callback or meeting scheduled",
+          },
+          {
+            stageId: "closed",
+            stageLabel: "07 Closed Won Clients",
+            count: clientsWon,
+            conversionRateFromPrevious: meetingsCount > 0 ? Math.round((clientsWon / meetingsCount) * 100) : 0,
+            description: "Prospects converted to active acquired clients",
+          },
+        ]);
+      } else {
+        // Do not substitute unrelated overview metrics if funnel data is missing
+        setFunnelStages([]);
       }
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
@@ -96,7 +187,7 @@ export default function AnalyticsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [timeframe]);
 
   useEffect(() => {
     fetchAnalytics();
@@ -104,20 +195,37 @@ export default function AnalyticsPage() {
 
   const handleExportCsv = async () => {
     setIsExporting(true);
+    setExportError(null);
     try {
-      const response = await api.get<{ data: string }>("/analytics/export?format=csv");
-      if (response?.data) {
-        const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `closevds-analytics-${Date.now()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      const filter = getDateRange(timeframe);
+      const csvResponse = await api.analytics.exportReport({
+        format: "csv",
+        from: filter.from,
+        to: filter.to,
+      });
+
+      const csvText = typeof csvResponse === "string" ? csvResponse : (csvResponse as { data?: string })?.data;
+      if (!csvText || typeof csvText !== "string" || csvText.trim().length === 0) {
+        throw new Error("Export completed but returned empty or invalid CSV content.");
       }
-    } catch (err) {
-      console.error("Export error:", err);
+
+      const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `closevds-leads-${timeframe}-${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) {
+        setExportError(err.message || "Failed to download export report.");
+      } else if (err instanceof Error) {
+        setExportError(err.message);
+      } else {
+        setExportError("Failed to export analytics data.");
+      }
     } finally {
       setIsExporting(false);
     }
@@ -126,10 +234,11 @@ export default function AnalyticsPage() {
   return (
     <PageContainer>
       <div className="space-y-5">
+        {/* Header & Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <PageHeader
-            title="Analytics &amp; Intelligence"
-            description="Acquisition funnel metrics, qualification rates, and outbound AI voice calling performance."
+            title="Sales Analytics & Intelligence"
+            description="Verified acquisition funnel performance, pipeline progression, and outbound AI voice telemetry."
             breadcrumbs={[
               { label: "closeVDS", href: "/dashboard" },
               { label: "Analytics" },
@@ -180,16 +289,35 @@ export default function AnalyticsPage() {
           </div>
         )}
 
+        {exportError && (
+          <div className="relative rounded-xl border border-rose-500/30 bg-[#140b0e] p-4 flex items-start gap-3 shadow-xs">
+            <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div className="space-y-0.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-rose-300 font-semibold block">
+                Export Error
+              </span>
+              <p className="text-xs text-rose-200/80 leading-relaxed">{exportError}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="overview" variant="pills">
           <TabList className="w-full sm:w-auto">
             <Tab value="overview">
-              Acquisition Funnel
+              Acquisition Funnel &amp; KPIs
+            </Tab>
+            <Tab value="pipeline">
+              Pipeline Stage Breakdown
             </Tab>
             <Tab value="voice">
-              AI Voice Analytics
+              AI Voice Outreach Telemetry
             </Tab>
           </TabList>
 
+          {/* TAB 1: Acquisition Funnel & KPIs */}
           <TabPanel value="overview" className="pt-4 space-y-5">
             {isLoading ? (
               <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs overflow-hidden">
@@ -202,12 +330,96 @@ export default function AnalyticsPage() {
             ) : (
               <>
                 <AnalyticsKpiGrid kpis={kpis} />
-                <AcquisitionFunnelView />
+                <AcquisitionFunnelView stages={funnelStages.length > 0 ? funnelStages : undefined} />
                 {kpis.leadsDiscovered === 0 && <AnalyticsEmptyState />}
               </>
             )}
           </TabPanel>
 
+          {/* TAB 2: Pipeline Stage Breakdown */}
+          <TabPanel value="pipeline" className="pt-4 space-y-5">
+            {isLoading ? (
+              <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs">
+                <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                  Loading pipeline stage breakdown...
+                </p>
+              </div>
+            ) : leadsAnalytics?.stages && leadsAnalytics.stages.length > 0 ? (
+              <div className="space-y-4">
+                <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-5 space-y-4 shadow-xs overflow-hidden">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white tracking-tight">
+                        Pipeline Distribution by Canonical Stage
+                      </h3>
+                      <p className="text-xs text-zinc-400">
+                        Exact counts and proportion of leads in each CRM lifecycle status
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] text-zinc-300 border border-white/[0.08]">
+                      {leadsAnalytics.totalLeads} Total Prospects
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {leadsAnalytics.stages.map((st) => (
+                      <div
+                        key={st.stage}
+                        className="p-3 bg-[#09090f]/80 border border-white/[0.06] rounded-lg flex items-center justify-between text-xs"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-mono text-zinc-200 font-semibold text-xs">
+                            {st.stage}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <div className="text-right">
+                            <span className="text-[10px] font-mono text-zinc-500 uppercase block">Count</span>
+                            <span className="font-mono text-white font-bold">{st.count}</span>
+                          </div>
+                          <div className="text-right min-w-[50px]">
+                            <span className="text-[10px] font-mono text-zinc-500 uppercase block">Share</span>
+                            <span className="font-mono text-emerald-400 font-semibold">{st.percentage}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Score Summary */}
+                {leadsAnalytics.scoreSummary && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-zinc-400">Avg Relevance Score</span>
+                      <div className="text-2xl font-bold font-mono text-white">
+                        {leadsAnalytics.scoreSummary.averageRelevance}/100
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-zinc-400">Avg Opportunity Score</span>
+                      <div className="text-2xl font-bold font-mono text-white">
+                        {leadsAnalytics.scoreSummary.averageOpportunity}/100
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-zinc-400">Avg Composite Total</span>
+                      <div className="text-2xl font-bold font-mono text-emerald-400">
+                        {leadsAnalytics.scoreSummary.averageTotalScore}/100
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-10 text-center border border-dashed border-white/[0.08] rounded-xl bg-[#0c0c12]/40 text-xs text-zinc-400">
+                No pipeline stage distribution data found for this timeframe.
+              </div>
+            )}
+          </TabPanel>
+
+          {/* TAB 3: AI Voice Analytics */}
           <TabPanel value="voice" className="pt-4 space-y-5">
             {isLoading ? (
               <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs overflow-hidden">
@@ -249,14 +461,12 @@ export default function AnalyticsPage() {
                 {/* Voice Calling KPI Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
                   <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Total Calls</div>
                     <div className="text-2xl font-bold font-mono tabular-nums text-white tracking-tight">{voiceAnalytics.totalCalls}</div>
                     <div className="text-[10px] text-zinc-400">Placed in workspace</div>
                   </div>
 
                   <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Meetings Booked</div>
                     <div className="text-2xl font-bold font-mono tabular-nums text-emerald-400 tracking-tight">{voiceAnalytics.meetingsRequested}</div>
                     <div className="text-[10px] text-zinc-400">
@@ -267,14 +477,12 @@ export default function AnalyticsPage() {
                   </div>
 
                   <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Callbacks Requested</div>
                     <div className="text-2xl font-bold font-mono tabular-nums text-indigo-300 tracking-tight">{voiceAnalytics.callbacksRequested}</div>
                     <div className="text-[10px] text-zinc-400">Tasks created in CRM</div>
                   </div>
 
                   <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Avg Call Duration</div>
                     <div className="text-2xl font-bold font-mono tabular-nums text-white tracking-tight">
                       {formatCallDuration(voiceAnalytics.averageDurationSeconds)}
@@ -287,7 +495,6 @@ export default function AnalyticsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* Status Distribution */}
                   <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-5 space-y-3.5 shadow-xs overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                     <div className="flex items-center justify-between pb-1 border-b border-white/[0.06]">
                       <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         Calls by Telephony Status
@@ -295,7 +502,7 @@ export default function AnalyticsPage() {
                       <span className="text-[10px] font-mono text-zinc-500">Live Telephony</span>
                     </div>
                     <div className="space-y-2">
-                      {Object.entries(voiceAnalytics.byStatus).map(([st, count]) => (
+                      {Object.entries(voiceAnalytics.byStatus || {}).map(([st, count]) => (
                         <div key={st} className="flex items-center justify-between text-xs py-1.5 border-b border-white/[0.04]">
                           <span className="font-mono text-zinc-300">{st}</span>
                           <span className="font-semibold text-white font-mono tabular-nums">{count}</span>
@@ -306,7 +513,6 @@ export default function AnalyticsPage() {
 
                   {/* Outcome Distribution */}
                   <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-5 space-y-3.5 shadow-xs overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                     <div className="flex items-center justify-between pb-1 border-b border-white/[0.06]">
                       <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         Calls by AI Outcome
@@ -314,8 +520,8 @@ export default function AnalyticsPage() {
                       <span className="text-[10px] font-mono text-zinc-500">Classified Outcomes</span>
                     </div>
                     <div className="space-y-2">
-                      {Object.entries(voiceAnalytics.byOutcome).length > 0 ? (
-                        Object.entries(voiceAnalytics.byOutcome).map(([oc, count]) => (
+                      {Object.entries(voiceAnalytics.byOutcome || {}).length > 0 ? (
+                        Object.entries(voiceAnalytics.byOutcome || {}).map(([oc, count]) => (
                           <div key={oc} className="flex items-center justify-between text-xs py-1.5 border-b border-white/[0.04]">
                             <span className="font-medium text-zinc-200 capitalize">{oc.replace(/_/g, " ").toLowerCase()}</span>
                             <span className="font-semibold text-emerald-400 font-mono tabular-nums">{count}</span>
@@ -335,4 +541,3 @@ export default function AnalyticsPage() {
     </PageContainer>
   );
 }
-
