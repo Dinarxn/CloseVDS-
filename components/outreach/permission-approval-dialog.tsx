@@ -33,7 +33,7 @@ export function PermissionApprovalDialog({
     setErrorMsg(null);
 
     try {
-      await api.post(`/outreach/${draft.id}/approve`);
+      await api.outreach.approve(draft.id);
       addToast({
         title: "Outreach Approved",
         description: `Message to ${draft.contactName} (${draft.companyName}) queued for dispatch.`,

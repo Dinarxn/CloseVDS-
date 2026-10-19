@@ -279,7 +279,7 @@ import type {
   ImportLeadCandidateInput,
   ImportLeadsResponse,
 } from '@/types/leads';
-import type { BackendLead } from '@/lib/mappers';
+import type { BackendLead, BackendEmailMessage } from '@/lib/mappers';
 import type { OperationsSummary, OperationTask, QueueItem } from '@/types/operations';
 import type { CRMActivity } from '@/types/crm';
 
@@ -681,6 +681,77 @@ export const api = {
         `/operations/queue/${itemId}/cancel`,
         { method: 'POST', body: JSON.stringify({ reason }) }
       ),
+  },
+
+  outreach: {
+    list: () =>
+      apiRequest<{
+        success?: boolean;
+        data?: BackendEmailMessage[] | { items: BackendEmailMessage[] };
+        items?: BackendEmailMessage[];
+      }>('/outreach'),
+
+    get: (id: string) =>
+      apiRequest<{
+        success?: boolean;
+        data?: BackendEmailMessage;
+        draft?: BackendEmailMessage;
+      }>(`/outreach/${id}`),
+
+    create: (body: {
+      leadId: string;
+      subject: string;
+      bodyText: string;
+      toEmail?: string;
+      fromName?: string;
+    }) =>
+      apiRequest<{
+        success: boolean;
+        data: BackendEmailMessage;
+        message?: string;
+      }>('/outreach', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    update: (
+      id: string,
+      body: {
+        subject?: string;
+        bodyText?: string;
+      }
+    ) =>
+      apiRequest<{
+        success: boolean;
+        data: BackendEmailMessage;
+        message?: string;
+      }>(`/outreach/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }),
+
+    approve: (id: string, notes?: string) =>
+      apiRequest<{ success: boolean; message?: string }>(`/outreach/${id}/approve`, {
+        method: 'POST',
+        body: JSON.stringify({ notes }),
+      }),
+
+    reject: (id: string, reason?: string) =>
+      apiRequest<{ success: boolean; message?: string }>(`/outreach/${id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+
+    cancel: (id: string, reason?: string) =>
+      apiRequest<{ success: boolean; message?: string }>(`/outreach/${id}/cancel`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+
+    dispatch: (id: string) =>
+      apiRequest<{ success: boolean; message?: string }>(`/outreach/${id}/dispatch`, {
+        method: 'POST',
+      }),
   },
 };
 

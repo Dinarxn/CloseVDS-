@@ -28,10 +28,19 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
 
   const handleReject = async (draftId: string) => {
     try {
-      await api.post(`/outreach/${draftId}/cancel`);
+      await api.outreach.cancel(draftId);
       if (onRefresh) onRefresh();
     } catch (err) {
       console.error("Failed to cancel draft:", err);
+    }
+  };
+
+  const handleDispatch = async (draftId: string) => {
+    try {
+      await api.outreach.dispatch(draftId);
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      console.error("Failed to dispatch draft:", err);
     }
   };
 
@@ -76,6 +85,7 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
                     draft={draft}
                     onApprove={handleOpenApproval}
                     onReject={handleReject}
+                    onDispatch={handleDispatch}
                   />
                 ))}
               </div>

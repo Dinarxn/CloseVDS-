@@ -4,3 +4,7 @@ export * from "./outreach-empty-state";
 export * from "./permission-review-card";
 export * from "./permission-approval-dialog";
 export * from "./outreach-queue-tabs";
+export * from "./outreach-overview-cards";
+export * from "./outreach-lead-selector";
+export * from "./outreach-composer";
+export * from "./outreach-activity-timeline";

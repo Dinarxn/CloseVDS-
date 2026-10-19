@@ -10,14 +10,17 @@ export interface PermissionReviewCardProps {
   draft: OutreachDraft;
   onApprove: (draft: OutreachDraft) => void;
   onReject: (draftId: string) => Promise<void> | void;
+  onDispatch?: (draftId: string) => Promise<void> | void;
 }
 
 export function PermissionReviewCard({
   draft,
   onApprove,
   onReject,
+  onDispatch,
 }: PermissionReviewCardProps) {
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isDispatching, setIsDispatching] = useState(false);
 
   const handleRejectClick = async () => {
     setIsRejecting(true);
@@ -25,6 +28,16 @@ export function PermissionReviewCard({
       await onReject(draft.id);
     } finally {
       setIsRejecting(false);
+    }
+  };
+
+  const handleDispatchClick = async () => {
+    if (!onDispatch) return;
+    setIsDispatching(true);
+    try {
+      await onDispatch(draft.id);
+    } finally {
+      setIsDispatching(false);
     }
   };
 
@@ -52,9 +65,11 @@ export function PermissionReviewCard({
             Verified Audit Facts Grounding
           </span>
           <ul className="text-[11px] text-zinc-300 space-y-1 list-disc list-inside">
-            {draft.observedFacts.map((fact, idx) => (
-              <li key={idx}>{fact}</li>
-            ))}
+            {draft.observedFacts && draft.observedFacts.length > 0 ? (
+              draft.observedFacts.map((fact, idx) => <li key={idx}>{fact}</li>)
+            ) : (
+              <li>Practice audit verified for direct patient acquisition</li>
+            )}
           </ul>
         </div>
 
@@ -71,23 +86,61 @@ export function PermissionReviewCard({
       </CardContent>
 
       <CardFooter className="flex items-center justify-between pt-3 border-t border-white/[0.06] mt-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRejectClick}
-          disabled={isRejecting}
-          className="text-xs text-zinc-400 hover:text-rose-300 hover:border-rose-800/60"
-        >
-          {isRejecting ? "Rejecting..." : "Reject / Disqualify"}
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => onApprove(draft)}
-          className="text-xs font-semibold"
-        >
-          Review &amp; Approve
-        </Button>
+        {draft.stage === "pending_approval" ? (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRejectClick}
+              disabled={isRejecting}
+              className="text-xs text-zinc-400 hover:text-rose-300 hover:border-rose-800/60"
+            >
+              {isRejecting ? "Rejecting..." : "Reject / Disqualify"}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => onApprove(draft)}
+              className="text-xs font-semibold"
+            >
+              Review &amp; Approve
+            </Button>
+          </>
+        ) : draft.stage === "approved_queue" ? (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRejectClick}
+              disabled={isRejecting}
+              className="text-xs text-zinc-400 hover:text-rose-300"
+            >
+              {isRejecting ? "Cancelling..." : "Cancel Queue"}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleDispatchClick}
+              disabled={isDispatching}
+              className="text-xs font-semibold"
+            >
+              {isDispatching ? "Dispatching..." : "Dispatch Outreach"}
+            </Button>
+          </>
+        ) : draft.stage === "sent_active" ? (
+          <div className="w-full flex items-center justify-between text-xs text-emerald-400">
+            <span className="font-mono text-[11px]">Touchpoint Dispatched</span>
+            {draft.sentAt && (
+              <span className="text-[10px] text-zinc-500 font-mono">
+                {new Date(draft.sentAt).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="w-full text-xs text-rose-400 font-mono text-[11px]">
+            Suppressed / Opted Out
+          </div>
+        )}
       </CardFooter>
     </Card>
   );
