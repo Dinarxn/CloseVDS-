@@ -126,9 +126,17 @@ export const TARGET_FIELDS: TargetFieldDef[] = [
 
 export type ColumnMappingState = Record<TargetLeadField, string>;
 
+export interface RowValidationIssue {
+  field: TargetLeadField | 'csv';
+  fieldLabel: string;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
 /**
  * Robust RFC-4180 compliant CSV parser.
- * Supports embedded commas, quotes, CRLF/LF line endings, and ignores empty lines.
+ * Supports embedded commas, quotes, CRLF/LF line endings, BOM stripping,
+ * empty line skipping, and unclosed quote detection.
  */
 export function parseCsv(text: string): {
   headers: string[];
@@ -147,6 +155,8 @@ export function parseCsv(text: string): {
   let currentRow: string[] = [];
   let currentField = '';
   let insideQuotes = false;
+  let quoteStartLine = 1;
+  let currentLine = 1;
   let i = 0;
   const len = cleanText.length;
 
@@ -155,7 +165,24 @@ export function parseCsv(text: string): {
     const nextChar = i + 1 < len ? cleanText[i + 1] : '';
 
     if (insideQuotes) {
-      if (char === '"') {
+      if (char === '\n') {
+        currentLine++;
+        currentField += char;
+        i++;
+        continue;
+      } else if (char === '\r') {
+        if (nextChar === '\n') {
+          currentField += '\r\n';
+          currentLine++;
+          i += 2;
+          continue;
+        } else {
+          currentField += '\r';
+          currentLine++;
+          i++;
+          continue;
+        }
+      } else if (char === '"') {
         if (nextChar === '"') {
           // Escaped double quote
           currentField += '"';
@@ -175,6 +202,7 @@ export function parseCsv(text: string): {
     } else {
       if (char === '"') {
         insideQuotes = true;
+        quoteStartLine = currentLine;
         i++;
         continue;
       } else if (char === ',') {
@@ -189,6 +217,7 @@ export function parseCsv(text: string): {
           rawRows.push(currentRow);
         }
         currentRow = [];
+        currentLine++;
         i += 2;
         continue;
       } else if (char === '\n' || char === '\r') {
@@ -198,6 +227,7 @@ export function parseCsv(text: string): {
           rawRows.push(currentRow);
         }
         currentRow = [];
+        currentLine++;
         i++;
         continue;
       } else {
@@ -216,8 +246,14 @@ export function parseCsv(text: string): {
     }
   }
 
+  if (insideQuotes) {
+    parseErrors.push(
+      `Malformed CSV: Unclosed quoted field detected starting at line ${quoteStartLine}. Check for missing closing quotes.`
+    );
+  }
+
   if (rawRows.length === 0) {
-    return { headers: [], rows: [], parseErrors: ['No readable rows found in CSV.'] };
+    return { headers: [], rows: [], parseErrors: parseErrors.length > 0 ? parseErrors : ['No readable rows found in CSV.'] };
   }
 
   const rawHeaders = rawRows[0];
@@ -281,7 +317,7 @@ export function detectColumnMappings(headers: string[]): ColumnMappingState {
 }
 
 /**
- * Domain normalizer: strips scheme, www, and trailing slash.
+ * Domain normalizer: strips scheme, www, and trailing path/queries.
  */
 export function normalizeDomain(raw?: string): string {
   if (!raw) return '';
@@ -308,11 +344,36 @@ export function normalizePhone(raw?: string): string {
 }
 
 /**
- * Email format validator.
+ * International phone validator.
+ * Accepts standard international formats with country code, leading +,
+ * hyphens, dots, parentheses, and spaces without national format bias.
+ * Rejects alphabetic characters, invalid punctuation, and numbers outside 6-16 digits.
+ */
+export function isValidPhone(phone?: string): boolean {
+  if (!phone || !phone.trim()) return false;
+  const trimmed = phone.trim();
+  // Backend limit: phone max 50 chars
+  if (trimmed.length > 50) return false;
+  // Disallow alphabetic letters
+  if (/[a-zA-Z]/.test(trimmed)) return false;
+  // Only allow digits and standard international phone separators
+  if (/[^0-9+\s\-()./]/.test(trimmed)) return false;
+  // Count digits (E.164 standard is 7-15 digits; allow 6-16 for leniency)
+  const digits = trimmed.replace(/\D/g, '');
+  return digits.length >= 6 && digits.length <= 16;
+}
+
+/**
+ * RFC 5322 compliant practical email validator.
+ * Validates syntax, prevents whitespace, and enforces backend max length of 255 chars.
  */
 export function isValidEmail(email?: string): boolean {
-  if (!email) return false;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email.trim());
+  if (!email || !email.trim()) return false;
+  const trimmed = email.trim();
+  if (trimmed.length > 255) return false;
+  return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/.test(
+    trimmed
+  );
 }
 
 /**
@@ -343,7 +404,8 @@ export interface ProcessedLeadRow {
   isDuplicateInWorkspace: boolean;
   duplicateOfRow?: number;
   matchingLeadName?: string;
-  issues: string[];
+  duplicateReason?: string;
+  issues: RowValidationIssue[];
 }
 
 export interface LeadImportValidationSummary {
@@ -355,12 +417,33 @@ export interface LeadImportValidationSummary {
   invalidCount: number;
 }
 
+interface InternalLeadIndexEntry {
+  rowNumber?: number;
+  leadId?: string;
+  businessName: string;
+  domain: string;
+  phone: string;
+  address: string;
+  city: string;
+}
+
 /**
- * Validates, normalizes, and performs multi-layer deduplication.
- * Deterministic matching rules:
- * 1. Normalized domain (if present)
- * 2. Normalized phone digits (if >= 7 digits)
- * 3. Business name (lowercase alphanumeric)
+ * Validates, normalizes, and performs conservative deduplication.
+ *
+ * Validation rules:
+ * - Business name is required after trimming whitespace (max 255 chars).
+ * - Optional email is validated when provided (must match RFC format, max 255 chars).
+ * - Optional phone is validated when provided (international formats accepted, 6-16 digits, max 50 chars).
+ * - Domain, website, address, city, and source are normalized safely.
+ * - Validation errors identify the affected row and field with severity.
+ * - Valid rows remain importable even when other rows are invalid.
+ *
+ * Deduplication rules:
+ * - Exact domain match (if domain present and non-empty).
+ * - Exact phone match (if normalized phone has >= 7 digits).
+ * - Business name match with corroboration: does NOT treat unrelated businesses
+ *   as duplicates solely because they share a common name (e.g. "Apex" or "Subway")
+ *   if their domains or phones conflict.
  */
 export function validateAndDeduplicateLeads(
   rows: Record<string, string>[],
@@ -372,26 +455,39 @@ export function validateAndDeduplicateLeads(
 } {
   const processedRows: ProcessedLeadRow[] = [];
 
-  // Index existing workspace leads for rapid cross-check
-  const existingDomainMap = new Map<string, string>();
-  const existingPhoneMap = new Map<string, string>();
-  const existingNameMap = new Map<string, string>();
+  // Index existing workspace leads
+  const existingDomainMap = new Map<string, InternalLeadIndexEntry>();
+  const existingPhoneMap = new Map<string, InternalLeadIndexEntry>();
+  const existingNameMap = new Map<string, InternalLeadIndexEntry[]>();
 
   for (const l of existingLeads) {
-    const d = normalizeDomain(l.website);
-    if (d) existingDomainMap.set(d, l.companyName);
+    const entry: InternalLeadIndexEntry = {
+      leadId: l.id,
+      businessName: l.companyName,
+      domain: normalizeDomain(l.website),
+      phone: normalizePhone(l.phone),
+      address: cleanBusinessName(l.address).toLowerCase(),
+      city: cleanBusinessName(l.city).toLowerCase(),
+    };
 
-    const p = normalizePhone(l.phone);
-    if (p && p.length >= 7) existingPhoneMap.set(p, l.companyName);
-
-    const n = cleanBusinessName(l.companyName).toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (n) existingNameMap.set(n, l.companyName);
+    if (entry.domain) {
+      existingDomainMap.set(entry.domain, entry);
+    }
+    if (entry.phone && entry.phone.length >= 7) {
+      existingPhoneMap.set(entry.phone, entry);
+    }
+    const n = cleanBusinessName(entry.businessName).toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (n) {
+      const list = existingNameMap.get(n) || [];
+      list.push(entry);
+      existingNameMap.set(n, list);
+    }
   }
 
-  // Track keys seen within this upload file
-  const seenFileDomains = new Map<string, number>();
-  const seenFilePhones = new Map<string, number>();
-  const seenFileNames = new Map<string, number>();
+  // Track entries seen within this upload file
+  const seenFileDomains = new Map<string, InternalLeadIndexEntry>();
+  const seenFilePhones = new Map<string, InternalLeadIndexEntry>();
+  const seenFileNames = new Map<string, InternalLeadIndexEntry[]>();
 
   let validCount = 0;
   let inFileDuplicateCount = 0;
@@ -401,7 +497,7 @@ export function validateAndDeduplicateLeads(
   for (let idx = 0; idx < rows.length; idx++) {
     const raw = rows[idx];
     const rowNumber = idx + 1;
-    const issues: string[] = [];
+    const issues: RowValidationIssue[] = [];
 
     const rawBusinessName = mapping.businessName ? raw[mapping.businessName] : '';
     const rawPhone = mapping.phone ? raw[mapping.phone] : '';
@@ -416,69 +512,190 @@ export function validateAndDeduplicateLeads(
     const businessName = cleanBusinessName(rawBusinessName);
     const domain = normalizeDomain(rawWebsite);
     const phone = normalizePhone(rawPhone);
-    const email = rawEmail.trim().toLowerCase();
+    const email = rawEmail ? rawEmail.trim().toLowerCase() : '';
     const contactName = cleanBusinessName(rawContactName);
     const contactTitle = cleanBusinessName(rawContactTitle);
     const address = cleanBusinessName(rawAddress);
     const city = cleanBusinessName(rawCity);
     const source = cleanBusinessName(rawSource);
 
-    // 1. Mandatory field check
+    // 1. Mandatory business name validation
     if (!businessName) {
-      issues.push('Missing business name (required)');
+      issues.push({
+        field: 'businessName',
+        fieldLabel: 'Business Name',
+        message: 'Business name is required after trimming whitespace.',
+        severity: 'error',
+      });
+    } else if (businessName.length > 255) {
+      issues.push({
+        field: 'businessName',
+        fieldLabel: 'Business Name',
+        message: `Business name exceeds 255 characters limit (${businessName.length} chars).`,
+        severity: 'error',
+      });
     }
 
-    // 2. Email format check (warning if provided but malformed)
-    if (email && !isValidEmail(email)) {
-      issues.push(`Malformed email format: "${email}"`);
+    // 2. Email validation (validated when provided)
+    if (rawEmail && rawEmail.trim().length > 0) {
+      if (!isValidEmail(email)) {
+        issues.push({
+          field: 'email',
+          fieldLabel: 'Contact Email',
+          message: `Invalid email address format: "${rawEmail.trim()}".`,
+          severity: 'error',
+        });
+      }
     }
 
-    // 3. In-file duplicate detection
+    // 3. Phone validation (validated when provided)
+    if (rawPhone && rawPhone.trim().length > 0) {
+      if (!isValidPhone(rawPhone)) {
+        issues.push({
+          field: 'phone',
+          fieldLabel: 'Phone Number',
+          message: `Invalid phone number format: "${rawPhone.trim()}". Must contain 6-16 digits without foreign text.`,
+          severity: 'error',
+        });
+      }
+    }
+
+    // 4. Website / Domain safe check
+    if (rawWebsite && rawWebsite.trim().length > 0 && !domain) {
+      issues.push({
+        field: 'website',
+        fieldLabel: 'Website / Domain',
+        message: `Website value "${rawWebsite.trim()}" could not be normalized to a valid domain.`,
+        severity: 'warning',
+      });
+    }
+
+    // Determine row validity so far
+    const hasValidationError = issues.some((iss) => iss.severity === 'error');
+
+    // 5. In-file duplicate detection (conservative & corroborated)
     let isDuplicateInFile = false;
     let duplicateOfRow: number | undefined;
+    let duplicateReason: string | undefined;
 
     const nameKey = businessName.toLowerCase().replace(/[^a-z0-9]/g, '');
 
+    const currentEntry: InternalLeadIndexEntry = {
+      rowNumber,
+      businessName,
+      domain,
+      phone,
+      address: address.toLowerCase(),
+      city: city.toLowerCase(),
+    };
+
     if (domain && seenFileDomains.has(domain)) {
       isDuplicateInFile = true;
-      duplicateOfRow = seenFileDomains.get(domain);
-      issues.push(`Duplicate website (${domain}) matches row #${duplicateOfRow}`);
+      const prior = seenFileDomains.get(domain)!;
+      duplicateOfRow = prior.rowNumber;
+      duplicateReason = `Duplicate website domain (${domain}) matches row #${duplicateOfRow}`;
+      issues.push({
+        field: 'website',
+        fieldLabel: 'Website / Domain',
+        message: duplicateReason,
+        severity: 'warning',
+      });
     } else if (phone && phone.length >= 7 && seenFilePhones.has(phone)) {
       isDuplicateInFile = true;
-      duplicateOfRow = seenFilePhones.get(phone);
-      issues.push(`Duplicate phone (${phone}) matches row #${duplicateOfRow}`);
+      const prior = seenFilePhones.get(phone)!;
+      duplicateOfRow = prior.rowNumber;
+      duplicateReason = `Duplicate phone number (${phone}) matches row #${duplicateOfRow}`;
+      issues.push({
+        field: 'phone',
+        fieldLabel: 'Phone Number',
+        message: duplicateReason,
+        severity: 'warning',
+      });
     } else if (nameKey && seenFileNames.has(nameKey)) {
-      isDuplicateInFile = true;
-      duplicateOfRow = seenFileNames.get(nameKey);
-      issues.push(`Duplicate company name matches row #${duplicateOfRow}`);
+      // Conservative name comparison: only mark duplicate if not in conflict
+      const priorList = seenFileNames.get(nameKey)!;
+      for (const prior of priorList) {
+        const conflictingDomain = domain && prior.domain && domain !== prior.domain;
+        const conflictingPhone =
+          phone && prior.phone && phone.length >= 7 && prior.phone.length >= 7 && phone !== prior.phone;
+
+        if (!conflictingDomain && !conflictingPhone) {
+          isDuplicateInFile = true;
+          duplicateOfRow = prior.rowNumber;
+          duplicateReason = `Duplicate business name matches row #${duplicateOfRow}`;
+          issues.push({
+            field: 'businessName',
+            fieldLabel: 'Business Name',
+            message: duplicateReason,
+            severity: 'warning',
+          });
+          break;
+        }
+      }
     }
 
-    // Record keys for subsequent in-file rows
-    if (domain && !seenFileDomains.has(domain)) seenFileDomains.set(domain, rowNumber);
-    if (phone && phone.length >= 7 && !seenFilePhones.has(phone)) seenFilePhones.set(phone, rowNumber);
-    if (nameKey && !seenFileNames.has(nameKey)) seenFileNames.set(nameKey, rowNumber);
+    // Record keys for subsequent in-file rows (even if invalid, to prevent duplicates)
+    if (domain && !seenFileDomains.has(domain)) seenFileDomains.set(domain, currentEntry);
+    if (phone && phone.length >= 7 && !seenFilePhones.has(phone)) seenFilePhones.set(phone, currentEntry);
+    if (nameKey) {
+      const list = seenFileNames.get(nameKey) || [];
+      list.push(currentEntry);
+      seenFileNames.set(nameKey, list);
+    }
 
-    // 4. Workspace duplicate cross-check
+    // 6. Workspace duplicate cross-check (if not already duplicate in file)
     let isDuplicateInWorkspace = false;
     let matchingLeadName: string | undefined;
 
-    if (domain && existingDomainMap.has(domain)) {
-      isDuplicateInWorkspace = true;
-      matchingLeadName = existingDomainMap.get(domain);
-      issues.push(`Matches existing lead in workspace: "${matchingLeadName}"`);
-    } else if (phone && phone.length >= 7 && existingPhoneMap.has(phone)) {
-      isDuplicateInWorkspace = true;
-      matchingLeadName = existingPhoneMap.get(phone);
-      issues.push(`Matches existing lead phone in workspace: "${matchingLeadName}"`);
-    } else if (nameKey && existingNameMap.has(nameKey)) {
-      isDuplicateInWorkspace = true;
-      matchingLeadName = existingNameMap.get(nameKey);
-      issues.push(`Matches existing lead name in workspace: "${matchingLeadName}"`);
+    if (!isDuplicateInFile) {
+      if (domain && existingDomainMap.has(domain)) {
+        isDuplicateInWorkspace = true;
+        const matched = existingDomainMap.get(domain)!;
+        matchingLeadName = matched.businessName;
+        duplicateReason = `Matches existing lead domain in workspace (${domain}): "${matchingLeadName}"`;
+        issues.push({
+          field: 'website',
+          fieldLabel: 'Website / Domain',
+          message: duplicateReason,
+          severity: 'warning',
+        });
+      } else if (phone && phone.length >= 7 && existingPhoneMap.has(phone)) {
+        isDuplicateInWorkspace = true;
+        const matched = existingPhoneMap.get(phone)!;
+        matchingLeadName = matched.businessName;
+        duplicateReason = `Matches existing lead phone in workspace (${phone}): "${matchingLeadName}"`;
+        issues.push({
+          field: 'phone',
+          fieldLabel: 'Phone Number',
+          message: duplicateReason,
+          severity: 'warning',
+        });
+      } else if (nameKey && existingNameMap.has(nameKey)) {
+        const priorList = existingNameMap.get(nameKey)!;
+        for (const prior of priorList) {
+          const conflictingDomain = domain && prior.domain && domain !== prior.domain;
+          const conflictingPhone =
+            phone && prior.phone && phone.length >= 7 && prior.phone.length >= 7 && phone !== prior.phone;
+
+          if (!conflictingDomain && !conflictingPhone) {
+            isDuplicateInWorkspace = true;
+            matchingLeadName = prior.businessName;
+            duplicateReason = `Matches existing lead name in workspace: "${matchingLeadName}"`;
+            issues.push({
+              field: 'businessName',
+              fieldLabel: 'Business Name',
+              message: duplicateReason,
+              severity: 'warning',
+            });
+            break;
+          }
+        }
+      }
     }
 
-    // Determine row status
+    // 7. Determine final row status
     let status: 'valid' | 'duplicate' | 'invalid' = 'valid';
-    if (!businessName) {
+    if (hasValidationError) {
       status = 'invalid';
       invalidCount++;
     } else if (isDuplicateInFile || isDuplicateInWorkspace) {
@@ -509,6 +726,7 @@ export function validateAndDeduplicateLeads(
       isDuplicateInWorkspace,
       duplicateOfRow,
       matchingLeadName,
+      duplicateReason,
       issues,
     });
   }
@@ -528,6 +746,17 @@ export function validateAndDeduplicateLeads(
   };
 }
 
+export interface ImportBatchChunkResult {
+  chunkIndex: number;
+  size: number;
+  success: boolean;
+  importedCount: number;
+  updatedCount: number;
+  skippedDuplicateCount: number;
+  failedCount: number;
+  error?: string;
+}
+
 export interface ImportExecutionResult {
   success: boolean;
   totalRequested: number;
@@ -535,6 +764,7 @@ export interface ImportExecutionResult {
   updatedCount: number;
   skippedDuplicateCount: number;
   failedCount: number;
+  chunkResults: ImportBatchChunkResult[];
   errors: string[];
 }
 
@@ -542,6 +772,7 @@ export interface ImportExecutionResult {
  * Bounded batch persistence executor.
  * Conforms strictly to backend's maximum batch size of 100 leads per request.
  * Reports per-chunk progress and genuine persistence counts.
+ * Correctly preserves earlier batch successes when a later batch fails.
  */
 export async function executeLeadImport(
   candidates: ImportLeadCandidateInput[],
@@ -553,6 +784,7 @@ export async function executeLeadImport(
   let skippedDuplicateCount = 0;
   let failedCount = 0;
   const errors: string[] = [];
+  const chunkResults: ImportBatchChunkResult[] = [];
 
   const chunks: ImportLeadCandidateInput[][] = [];
   for (let i = 0; i < candidates.length; i += CHUNK_SIZE) {
@@ -566,10 +798,24 @@ export async function executeLeadImport(
     try {
       const response = await api.leads.importBatch({ leads: chunk });
 
-      importedCount += response?.importedCount || 0;
-      updatedCount += response?.updatedCount || 0;
-      skippedDuplicateCount += response?.skippedDuplicateCount || 0;
+      const chunkImported = response?.importedCount || 0;
+      const chunkUpdated = response?.updatedCount || 0;
+      const chunkSkipped = response?.skippedDuplicateCount || 0;
+
+      importedCount += chunkImported;
+      updatedCount += chunkUpdated;
+      skippedDuplicateCount += chunkSkipped;
       completedCount += chunk.length;
+
+      chunkResults.push({
+        chunkIndex: c + 1,
+        size: chunk.length,
+        success: true,
+        importedCount: chunkImported,
+        updatedCount: chunkUpdated,
+        skippedDuplicateCount: chunkSkipped,
+        failedCount: 0,
+      });
 
       if (onProgress) {
         onProgress(completedCount, candidates.length);
@@ -583,6 +829,17 @@ export async function executeLeadImport(
         msg = err.message;
       }
       errors.push(`Batch #${c + 1} (${chunk.length} leads): ${msg}`);
+
+      chunkResults.push({
+        chunkIndex: c + 1,
+        size: chunk.length,
+        success: false,
+        importedCount: 0,
+        updatedCount: 0,
+        skippedDuplicateCount: 0,
+        failedCount: chunk.length,
+        error: msg,
+      });
     }
   }
 
@@ -595,6 +852,7 @@ export async function executeLeadImport(
     updatedCount,
     skippedDuplicateCount,
     failedCount,
+    chunkResults,
     errors,
   };
 }

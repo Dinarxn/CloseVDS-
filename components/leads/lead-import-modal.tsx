@@ -11,9 +11,11 @@ import {
   validateAndDeduplicateLeads,
   executeLeadImport,
   generateSampleCsv,
+  isValidEmail,
   TARGET_FIELDS,
   type ColumnMappingState,
   type TargetLeadField,
+  type ImportExecutionResult,
 } from "@/lib/lead-import";
 import type { Lead, ImportLeadCandidateInput } from "@/types/leads";
 
@@ -63,15 +65,7 @@ export function LeadImportModal({
   const [progressPercent, setProgressPercent] = useState(0);
 
   // Result state
-  const [importResult, setImportResult] = useState<{
-    success: boolean;
-    totalRequested: number;
-    importedCount: number;
-    updatedCount: number;
-    skippedDuplicateCount: number;
-    failedCount: number;
-    errors: string[];
-  } | null>(null);
+  const [importResult, setImportResult] = useState<ImportExecutionResult | null>(null);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -118,7 +112,7 @@ export function LeadImportModal({
         }
 
         if (rows.length === 0) {
-          setErrorMessage("The selected CSV file contains no data rows.");
+          setErrorMessage("The selected CSV file contains no readable data rows.");
           return;
         }
 
@@ -242,7 +236,7 @@ export function LeadImportModal({
     const candidatesPayload: ImportLeadCandidateInput[] = readyCandidates.map(
       (row, idx) => {
         const contactEmail = row.mapped.email;
-        const hasValidEmail = contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(contactEmail);
+        const hasValidEmail = Boolean(contactEmail && isValidEmail(contactEmail));
 
         return {
           externalId: `csv_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 7)}`,
@@ -250,7 +244,7 @@ export function LeadImportModal({
           domain: row.mapped.domain || null,
           phone: row.mapped.phone || null,
           address: row.mapped.address || null,
-          contact: hasValidEmail
+          contact: hasValidEmail && contactEmail
             ? {
                 fullName: row.mapped.contactName || row.mapped.businessName,
                 email: contactEmail,
@@ -513,7 +507,12 @@ export function LeadImportModal({
 
             {/* Deduplication & Exclusion Policy Toggles */}
             <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06] space-y-2">
-              <div className="text-xs font-semibold text-zinc-200">Import &amp; Deduplication Policy</div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                <div className="text-xs font-semibold text-zinc-200">Import &amp; Deduplication Policy</div>
+                <span className="text-[10px] font-mono text-zinc-500">
+                  Workspace cross-check scans {existingLeads.length} loaded records; backend deduplicates across DB.
+                </span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs text-zinc-300">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
@@ -591,7 +590,7 @@ export function LeadImportModal({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h5 className="text-xs font-semibold text-white tracking-tight">Preview Mapped Records</h5>
-                <span className="text-[11px] font-mono text-zinc-400">First 5 records from CSV</span>
+                <span className="text-[11px] font-mono text-zinc-400">Showing first 5 records with validation status</span>
               </div>
 
               <div className="border border-white/[0.06] rounded-lg overflow-x-auto bg-[#07070a]">
@@ -604,7 +603,7 @@ export function LeadImportModal({
                       <th className="py-2 px-3">Phone</th>
                       <th className="py-2 px-3">Email</th>
                       <th className="py-2 px-3">Website</th>
-                      <th className="py-2 px-3">Issues / Notes</th>
+                      <th className="py-2 px-3">Validation &amp; Deduplication Details</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/[0.04]">
@@ -638,9 +637,23 @@ export function LeadImportModal({
                         <td className="py-2 px-3 text-zinc-300 font-mono text-[11px] max-w-[140px] truncate">
                           {row.mapped.domain || "—"}
                         </td>
-                        <td className="py-2 px-3 text-zinc-400 text-[11px] max-w-[200px] truncate">
+                        <td className="py-2 px-3 text-zinc-400 text-[11px] max-w-[260px]">
                           {row.issues.length > 0 ? (
-                            <span className="text-amber-400/90">{row.issues.join(", ")}</span>
+                            <div className="space-y-1">
+                              {row.issues.map((iss, iIdx) => (
+                                <div
+                                  key={iIdx}
+                                  className={`text-[11px] leading-tight ${
+                                    iss.severity === "error" ? "text-rose-400" : "text-amber-400/90"
+                                  }`}
+                                >
+                                  <span className="font-semibold font-mono text-[10px] uppercase mr-1">
+                                    [{iss.fieldLabel}]:
+                                  </span>
+                                  <span>{iss.message}</span>
+                                </div>
+                              ))}
+                            </div>
                           ) : (
                             <span className="text-zinc-600 font-mono">Clean</span>
                           )}
@@ -653,15 +666,31 @@ export function LeadImportModal({
             </div>
 
             {/* Explicit Import Confirmation Banner */}
-            <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] flex items-center justify-between text-xs">
+            <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
               <div>
                 <span className="text-zinc-300">Ready to persist: </span>
                 <span className="text-white font-bold font-mono text-sm">{readyCandidates.length}</span>
                 <span className="text-zinc-400"> leads into your authenticated workspace.</span>
+                <span className="text-[11px] font-mono text-zinc-500 ml-1.5">
+                  ({Math.ceil(readyCandidates.length / 100)} batch{Math.ceil(readyCandidates.length / 100) === 1 ? '' : 'es'})
+                </span>
                 {!columnMapping.businessName && (
                   <p className="text-rose-400 text-[11px] mt-0.5">
                     * Please map the Business Name column to proceed.
                   </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400 shrink-0">
+                {summary.duplicateCount > 0 && (skipInFileDuplicates || skipWorkspaceDuplicates) && (
+                  <span className="text-amber-400">
+                    {summary.duplicateCount} duplicate(s) excluded
+                  </span>
+                )}
+                {summary.invalidCount > 0 && excludeInvalidRows && (
+                  <span className="text-rose-400">
+                    {summary.invalidCount} invalid row(s) excluded
+                  </span>
                 )}
               </div>
             </div>
@@ -691,34 +720,44 @@ export function LeadImportModal({
         {/* STEP 4: IMPORT RESULT SUMMARY */}
         {step === "result" && importResult && (
           <div className="space-y-4 py-2">
-            <div
-              className={`p-4 rounded-xl border ${
-                importResult.success
-                  ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                  : "bg-amber-950/20 border-amber-500/30 text-amber-300"
-              }`}
-            >
-              <div className="flex items-center gap-2.5 font-semibold text-sm text-white mb-1">
-                {importResult.success ? (
-                  <>
-                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-black flex items-center justify-center text-xs font-bold">
-                      ✓
-                    </span>
-                    <span>Import Completed Successfully</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center text-xs font-bold">
-                      !
-                    </span>
-                    <span>Import Completed with Warnings</span>
-                  </>
-                )}
+            {/* Status Header Banner */}
+            {importResult.failedCount === 0 ? (
+              <div className="p-4 rounded-xl border bg-emerald-950/20 border-emerald-500/30 text-emerald-300">
+                <div className="flex items-center gap-2.5 font-semibold text-sm text-white mb-1">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-black flex items-center justify-center text-xs font-bold">
+                    ✓
+                  </span>
+                  <span>Import Completed Successfully</span>
+                </div>
+                <p className="text-xs text-zinc-300">
+                  Successfully processed all {importResult.totalRequested} requested records against the backend database.
+                </p>
               </div>
-              <p className="text-xs text-zinc-300">
-                Processed {importResult.totalRequested} requested records against the backend database.
-              </p>
-            </div>
+            ) : importResult.importedCount > 0 || importResult.updatedCount > 0 ? (
+              <div className="p-4 rounded-xl border bg-amber-950/20 border-amber-500/30 text-amber-300">
+                <div className="flex items-center gap-2.5 font-semibold text-sm text-white mb-1">
+                  <span className="w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center text-xs font-bold">
+                    !
+                  </span>
+                  <span>Partial Import: Completed with Batch Failures</span>
+                </div>
+                <p className="text-xs text-zinc-300">
+                  {importResult.importedCount + importResult.updatedCount} leads persisted from earlier batches. {importResult.failedCount} leads failed due to API errors.
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl border bg-rose-950/20 border-rose-500/30 text-rose-300">
+                <div className="flex items-center gap-2.5 font-semibold text-sm text-white mb-1">
+                  <span className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold">
+                    ✕
+                  </span>
+                  <span>Import Failed — No Records Persisted</span>
+                </div>
+                <p className="text-xs text-zinc-300">
+                  All {importResult.totalRequested} requested records failed to persist. Review the failure details below before retrying.
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06]">
