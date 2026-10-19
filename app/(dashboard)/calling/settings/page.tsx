@@ -7,15 +7,18 @@ import {
   ProviderStatusCard,
   N8nKeysManager,
   N8nDeliveriesTable,
+  CallingPolicyCard,
 } from "@/components/calling";
 import {
   ProviderStatusItem,
   N8nIntegrationKey,
   N8nWebhookDelivery,
+  WorkspaceCallingPolicy,
 } from "@/types/calling";
 import { api, ApiClientError } from "@/lib/api-client";
 
 export default function CallingSettingsPage() {
+  const [policy, setPolicy] = useState<WorkspaceCallingPolicy | null>(null);
   const [providers, setProviders] = useState<ProviderStatusItem[]>([]);
   const [n8nKeys, setN8nKeys] = useState<N8nIntegrationKey[]>([]);
   const [deliveries, setDeliveries] = useState<N8nWebhookDelivery[]>([]);
@@ -27,11 +30,16 @@ export default function CallingSettingsPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const [providersRes, keysRes, deliveriesRes] = await Promise.allSettled([
+      const [policyRes, providersRes, keysRes, deliveriesRes] = await Promise.allSettled([
+        api.voice.getPolicy(),
         api.settings.getProviders(),
         api.n8n.listKeys(),
         api.n8n.listDeliveries(),
       ]);
+
+      if (policyRes.status === "fulfilled" && policyRes.value?.data) {
+        setPolicy(policyRes.value.data);
+      }
 
       if (providersRes.status === "fulfilled" && providersRes.value?.providers) {
         setProviders(providersRes.value.providers);
@@ -84,7 +92,16 @@ export default function CallingSettingsPage() {
           </div>
         )}
 
-        {/* 1. Telephony and AI Provider Status */}
+        {/* 1. Calling Policy & Automation Controls */}
+        <section>
+          <CallingPolicyCard
+            policy={policy}
+            isLoading={isLoading}
+            onPolicyUpdated={fetchData}
+          />
+        </section>
+
+        {/* 2. Telephony and AI Provider Status */}
         <section className="space-y-2.5">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">

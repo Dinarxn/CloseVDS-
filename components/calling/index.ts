@@ -18,3 +18,4 @@ export * from './n8n-keys-manager';
 export * from './n8n-deliveries-table';
 export * from './approval-queue-widget';
 export * from './call-reject-modal';
+export * from './calling-policy-card';

@@ -145,6 +145,24 @@ export default function CallsPage() {
     }
   };
 
+  const handleCancel = async (call: CallWithRelations) => {
+    try {
+      await api.voice.cancelCall(call.id, "Cancelled by operator via Call Queue");
+      addToast({
+        title: "Call Cancelled",
+        description: `Call for ${call.lead?.businessName || call.normalizedPhone} cancelled.`,
+        variant: "warning",
+      });
+      fetchCalls();
+    } catch (err: unknown) {
+      addToast({
+        title: "Cancellation Failed",
+        description: err instanceof Error ? err.message : "Cancellation failed",
+        variant: "error",
+      });
+    }
+  };
+
   return (
     <PageContainer maxWidth="xl" className="space-y-6">
       <PageHeader
@@ -212,6 +230,7 @@ export default function CallsPage() {
         isLoading={isLoading}
         onApprove={handleApprove}
         onReject={(call) => setRejectingCall(call)}
+        onCancel={handleCancel}
         onCheckSafety={(call) => setSafetyModalCallId(call.id)}
         onDispatch={(call) => setDispatchModalCall(call)}
         onPrepareClick={() => setIsPrepModalOpen(true)}

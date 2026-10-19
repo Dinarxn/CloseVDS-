@@ -272,6 +272,10 @@ import type {
   N8nCreatedKeyResult,
   N8nIntegrationKey,
   N8nWebhookDelivery,
+  WorkspaceCallingPolicy,
+  UpdateCallingPolicyInput,
+  CallOutcome,
+  CallTranscriptTurn,
 } from '@/types/calling';
 import type {
   LeadAiWorkflowResult,
@@ -308,6 +312,15 @@ export const api = {
     apiRequest<T>(endpoint, { ...options, method: 'DELETE' }),
 
   voice: {
+    getPolicy: () =>
+      apiRequest<{ success: boolean; data: WorkspaceCallingPolicy }>('/voice/policy'),
+
+    updatePolicy: (body: UpdateCallingPolicyInput) =>
+      apiRequest<{ success: boolean; data: WorkspaceCallingPolicy; message: string }>(
+        '/voice/policy',
+        { method: 'PUT', body: JSON.stringify(body) }
+      ),
+
     getCampaign: (campaignId: string) =>
       apiRequest<{ success: boolean; data: VoiceCampaign | null }>(`/voice/campaigns/${campaignId}`),
 
@@ -335,14 +348,20 @@ export const api = {
         { method: 'PUT', body: JSON.stringify(body) }
       ),
 
-    prepareCall: (body: { campaignId: string; leadId: string; contactId: string; idempotencyKey?: string }) =>
+    prepareCall: (body: {
+      campaignId?: string;
+      leadId: string;
+      contactId: string;
+      agentConfigId?: string | null;
+      idempotencyKey?: string;
+    }) =>
       apiRequest<{ success: boolean; data: CallPreparationResult; message: string }>(
         '/voice/calls/prepare',
         { method: 'POST', body: JSON.stringify(body) }
       ),
 
     createCall: (body: {
-      campaignId: string;
+      campaignId?: string;
       leadId: string;
       contactId: string;
       agentConfigId?: string | null;
@@ -400,6 +419,27 @@ export const api = {
       apiRequest<{ success: boolean; data: CallDispatchResult; message: string }>(
         `/voice/calls/${id}/dispatch`,
         { method: 'POST', body: JSON.stringify(options || {}) }
+      ),
+
+    recordTurn: (
+      id: string,
+      body: {
+        turnIndex: number;
+        speaker: 'agent' | 'lead' | 'system';
+        text: string;
+        confidence?: number;
+        timestampMs?: number;
+      }
+    ) =>
+      apiRequest<{ success: boolean; data: CallTranscriptTurn; message: string }>(
+        `/voice/calls/${id}/turns`,
+        { method: 'POST', body: JSON.stringify(body) }
+      ),
+
+    completeCall: (id: string) =>
+      apiRequest<{ success: boolean; data: CallOutcome; message: string }>(
+        `/voice/calls/${id}/complete`,
+        { method: 'POST' }
       ),
 
     getVoiceAnalytics: (filter?: { from?: string; to?: string; campaignId?: string }) => {

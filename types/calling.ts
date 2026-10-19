@@ -331,3 +331,35 @@ export interface N8nWebhookDelivery {
   deliveredAt?: string | null;
   createdAt: string;
 }
+
+export interface WorkspaceCallingPolicy {
+  id: string;
+  workspaceId: string;
+  dailyCallLimit: number;
+  maxConcurrentCalls: number;
+  maxAttemptsPerLead: number;
+  retryDelayMinutes: number;
+  allowedCallingDays: number[];
+  callingWindowStart: string;
+  callingWindowEnd: string;
+  recordingConsent: boolean;
+  humanApprovalRequired: boolean;
+  providerRestrictions: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateCallingPolicyInput {
+  dailyCallLimit?: number;
+  maxConcurrentCalls?: number;
+  maxAttemptsPerLead?: number;
+  retryDelayMinutes?: number;
+  allowedCallingDays?: number[];
+  callingWindowStart?: string;
+  callingWindowEnd?: string;
+  recordingConsent?: boolean;
+  humanApprovalRequired?: boolean;
+  providerRestrictions?: string[];
+  isActive?: boolean;
+}

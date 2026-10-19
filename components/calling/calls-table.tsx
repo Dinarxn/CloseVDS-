@@ -13,6 +13,7 @@ export interface CallsTableProps {
   isLoading?: boolean;
   onApprove?: (call: CallWithRelations) => void;
   onReject?: (call: CallWithRelations) => void;
+  onCancel?: (call: CallWithRelations) => void;
   onCheckSafety?: (call: CallWithRelations) => void;
   onDispatch?: (call: CallWithRelations) => void;
   onPrepareClick?: () => void;
@@ -23,6 +24,7 @@ export function CallsTable({
   isLoading = false,
   onApprove,
   onReject,
+  onCancel,
   onCheckSafety,
   onDispatch,
   onPrepareClick,
@@ -164,14 +166,27 @@ export function CallsTable({
                       )}
 
                       {isApproved && (
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          className="text-[11px] h-7 px-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
-                          onClick={() => onDispatch?.(call)}
-                        >
-                          Dispatch
-                        </Button>
+                        <>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="text-[11px] h-7 px-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
+                            onClick={() => onDispatch?.(call)}
+                          >
+                            Dispatch
+                          </Button>
+                          {onCancel && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-[11px] h-7 px-2 text-zinc-400 hover:text-rose-400"
+                              onClick={() => onCancel(call)}
+                              title="Cancel approved call before dialing"
+                            >
+                              Cancel
+                            </Button>
+                          )}
+                        </>
                       )}
 
                       <Button

@@ -58,6 +58,50 @@ export function VoiceAgentForm({
 
   const [formError, setFormError] = useState<string | null>(null);
 
+  const handleApplyHindiPreset = () => {
+    setName("राजेश - वरिष्ठ विकास सलाहकार (Hindi Voice Agent)");
+    setCallObjective("क्लिनिक के निर्णयकर्ता से बात करके 15 मिनट के ग्रोथ ऑडिट डेमो का समय निर्धारित करना।");
+    setOpeningScript("नमस्ते, मैं CloseVDS से बोल रहा हूँ। मैं आपके क्लिनिक के पेशेंट बुकिंग वर्कफ़्लो के बारे में संपर्क कर रहा हूँ। क्या मेरी बात प्रैक्टिस मैनेजर से हो रही है?");
+    setQualificationQuestions([
+      "क्या आप वर्तमान में नए मरीजों/ग्राहकों को स्वीकार कर रहे हैं?",
+      "आपके क्लिनिक में ऑनलाइन बुकिंग और तकनीकी कार्यप्रणाली कौन संभालता है?",
+    ]);
+    setApprovedTalkingPoints([
+      "वेबसाइट और गूगल मैप्स प्रोफाइल पर पेशेंट बुकिंग की कमियों का विश्लेषण",
+      "बिना अतिरिक्त स्टाफ के 24/7 ऑटोमेटेड अपॉइंटमेंट शेड्यूलिंग",
+    ]);
+    setProhibitedClaims([
+      "कभी भी 100% राजस्व वृद्धि की गारंटी न दें",
+      "बिना पूर्व-स्वीकृति के कोई अनधिकृत छूट या कस्टम मूल्य न बताएं",
+    ]);
+    setEscalationConditions([
+      "जब ग्राहक स्पष्ट रूप से मानव प्रबंधक से बात करने का अनुरोध करे",
+      "जब कोई कानूनी या अनुपालन संबंधी प्रश्न पूछा जाए",
+    ]);
+  };
+
+  const handleApplyEnglishPreset = () => {
+    setName("Alex - Senior Growth Specialist (English Voice Agent)");
+    setCallObjective("Introduce closeVDS client acquisition capabilities, qualify prospective business fit, identify current booking gaps, and secure a demo.");
+    setOpeningScript("Hi, this is Alex with closeVDS. I'm reaching out specifically regarding your online client intake workflow. Do you have two minutes?");
+    setQualificationQuestions([
+      "Are you currently taking on new clients?",
+      "Who handles your technology and booking workflows?",
+    ]);
+    setApprovedTalkingPoints([
+      "Observed technical audit gaps on company website",
+      "Automated booking integration without staff overhead",
+    ]);
+    setProhibitedClaims([
+      "Never guarantee 100% revenue increases",
+      "Never quote unapproved custom pricing",
+    ]);
+    setEscalationConditions([
+      "Prospect explicitly requests human manager",
+      "Prospect mentions legal/compliance inquiry",
+    ]);
+  };
+
   const handleAddQuestion = () => {
     if (newQuestion.trim()) {
       setQualificationQuestions([...qualificationQuestions, newQuestion.trim()]);
@@ -145,6 +189,37 @@ export function VoiceAgentForm({
           {formError}
         </Alert>
       )}
+
+      {/* Language & Provider Context */}
+      <div className="p-4 rounded-xl bg-[#0c0c14] border border-white/[0.08] space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium block">
+              Language &amp; Telephony Model
+            </span>
+            <h4 className="text-xs font-semibold text-white">Calling Language &amp; Script Presets</h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleApplyEnglishPreset}
+              className="px-2.5 py-1 text-xs font-medium rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 border border-white/[0.08] transition-colors cursor-pointer"
+            >
+              English Preset
+            </button>
+            <button
+              type="button"
+              onClick={handleApplyHindiPreset}
+              className="px-2.5 py-1 text-xs font-medium rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition-colors cursor-pointer"
+            >
+              Hindi Preset (हिन्दी)
+            </button>
+          </div>
+        </div>
+        <p className="text-[11px] text-zinc-400 leading-relaxed">
+          The backend connects via the Twilio Voice Adapter. Text scripts configured here are synthesized via Twilio TTS and real-time audio streams. Hindi script templates are natively supported when text is entered in Hindi or Hinglish.
+        </p>
+      </div>
 
       {/* Core Profile */}
       <Card variant="standard">

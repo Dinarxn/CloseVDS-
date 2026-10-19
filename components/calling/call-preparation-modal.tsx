@@ -25,6 +25,8 @@ interface CampaignOption {
 interface LeadOption {
   id: string;
   businessName: string;
+  phone?: string | null;
+  status?: string;
   campaignId?: string;
   contacts: Array<{ id: string; fullName: string; phone?: string; title?: string }>;
 }
@@ -72,20 +74,26 @@ export function CallPreparationModal({
       setErrorMsg(null);
       try {
         const [cRes, lRes] = await Promise.allSettled([
-          api.get<{ items?: CampaignOption[]; data?: { items?: CampaignOption[] } }>("/campaigns"),
-          api.get<{ items?: LeadOption[]; data?: { items?: LeadOption[] } }>("/leads"),
+          api.campaigns.list({ limit: 50 }),
+          api.leads.list({ limit: 100 }),
         ]);
 
         if (cRes.status === "fulfilled") {
           const val = cRes.value;
-          const items = val?.items || val?.data?.items || [];
+          const items: CampaignOption[] = Array.isArray(val?.data)
+            ? (val.data as unknown as CampaignOption[])
+            : [];
           setCampaigns(items);
           setCampaignId((curr) => curr || items[0]?.id || "");
         }
 
         if (lRes.status === "fulfilled") {
           const val = lRes.value;
-          const items = val?.items || val?.data?.items || [];
+          const items: LeadOption[] = Array.isArray(val)
+            ? (val as unknown as LeadOption[])
+            : Array.isArray(val?.data)
+            ? (val.data as unknown as LeadOption[])
+            : [];
           setLeads(items);
           setLeadId((curr) => {
             const chosen = curr || items[0]?.id || "";
@@ -120,9 +128,21 @@ export function CallPreparationModal({
   }, [leadId, availableContacts, contactId]);
 
   const handlePrepare = async () => {
-    const resolvedCampaignId = campaignId || selectedLead?.campaignId || campaigns[0]?.id || "";
+    const resolvedCampaignId = campaignId || selectedLead?.campaignId || undefined;
     if (!leadId || !contactId) {
       setErrorMsg("Prospect and Decision Maker Contact must both be selected.");
+      return;
+    }
+
+    if (selectedLead?.status === "OPT_OUT") {
+      setErrorMsg("This prospect has requested opt-out (OPT_OUT). Autonomous safety gates will block call preparation.");
+      return;
+    }
+
+    const selectedContact = availableContacts.find((c) => c.id === contactId);
+    const targetPhone = selectedContact?.phone || selectedLead?.phone;
+    if (!targetPhone) {
+      setErrorMsg("Selected prospect and contact have no phone number on file. A valid phone number is required.");
       return;
     }
 
@@ -150,9 +170,21 @@ export function CallPreparationModal({
   };
 
   const handleCreateCall = async () => {
-    const resolvedCampaignId = campaignId || selectedLead?.campaignId || campaigns[0]?.id || "";
+    const resolvedCampaignId = campaignId || selectedLead?.campaignId || undefined;
     if (!leadId || !contactId) {
       setErrorMsg("Prospect and Decision Maker Contact must both be selected.");
+      return;
+    }
+
+    if (selectedLead?.status === "OPT_OUT") {
+      setErrorMsg("This prospect has requested opt-out (OPT_OUT). Autonomous safety gates will block call creation.");
+      return;
+    }
+
+    const selectedContact = availableContacts.find((c) => c.id === contactId);
+    const targetPhone = selectedContact?.phone || selectedLead?.phone;
+    if (!targetPhone) {
+      setErrorMsg("Selected prospect and contact have no phone number on file. A valid phone number is required.");
       return;
     }
 
@@ -181,6 +213,7 @@ export function CallPreparationModal({
       setIsCreating(false);
     }
   };
+
 
   return (
     <Dialog
@@ -228,6 +261,25 @@ export function CallPreparationModal({
               </Alert>
             )}
 
+            {campaigns.length > 0 && (
+              <Select
+                id="prep-campaign"
+                label="Acquisition Campaign (Optional)"
+                value={campaignId}
+                disabled={isLoadingOptions || isPreparing}
+                placeholder="Select Campaign (Optional)"
+                onChange={(e) => {
+                  setCampaignId(e.target.value);
+                  setPrepResult(null);
+                }}
+                options={[
+                  { value: "", label: "No Campaign Linked (Direct Prospect Outreach)" },
+                  ...campaigns.map((c) => ({ value: c.id, label: c.name })),
+                ]}
+                helperText="Associates call with campaign intelligence offer"
+              />
+            )}
+
             {/* Target Selectors: Prospect & Contact */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Select
@@ -240,7 +292,10 @@ export function CallPreparationModal({
                   setLeadId(e.target.value);
                   setPrepResult(null);
                 }}
-                options={leads.map((l) => ({ value: l.id, label: l.businessName }))}
+                options={leads.map((l) => ({
+                  value: l.id,
+                  label: l.status === "OPT_OUT" ? `${l.businessName} [OPTED OUT]` : l.businessName,
+                }))}
                 helperText="Verified prospect from Lead Pool"
               />
 
@@ -271,6 +326,18 @@ export function CallPreparationModal({
                 }
               />
             </div>
+
+            {selectedLead?.status === "OPT_OUT" && (
+              <Alert variant="warning" title="Prospect Opted Out / Suppressed">
+                This prospect has requested opt-out (OPT_OUT). Server safety gates strictly enforce suppression and will block call preparation and dispatch.
+              </Alert>
+            )}
+
+            {selectedLead && !availableContacts.some((c) => c.phone) && !selectedLead.phone && (
+              <Alert variant="destructive" title="No Phone Number Available">
+                This prospect and its contacts have no telephone number on file. A valid telephone number is required to synthesize and prepare an AI call.
+              </Alert>
+            )}
 
             {/* Run Pre-Flight Action Button */}
             {!prepResult && (

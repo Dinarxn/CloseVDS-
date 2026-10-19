@@ -21,6 +21,7 @@ import {
   VoiceAnalyticsData,
   ProviderStatusItem,
   N8nIntegrationKey,
+  WorkspaceCallingPolicy,
 } from "@/types/calling";
 import { api, ApiClientError } from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function CallingDashboardPage() {
   const [calls, setCalls] = useState<CallWithRelations[]>([]);
   const [analytics, setAnalytics] = useState<VoiceAnalyticsData | null>(null);
+  const [policy, setPolicy] = useState<WorkspaceCallingPolicy | null>(null);
   const [providers, setProviders] = useState<ProviderStatusItem[]>([]);
   const [n8nKeys, setN8nKeys] = useState<N8nIntegrationKey[]>([]);
 
@@ -46,9 +48,10 @@ export default function CallingDashboardPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const [callsRes, analyticsRes, providersRes, n8nRes] = await Promise.allSettled([
+      const [callsRes, analyticsRes, policyRes, providersRes, n8nRes] = await Promise.allSettled([
         api.voice.listCalls({ limit: 15 }),
         api.voice.getVoiceAnalytics(),
+        api.voice.getPolicy(),
         api.settings.getProviders(),
         api.n8n.listKeys(),
       ]);
@@ -59,6 +62,10 @@ export default function CallingDashboardPage() {
 
       if (analyticsRes.status === "fulfilled" && analyticsRes.value?.voice) {
         setAnalytics(analyticsRes.value.voice);
+      }
+
+      if (policyRes.status === "fulfilled" && policyRes.value?.data) {
+        setPolicy(policyRes.value.data);
       }
 
       if (providersRes.status === "fulfilled" && providersRes.value?.providers) {
@@ -116,6 +123,24 @@ export default function CallingDashboardPage() {
       addToast({
         title: "Rejection Failed",
         description: err instanceof Error ? err.message : "Rejection failed",
+        variant: "error",
+      });
+    }
+  };
+
+  const handleCancel = async (call: CallWithRelations) => {
+    try {
+      await api.voice.cancelCall(call.id, "Cancelled by operator via Dashboard");
+      addToast({
+        title: "Call Cancelled",
+        description: `Call for ${call.lead?.businessName || call.normalizedPhone} cancelled.`,
+        variant: "warning",
+      });
+      fetchData();
+    } catch (err: unknown) {
+      addToast({
+        title: "Cancellation Failed",
+        description: err instanceof Error ? err.message : "Cancellation failed",
         variant: "error",
       });
     }
@@ -215,11 +240,11 @@ export default function CallingDashboardPage() {
           isLoading={isLoading}
         />
         <SafetyStatusCard
-          killSwitchActive={false}
-          humanApprovalRequired={true}
+          killSwitchActive={policy ? !policy.isActive : false}
+          humanApprovalRequired={policy ? policy.humanApprovalRequired : true}
           suppressedPhoneCount={analytics?.optOutCount || 0}
-          dailyCap={25}
-          callingWindow="09:00 - 17:00"
+          dailyCap={policy ? policy.dailyCallLimit : 25}
+          callingWindow={policy ? `${policy.callingWindowStart} - ${policy.callingWindowEnd}` : "09:00 - 17:00"}
           providerConfigured={twilioConfigured}
         />
       </div>
@@ -240,16 +265,17 @@ export default function CallingDashboardPage() {
           </Link>
         </div>
 
-          <CallsTable
-            calls={calls.slice(0, 8)}
-            isLoading={isLoading}
-            onApprove={handleApprove}
-            onReject={(call) => setRejectingCall(call)}
-            onCheckSafety={(call) => setSafetyModalCallId(call.id)}
-            onDispatch={(call) => setDispatchModalCall(call)}
-            onPrepareClick={() => setIsPrepModalOpen(true)}
-          />
-        </div>
+        <CallsTable
+          calls={calls.slice(0, 8)}
+          isLoading={isLoading}
+          onApprove={handleApprove}
+          onReject={(call) => setRejectingCall(call)}
+          onCancel={handleCancel}
+          onCheckSafety={(call) => setSafetyModalCallId(call.id)}
+          onDispatch={(call) => setDispatchModalCall(call)}
+          onPrepareClick={() => setIsPrepModalOpen(true)}
+        />
+      </div>
 
         {/* Modals */}
         <CallPreparationModal
