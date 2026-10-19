@@ -22,8 +22,11 @@ export class ApiClientError extends Error {
       Array.isArray(errorData?.details) &&
       errorData.details.length > 0
     ) {
-      const issueSummary = (errorData.details as Array<{ path?: string; message?: string }>)
-        .map((iss) => (iss.path ? `${iss.path}: ${iss.message}` : iss.message))
+      const issueSummary = (errorData.details as Array<{ path?: string | Array<string | number>; message?: string }>)
+        .map((iss) => {
+          const pathStr = Array.isArray(iss.path) ? iss.path.join('.') : iss.path;
+          return pathStr ? `${pathStr}: ${iss.message}` : iss.message;
+        })
         .filter(Boolean)
         .join(', ');
       if (issueSummary) {
