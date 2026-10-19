@@ -152,6 +152,7 @@ import type {
 } from '@/types/leads';
 import type { BackendLead } from '@/lib/mappers';
 import type { OperationsSummary, OperationTask, QueueItem } from '@/types/operations';
+import type { CRMActivity } from '@/types/crm';
 
 export const api = {
   get: <T = unknown>(endpoint: string, options?: RequestInit) =>
@@ -392,9 +393,76 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
+    update: (
+      id: string,
+      body: {
+        businessName?: string;
+        domain?: string;
+        phone?: string;
+        address?: string;
+        status?: string;
+      }
+    ) =>
+      apiRequest<{
+        success: boolean;
+        lead: BackendLead;
+        serviceRecommendation?: unknown;
+      }>(`/leads/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }),
+
     importBatch: (body: { leads: ImportLeadCandidateInput[] }) =>
       apiRequest<ImportLeadsResponse>('/lead-discovery/import-closebds', {
         method: 'POST',
+        body: JSON.stringify(body),
+      }),
+  },
+
+  crm: {
+    getProfile: (leadId: string) =>
+      apiRequest<{
+        success: boolean;
+        lead: BackendLead;
+        activities: CRMActivity[];
+        dealSizeEstimate?: number;
+      }>(`/crm/leads/${leadId}`),
+
+    getActivities: (leadId: string) =>
+      apiRequest<{
+        success: boolean;
+        activities: CRMActivity[];
+      }>(`/crm/leads/${leadId}/activities`),
+
+    recordActivity: (
+      leadId: string,
+      body: {
+        type: 'STAGE_CHANGE' | 'NOTE' | 'CALL_LOG' | 'EMAIL_SENT' | 'EMAIL_REPLIED';
+        description: string;
+        metadata?: Record<string, unknown>;
+      }
+    ) =>
+      apiRequest<{
+        success: boolean;
+        activity: CRMActivity;
+      }>(`/crm/leads/${leadId}/activities`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    updateStage: (
+      leadId: string,
+      body: {
+        status: string;
+        note?: string;
+      }
+    ) =>
+      apiRequest<{
+        success: boolean;
+        lead: BackendLead;
+        activity: CRMActivity;
+      }>(`/crm/leads/${leadId}/stage`, {
+        method: 'PATCH',
         body: JSON.stringify(body),
       }),
   },

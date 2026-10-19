@@ -137,6 +137,22 @@ export function LeadsToolbar({
                 <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z" />
               </svg>
             </button>
+            <button
+              onClick={() => onViewModeChange("pipeline")}
+              className={`p-1 px-1.5 rounded-md text-xs transition-colors cursor-pointer ${
+                viewMode === "pipeline"
+                  ? "bg-white/[0.12] text-white font-medium shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+              aria-label="Pipeline view"
+              title="Pipeline view"
+            >
+              <svg className="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2">
+                <rect x="3" y="4" width="5" height="16" rx="1" />
+                <rect x="10" y="4" width="5" height="11" rx="1" />
+                <rect x="17" y="4" width="5" height="14" rx="1" />
+              </svg>
+            </button>
           </div>
 
           {/* Subtle separator */}

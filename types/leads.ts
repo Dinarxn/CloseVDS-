@@ -122,6 +122,8 @@ export interface Lead {
   mapsUrl?: string;
   mapsMatchStatus?: MapsMatchStatus;
   placeId?: string;
+  rating?: number;
+  userRatingsTotal?: number;
 
   // B4 Actionability
   actionability?: LeadActionability;
@@ -146,7 +148,7 @@ export type LeadSortOption =
   | "score_desc"
   | "score_asc";
 
-export type LeadViewMode = "table" | "cards";
+export type LeadViewMode = "table" | "cards" | "pipeline";
 
 export interface LeadAiResult {
   summary: string;

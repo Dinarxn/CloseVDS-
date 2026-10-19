@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import { Lead } from "@/types/leads";
+import { Lead, LeadStatus } from "@/types/leads";
 import {
   ActionabilityBadge,
   DataQualityBadge,
-  LeadStatusBadge,
   MapsMatchStatusBadge,
   QualificationBadge,
   ServiceRecommendationBadge,
 } from "./lead-status-badge";
+import { LeadStatusSelect } from "./lead-status-select";
 import { LeadsEmptyState } from "./leads-empty-state";
 
 export interface LeadsCardGridProps {
@@ -19,6 +19,7 @@ export interface LeadsCardGridProps {
   isFiltered?: boolean;
   onClearFilters?: () => void;
   onSelectLead?: (lead: Lead) => void;
+  onLeadStatusChanged?: (leadId: string, newStatus: LeadStatus) => void;
 }
 
 export function LeadsCardGrid({
@@ -28,6 +29,7 @@ export function LeadsCardGrid({
   isFiltered,
   onClearFilters,
   onSelectLead,
+  onLeadStatusChanged,
 }: LeadsCardGridProps) {
   if (leads.length === 0) {
     return (
@@ -59,7 +61,12 @@ export function LeadsCardGrid({
               </h4>
               <div className="flex items-center gap-1.5 flex-wrap justify-end">
                 {lead.dataQuality && <DataQualityBadge quality={lead.dataQuality} />}
-                <LeadStatusBadge status={lead.status} />
+                <LeadStatusSelect
+                  leadId={lead.id}
+                  currentStatus={lead.status}
+                  size="sm"
+                  onStatusChange={(newStatus) => onLeadStatusChanged?.(lead.id, newStatus)}
+                />
               </div>
             </div>
             {lead.website ? (

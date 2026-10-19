@@ -80,6 +80,9 @@ export interface BackendLead {
   mapsUrl?: string;
   mapsMatchStatus?: MapsMatchStatus;
   placeId?: string;
+  rating?: number;
+  userRatingsTotal?: number;
+  metadata?: Record<string, unknown> | null;
 
   // B4 Actionability
   actionability?: LeadActionability;
@@ -106,19 +109,56 @@ export interface BackendEmailMessage {
 export function mapBackendStatusToLeadStatus(rawStatus?: string): LeadStatus {
   if (!rawStatus) return 'discovered';
   const statusStr = rawStatus.toUpperCase();
-  if (statusStr === 'DISCOVERED') return 'discovered';
-  if (statusStr === 'AUDITING' || statusStr === 'RESEARCHED') return 'analyzing';
+  if (statusStr === 'DISCOVERED' || statusStr === 'IMPORTED' || statusStr === 'NEW') return 'discovered';
+  if (
+    statusStr === 'AUDITING' ||
+    statusStr === 'RESEARCHED' ||
+    statusStr === 'RESEARCH_PENDING' ||
+    statusStr === 'QUALIFICATION_PENDING'
+  )
+    return 'analyzing';
   if (statusStr === 'QUALIFIED') return 'qualified';
   if (statusStr === 'DISQUALIFIED') return 'disqualified';
   if (statusStr === 'CALL_READY' || statusStr === 'OUTREACH_READY') return 'outreach_ready';
   if (statusStr === 'CONTACTED') return 'contacted';
-  if (statusStr === 'IN_FOLLOWUP') return 'in_followup';
+  if (statusStr === 'IN_FOLLOWUP' || statusStr === 'INTERESTED') return 'in_followup';
   if (statusStr === 'REPLIED') return 'replied';
-  if (statusStr === 'MEETING_BOOKED') return 'meeting_booked';
+  if (statusStr === 'MEETING_BOOKED' || statusStr === 'MEETING') return 'meeting_booked';
   if (statusStr === 'OPT_OUT') return 'opted_out';
-  if (statusStr === 'CLOSED_WON') return 'closed_won';
-  if (statusStr === 'CLOSED_LOST') return 'closed_lost';
+  if (statusStr === 'CLOSED_WON' || statusStr === 'WON') return 'closed_won';
+  if (statusStr === 'CLOSED_LOST' || statusStr === 'LOST') return 'closed_lost';
   return 'discovered';
+}
+
+export function mapLeadStatusToBackendStatus(status: LeadStatus): string {
+  switch (status) {
+    case 'discovered':
+      return 'DISCOVERED';
+    case 'analyzing':
+      return 'RESEARCH_PENDING';
+    case 'qualified':
+      return 'QUALIFIED';
+    case 'outreach_ready':
+      return 'CALL_READY';
+    case 'contacted':
+      return 'CONTACTED';
+    case 'in_followup':
+      return 'INTERESTED';
+    case 'replied':
+      return 'REPLIED';
+    case 'meeting_booked':
+      return 'MEETING';
+    case 'closed_won':
+      return 'WON';
+    case 'closed_lost':
+      return 'LOST';
+    case 'disqualified':
+      return 'DISQUALIFIED';
+    case 'opted_out':
+      return 'OPT_OUT';
+    default:
+      return 'DISCOVERED';
+  }
 }
 
 export function mapBackendLeadToFrontend(bLead: BackendLead): Lead {
@@ -195,6 +235,16 @@ export function mapBackendLeadToFrontend(bLead: BackendLead): Lead {
     mapsUrl: bLead.mapsUrl,
     mapsMatchStatus: bLead.mapsMatchStatus,
     placeId: bLead.placeId,
+    rating: typeof bLead.rating === 'number'
+      ? bLead.rating
+      : typeof (bLead.metadata as Record<string, unknown> | undefined)?.rating === 'number'
+      ? ((bLead.metadata as Record<string, unknown>).rating as number)
+      : undefined,
+    userRatingsTotal: typeof bLead.userRatingsTotal === 'number'
+      ? bLead.userRatingsTotal
+      : typeof (bLead.metadata as Record<string, unknown> | undefined)?.userRatingsTotal === 'number'
+      ? ((bLead.metadata as Record<string, unknown>).userRatingsTotal as number)
+      : undefined,
 
     // B4 Actionability
     actionability: bLead.actionability,

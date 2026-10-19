@@ -7,12 +7,13 @@ import { LeadsToolbar } from "@/components/leads/leads-toolbar";
 import { LeadsFilters } from "@/components/leads/leads-filters";
 import { LeadsTable } from "@/components/leads/leads-table";
 import { LeadsCardGrid } from "@/components/leads/leads-card-grid";
+import { LeadsPipelineView } from "@/components/leads/leads-pipeline-view";
 import { LeadDiscoveryModal } from "@/components/leads/lead-discovery-modal";
 import { LeadImportModal } from "@/components/leads/lead-import-modal";
 import { LeadDetailModal } from "@/components/leads/lead-detail-modal";
 import { PermissionGateBanner } from "@/components/shared/permission-gate-banner";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import { Lead, LeadFilterState, LeadSortOption, LeadViewMode } from "@/types/leads";
+import { Lead, LeadFilterState, LeadSortOption, LeadStatus, LeadViewMode } from "@/types/leads";
 import { api, ApiClientError } from "@/lib/api-client";
 import { mapBackendLeadToFrontend } from "@/lib/mappers";
 import { CallPreparationModal } from "@/components/calling/call-preparation-modal";
@@ -128,6 +129,14 @@ export default function LeadsPage() {
     setDebouncedSearch("");
     setSortOption("discovered_desc");
     setPage(1);
+  };
+
+  const handleLeadStatusChange = (leadId: string, newStatus: LeadStatus) => {
+    // Optimistically update local view, then refresh list from server
+    setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
+    );
+    fetchLeads();
   };
 
   // Safe client-side sorting of loaded dataset
@@ -248,8 +257,9 @@ export default function LeadsPage() {
           onClearFilters={handleResetFilters}
           onSelectLead={(lead) => setSelectedLeadId(lead.id)}
           onPrepareCall={(lead) => setSelectedLeadForCall(lead)}
+          onLeadStatusChanged={handleLeadStatusChange}
         />
-      ) : (
+      ) : viewMode === "cards" ? (
         <LeadsCardGrid
           leads={sortedLeads}
           onFindLeads={discoveryModal.onOpen}
@@ -257,11 +267,24 @@ export default function LeadsPage() {
           isFiltered={isFiltered}
           onClearFilters={handleResetFilters}
           onSelectLead={(lead) => setSelectedLeadId(lead.id)}
+          onLeadStatusChanged={handleLeadStatusChange}
+        />
+      ) : (
+        <LeadsPipelineView
+          leads={sortedLeads}
+          onSelectLead={(lead) => setSelectedLeadId(lead.id)}
+          onLeadStatusChanged={handleLeadStatusChange}
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          onPreviousPage={() => setPage((p) => Math.max(1, p - 1))}
+          onNextPage={() => setPage((p) => Math.min(totalPages, p + 1))}
+          isLoading={isLoading}
         />
       )}
 
-      {/* Pagination Surface */}
-      {!isLoading && leads.length > 0 && (
+      {/* Pagination Surface for Table/Cards Views */}
+      {!isLoading && viewMode !== "pipeline" && leads.length > 0 && (
         <div className="relative p-2.5 sm:p-3 bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-2.5">
           {/* Top specular hairline highlight */}
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />

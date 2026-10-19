@@ -4,10 +4,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LeadStatusBadge } from "./lead-status-badge";
+import { LeadStatusSelect } from "./lead-status-select";
 import { api, ApiClientError } from "@/lib/api-client";
-import { type BackendLead, type BackendContact, mapBackendStatusToLeadStatus } from "@/lib/mappers";
+import {
+  type BackendLead,
+  type BackendContact,
+  mapBackendStatusToLeadStatus,
+  mapLeadStatusToBackendStatus,
+} from "@/lib/mappers";
 import type { LeadAiWorkflowResult } from "@/types/leads";
+import type { CRMActivity } from "@/types/crm";
 
 export interface LeadDetailModalProps {
   isOpen: boolean;
@@ -51,6 +57,12 @@ export function LeadDetailModal({
   const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
   const [approvalError, setApprovalError] = useState<string | null>(null);
 
+  // CRM Activities & Notes Timeline
+  const [activities, setActivities] = useState<CRMActivity[]>([]);
+  const [newNote, setNewNote] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false);
+  const [noteError, setNoteError] = useState<string | null>(null);
+
   const fetchLeadDetails = useCallback(async (id: string) => {
     setIsLoading(true);
     setLoadError(null);
@@ -59,13 +71,28 @@ export function LeadDetailModal({
     setApprovalNotes("");
     setIsSubmittingApproval(false);
     setApprovalError(null);
+    setNoteError(null);
+    setNewNote("");
 
     try {
-      const response = await api.leads.get(id);
-      if (response?.lead) {
-        setLead(response.lead);
+      // Concurrently retrieve lead record and CRM profile/activities from backend
+      const [leadRes, crmRes] = await Promise.allSettled([
+        api.leads.get(id),
+        api.crm.getProfile(id),
+      ]);
+
+      if (leadRes.status === "fulfilled" && leadRes.value?.lead) {
+        setLead(leadRes.value.lead);
+      } else if (crmRes.status === "fulfilled" && crmRes.value?.lead) {
+        setLead(crmRes.value.lead);
       } else {
         setLoadError("Lead not found or access denied for this workspace.");
+      }
+
+      if (crmRes.status === "fulfilled" && Array.isArray(crmRes.value?.activities)) {
+        setActivities(crmRes.value.activities);
+      } else {
+        setActivities([]);
       }
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
@@ -85,6 +112,33 @@ export function LeadDetailModal({
       setIsLoading(false);
     }
   }, []);
+
+  const handleCreateNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lead || !newNote.trim() || isSavingNote) return;
+
+    setIsSavingNote(true);
+    setNoteError(null);
+
+    try {
+      const res = await api.crm.recordActivity(lead.id, {
+        type: "NOTE",
+        description: newNote.trim(),
+      });
+      if (res?.activity) {
+        setActivities((prev) => [res.activity, ...prev]);
+        setNewNote("");
+      }
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) {
+        setNoteError(err.message || "Failed to record CRM note.");
+      } else {
+        setNoteError("Failed to communicate with CRM service.");
+      }
+    } finally {
+      setIsSavingNote(false);
+    }
+  };
 
   const handleApprove = async () => {
     if (!lead) return;
@@ -315,7 +369,24 @@ export function LeadDetailModal({
                       Quality: {lead.dataQuality}
                     </Badge>
                   )}
-                  <LeadStatusBadge status={mapBackendStatusToLeadStatus(lead.status)} />
+                  <LeadStatusSelect
+                    leadId={lead.id}
+                    currentStatus={mapBackendStatusToLeadStatus(lead.status)}
+                    onStatusChange={async (newStatus) => {
+                      setLead((prev) =>
+                        prev ? { ...prev, status: mapLeadStatusToBackendStatus(newStatus) } : null
+                      );
+                      onLeadUpdated?.();
+                      try {
+                        const actRes = await api.crm.getActivities(lead.id);
+                        if (actRes?.activities) {
+                          setActivities(actRes.activities);
+                        }
+                      } catch {
+                        // Non-blocking activity timeline refresh
+                      }
+                    }}
+                  />
                 </div>
               </div>
 
@@ -613,17 +684,17 @@ export function LeadDetailModal({
                 )}
 
                 {/* Discovered Date */}
-                <div className={`${hasEmail ? "sm:col-span-6" : "sm:col-span-4"} p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5`}>
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
                   <div className="flex items-center gap-1.5 text-zinc-400">
                     <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
-                      Discovered
+                      Discovered / Ingested Date
                     </span>
                   </div>
 
-                  <span className="text-zinc-200 font-medium text-sm">
+                  <span className="text-zinc-200 font-medium text-sm font-mono">
                     {lead.createdAt
                       ? new Date(lead.createdAt).toLocaleDateString("en-US", {
                           month: "short",
@@ -632,6 +703,59 @@ export function LeadDetailModal({
                         })
                       : "Not available"}
                   </span>
+                </div>
+
+                {/* Lead Source & Campaign */}
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      Source &amp; Campaign
+                    </span>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <div className="text-zinc-200 font-medium text-sm capitalize">
+                      {lead.campaign?.name || "Discovery / Organic Intake"}
+                    </div>
+                    <div className="text-[11px] text-zinc-400 font-mono">
+                      Channel: <span className="text-zinc-300">Lead Source Discovery</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Google Places Rating & Reviews */}
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <svg className="w-3.5 h-3.5 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      Rating &amp; Reviews
+                    </span>
+                  </div>
+
+                  <div>
+                    {lead.rating !== undefined || (lead.metadata as Record<string, unknown> | undefined)?.rating !== undefined ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-400 font-mono font-semibold text-sm">
+                          ★ {(lead.rating ?? (lead.metadata as Record<string, unknown> | undefined)?.rating) as number}
+                        </span>
+                        <span className="text-zinc-400 text-xs">
+                          / 5.0
+                          {((lead.userRatingsTotal !== undefined) || (lead.metadata as Record<string, unknown> | undefined)?.userRatingsTotal !== undefined) && (
+                            <span className="ml-1 text-zinc-500 font-mono">
+                              ({(lead.userRatingsTotal ?? (lead.metadata as Record<string, unknown> | undefined)?.userRatingsTotal) as number} reviews)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-zinc-500 italic text-xs">Not available</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Location / Address */}
@@ -662,9 +786,9 @@ export function LeadDetailModal({
                   <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5">
                     <div className="min-w-0 flex-1">
                       {lead.address ? (
-                        lead.mapsUrl ? (
+                        lead.mapsUrl && /^https?:\/\//i.test(lead.mapsUrl.trim()) ? (
                           <a
-                            href={lead.mapsUrl}
+                            href={lead.mapsUrl.trim()}
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label={`Open address in maps: ${lead.address}`}
@@ -711,9 +835,9 @@ export function LeadDetailModal({
                           )}
                         </button>
 
-                        {lead.mapsUrl && (
+                        {lead.mapsUrl && /^https?:\/\//i.test(lead.mapsUrl.trim()) ? (
                           <a
-                            href={lead.mapsUrl}
+                            href={lead.mapsUrl.trim()}
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label={`Open address in maps: ${lead.address}`}
@@ -725,6 +849,8 @@ export function LeadDetailModal({
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                           </a>
+                        ) : (
+                          <span className="text-zinc-600 text-[11px] font-mono px-1.5 py-0.5">Maps link not available</span>
                         )}
                       </div>
                     )}
@@ -806,6 +932,102 @@ export function LeadDetailModal({
                 <p className="text-xs text-zinc-500 py-2">
                   No individual contacts recorded for this lead yet.
                 </p>
+              )}
+            </div>
+
+            {/* CRM Notes & Activity Timeline (Phase 2.3 & 2.4 Server Grounded) */}
+            <div className="p-4 sm:p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
+                    CRM Activity &amp; Notes Timeline ({activities.length})
+                  </h4>
+                </div>
+                <span className="text-[11px] font-mono text-zinc-500">Real Database Log</span>
+              </div>
+
+              {/* Add Note Input Form */}
+              <form onSubmit={handleCreateNote} className="space-y-2">
+                <label htmlFor="crm-note-field" className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 block font-semibold">
+                  Record Operator Note
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    id="crm-note-field"
+                    type="text"
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    placeholder="Enter call notes, client objection, or follow-up reason..."
+                    disabled={isSavingNote}
+                    className="flex-1 bg-[#14141c] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/25 transition-colors font-sans"
+                  />
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    disabled={isSavingNote || !newNote.trim()}
+                    className="text-xs shrink-0 flex items-center gap-1.5"
+                  >
+                    {isSavingNote ? (
+                      <>
+                        <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Add Note</span>
+                        <span>+</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+                {noteError && (
+                  <p className="text-xs text-rose-400 font-mono mt-1">{noteError}</p>
+                )}
+              </form>
+
+              {/* Real Timeline Stream */}
+              {activities.length > 0 ? (
+                <div className="divide-y divide-white/[0.04] border border-white/[0.04] rounded-lg overflow-hidden bg-white/[0.01] max-h-60 overflow-y-auto">
+                  {activities.map((act) => (
+                    <div key={act.id} className="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase font-medium ${
+                            act.type === "STAGE_CHANGE"
+                              ? "bg-purple-500/10 text-purple-300 border-purple-500/20"
+                              : act.type === "NOTE"
+                              ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/20"
+                              : act.type === "CALL_LOG"
+                              ? "bg-amber-500/10 text-amber-300 border-amber-500/20"
+                              : "bg-white/[0.04] text-zinc-300 border-white/[0.08]"
+                          }`}>
+                            {act.type.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-[10px] text-zinc-500 font-mono">
+                            {new Date(act.createdAt).toLocaleString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-zinc-200 text-xs leading-relaxed break-words whitespace-pre-wrap font-sans">
+                          {act.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-6 text-center border border-dashed border-white/[0.06] rounded-lg bg-white/[0.01] space-y-1">
+                  <p className="text-xs text-zinc-400">No CRM notes or activity history recorded yet.</p>
+                  <p className="text-[11px] text-zinc-500 font-mono">Stage changes and operator notes will appear here automatically.</p>
+                </div>
               )}
             </div>
 

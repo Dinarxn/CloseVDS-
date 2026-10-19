@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import { Lead } from "@/types/leads";
+import { Lead, LeadStatus } from "@/types/leads";
 import {
   ActionabilityBadge,
   DataQualityBadge,
-  LeadStatusBadge,
   MapsMatchStatusBadge,
   QualificationBadge,
   ServiceRecommendationBadge,
 } from "./lead-status-badge";
+import { LeadStatusSelect } from "./lead-status-select";
 import { LeadsEmptyState } from "./leads-empty-state";
 
 export interface LeadsTableProps {
@@ -20,6 +20,7 @@ export interface LeadsTableProps {
   onClearFilters?: () => void;
   onSelectLead?: (lead: Lead) => void;
   onPrepareCall?: (lead: Lead) => void;
+  onLeadStatusChanged?: (leadId: string, newStatus: LeadStatus) => void;
 }
 
 export function LeadsTable({
@@ -30,6 +31,7 @@ export function LeadsTable({
   onClearFilters,
   onSelectLead,
   onPrepareCall,
+  onLeadStatusChanged,
 }: LeadsTableProps) {
   if (leads.length === 0) {
     return (
@@ -121,7 +123,12 @@ export function LeadsTable({
                 <td className="py-3 px-3.5">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <LeadStatusBadge status={lead.status} />
+                      <LeadStatusSelect
+                        leadId={lead.id}
+                        currentStatus={lead.status}
+                        size="sm"
+                        onStatusChange={(newStatus) => onLeadStatusChanged?.(lead.id, newStatus)}
+                      />
                       {lead.dataQuality && <DataQualityBadge quality={lead.dataQuality} />}
                     </div>
                     {lead.actionability && (

@@ -32,3 +32,27 @@ export interface CrmDealItem {
   nextFollowUpDate?: string;
   notesCount?: number;
 }
+
+export type CRMActivityType =
+  | "STAGE_CHANGE"
+  | "NOTE"
+  | "CALL_LOG"
+  | "EMAIL_SENT"
+  | "EMAIL_REPLIED";
+
+export interface CRMActivity {
+  id: string;
+  leadId: string;
+  userId?: string | null;
+  type: CRMActivityType;
+  description: string;
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface LeadCRMProfileResponse {
+  success: boolean;
+  lead: import("@/lib/mappers").BackendLead;
+  activities: CRMActivity[];
+  dealSizeEstimate?: number;
+}
