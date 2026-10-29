@@ -108,12 +108,12 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       )}
 
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#08080d] border-r border-white/[0.06] flex flex-col justify-between transition-transform duration-200 ease-in-out select-none shadow-2xl md:shadow-none ${
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-surface-panel border-r border-white/[0.07] flex flex-col justify-between transition-transform duration-200 ease-in-out select-none shadow-2xl md:shadow-none ${
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
         {/* Top Brand & Workspace Switcher Header */}
-        <div className="p-3 sm:p-3.5 border-b border-white/[0.06] space-y-2.5 bg-[#08080d]">
+        <div className="p-3 sm:p-3.5 border-b border-white/[0.07] space-y-2.5 bg-surface-panel">
           <div className="flex items-center justify-between">
             <Link
               href="/dashboard"
@@ -145,7 +145,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <Link
             href="/settings"
             onClick={onClose}
-            className="group px-2.5 py-1.5 rounded-lg bg-[#0e0e15] hover:bg-[#13131c] border border-white/[0.06] hover:border-white/[0.14] flex items-center justify-between text-xs transition-colors shadow-xs cursor-pointer"
+            className="group px-2.5 py-1.5 rounded-lg bg-surface-card hover:bg-surface-card-hover border border-white/[0.07] hover:border-white/[0.14] flex items-center justify-between text-xs transition-colors shadow-xs cursor-pointer"
             title="Manage Workspace Settings"
           >
             <div className="flex items-center space-x-2 min-w-0">
@@ -180,7 +180,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     onClick={onClose}
                     className={`group relative w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-colors duration-150 ${
                       active
-                        ? "bg-white/[0.06] text-white font-medium border border-white/[0.08] shadow-xs"
+                        ? "bg-white/[0.08] text-white font-medium border border-white/[0.10] shadow-xs"
                         : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03] border border-transparent font-normal"
                     }`}
                     aria-current={active ? "page" : undefined}
@@ -191,7 +191,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     </div>
 
                     {item.id === "calling" && (
-                      <span className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-300 border border-purple-500/25 shrink-0">
+                      <span className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-white/[0.08] text-zinc-300 border border-white/[0.10] shrink-0">
                         AI
                       </span>
                     )}
@@ -199,7 +199,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
                   {/* Calling Sub-tree Menu */}
                   {showCallingChildren && (
-                    <div className="ml-4 pl-2.5 border-l border-white/[0.07] space-y-0.5 pt-0.5 pb-0.5">
+                    <div className="ml-4 pl-2.5 border-l border-white/[0.08] space-y-0.5 pt-0.5 pb-0.5">
                       {CALLING_NAV_ITEMS.map((sub) => {
                         const subActive = isItemActive(sub.href, sub.isExact);
                         return (
@@ -209,7 +209,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                             onClick={onClose}
                             className={`w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-colors ${
                               subActive
-                                ? "text-white font-medium bg-white/[0.05] border border-white/[0.08]"
+                                ? "text-white font-medium bg-white/[0.06] border border-white/[0.08]"
                                 : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]"
                             }`}
                             aria-current={subActive ? "page" : undefined}
@@ -227,7 +227,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
 
           {/* System Section */}
-          <div className="space-y-0.5 pt-3 border-t border-white/[0.06]">
+          <div className="space-y-0.5 pt-3 border-t border-white/[0.07]">
             <p className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-medium select-none">
               System
             </p>
@@ -240,7 +240,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                   onClick={onClose}
                   className={`group relative w-full flex items-center space-x-2.5 px-2.5 py-1.5 text-xs rounded-lg transition-colors duration-150 ${
                     active
-                      ? "bg-white/[0.06] text-white font-medium border border-white/[0.08] shadow-xs"
+                      ? "bg-white/[0.08] text-white font-medium border border-white/[0.10] shadow-xs"
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03] border border-transparent font-normal"
                   }`}
                   aria-current={active ? "page" : undefined}
@@ -253,7 +253,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
 
           {/* Safety Shield System Status Module */}
-          <div className="mx-0.5 p-2.5 rounded-lg bg-[#0c0c12] border border-white/[0.06] space-y-1.5 text-left">
+          <div className="mx-0.5 p-2.5 rounded-lg bg-surface-card border border-white/[0.07] space-y-1.5 text-left">
             <div className="flex items-center justify-between text-[10px] font-mono">
               <span className="text-zinc-400 uppercase tracking-wider font-medium">Safety Shield</span>
               <span className="text-emerald-400 font-medium flex items-center gap-1.5">
@@ -271,10 +271,10 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         </div>
 
         {/* User Profile / Status Footer */}
-        <div className="p-2.5 border-t border-white/[0.06] bg-[#08080d]">
-          <div className="p-2 rounded-lg bg-[#0e0e15] border border-white/[0.06] hover:border-white/[0.12] flex items-center justify-between transition-colors shadow-xs">
+        <div className="p-2.5 border-t border-white/[0.07] bg-surface-panel">
+          <div className="p-2 rounded-lg bg-surface-card border border-white/[0.07] hover:border-white/[0.12] flex items-center justify-between transition-colors shadow-xs">
             <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-md bg-white/[0.08] border border-white/[0.1] flex items-center justify-center text-xs font-semibold text-white shrink-0 font-sans">
+              <div className="w-7 h-7 rounded-md bg-white/[0.08] border border-white/[0.10] flex items-center justify-center text-xs font-semibold text-white shrink-0 font-sans">
                 {initials}
               </div>
               <div className="min-w-0 text-left">
@@ -304,4 +304,3 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     </>
   );
 }
-

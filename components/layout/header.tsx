@@ -11,6 +11,14 @@ import {
   DropdownItem,
   DropdownSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  SettingsIcon,
+  PlugIcon,
+  BarChartIcon,
+  UserIcon,
+  PhoneIcon,
+  LogoutIcon,
+} from "@/components/ui/icons";
 import { CommandPalette } from "./command-palette";
 
 export interface HeaderProps {
@@ -62,12 +70,12 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
 
   return (
     <>
-      <header className="h-13 bg-[#0d0d12]/90 backdrop-blur-md border-b border-white/[0.08] px-4 md:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30">
+      <header className="h-13 bg-surface-panel/90 backdrop-blur-md border-b border-white/[0.07] px-4 md:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30">
         <div className="flex items-center space-x-3 min-w-0">
           {/* Mobile Sidebar Menu Button */}
           <button
             onClick={onMenuToggle}
-            className="md:hidden text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors"
+            className="md:hidden text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -96,7 +104,7 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
           {/* Clickable Quick Search Command Palette Trigger */}
           <button
             onClick={() => setIsCommandOpen(true)}
-            className="hidden sm:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-[#14141a] border border-white/[0.08] hover:border-white/[0.18] hover:bg-[#1a1a24] text-xs text-zinc-400 hover:text-white transition-all duration-150 cursor-pointer shadow-xs active:scale-95"
+            className="hidden sm:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-surface-card border border-white/[0.08] hover:border-white/[0.16] hover:bg-surface-card-hover text-xs text-zinc-400 hover:text-white transition-all duration-150 cursor-pointer shadow-xs active:scale-95"
             title="Open Command Palette (⌘K)"
           >
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,7 +119,7 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
           {/* Interactive Workspace Dropdown */}
           <DropdownMenu>
             <DropdownTrigger>
-              <div className="hidden md:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-[#14141a] border border-white/[0.08] hover:border-white/[0.18] hover:bg-[#1a1a24] text-xs text-zinc-300 transition-all duration-150 cursor-pointer active:scale-95">
+              <div className="hidden md:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-surface-card border border-white/[0.08] hover:border-white/[0.16] hover:bg-surface-card-hover text-xs text-zinc-300 transition-all duration-150 cursor-pointer active:scale-95">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
                 <span className="font-medium text-[11px] truncate max-w-[130px] capitalize">
                   {workspace?.name || "Production OS"}
@@ -130,15 +138,15 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
                 </div>
               </div>
               <DropdownItem onClick={() => router.push("/settings")}>
-                <span>⚙️</span>
+                <SettingsIcon size={14} className="text-zinc-400 shrink-0" />
                 <span>Workspace Settings</span>
               </DropdownItem>
               <DropdownItem onClick={() => router.push("/calling/settings")}>
-                <span>🔌</span>
+                <PlugIcon size={14} className="text-zinc-400 shrink-0" />
                 <span>n8n &amp; Telephony Gateway</span>
               </DropdownItem>
               <DropdownItem onClick={() => router.push("/analytics")}>
-                <span>📊</span>
+                <BarChartIcon size={14} className="text-zinc-400 shrink-0" />
                 <span>Workspace Analytics</span>
               </DropdownItem>
             </DropdownContent>
@@ -148,7 +156,7 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
           <DropdownMenu>
             <DropdownTrigger>
               <div
-                className="w-7.5 h-7.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/[0.12] hover:border-white/[0.3] flex items-center justify-center text-xs font-bold text-white shadow-sm transition-all duration-150 cursor-pointer active:scale-95"
+                className="w-7.5 h-7.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/[0.12] hover:border-white/[0.25] flex items-center justify-center text-xs font-bold text-white shadow-sm transition-all duration-150 cursor-pointer active:scale-95"
                 title={user?.name || "User Profile"}
               >
                 {initials}
@@ -160,11 +168,11 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
                 <div className="text-[11px] text-zinc-400 truncate">{user?.email || "admin@closevds.local"}</div>
               </div>
               <DropdownItem onClick={() => router.push("/settings")}>
-                <span>👤</span>
+                <UserIcon size={14} className="text-zinc-400 shrink-0" />
                 <span>Account Settings</span>
               </DropdownItem>
               <DropdownItem onClick={() => router.push("/calling/settings")}>
-                <span>🎙️</span>
+                <PhoneIcon size={14} className="text-zinc-400 shrink-0" />
                 <span>AI Calling Gateway</span>
               </DropdownItem>
               <DropdownSeparator />
@@ -172,7 +180,7 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
                 onClick={handleLogout}
                 className="text-rose-400 hover:text-rose-300 hover:bg-rose-950/30"
               >
-                <span>🚪</span>
+                <LogoutIcon size={14} className="text-rose-400 shrink-0" />
                 <span>Sign Out</span>
               </DropdownItem>
             </DropdownContent>
@@ -188,4 +196,3 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
     </>
   );
 }
-

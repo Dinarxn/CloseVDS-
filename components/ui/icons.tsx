@@ -229,3 +229,24 @@ export function TrashIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function BarChartIcon(props: IconProps) {
+  return (
+    <svg {...baseIconProps(props)}>
+      <line x1="12" x2="12" y1="20" y2="10" />
+      <line x1="18" x2="18" y1="20" y2="4" />
+      <line x1="6" x2="6" y1="20" y2="16" />
+    </svg>
+  );
+}
+
+export function PlugIcon(props: IconProps) {
+  return (
+    <svg {...baseIconProps(props)}>
+      <path d="M12 22v-5" />
+      <path d="M9 8V2" />
+      <path d="M15 8V2" />
+      <path d="M18 8v5a6 6 0 0 1-12 0V8z" />
+    </svg>
+  );
+}

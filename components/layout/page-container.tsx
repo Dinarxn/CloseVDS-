@@ -21,7 +21,7 @@ export function PageContainer({
 
   return (
     <div
-      className={`w-full mx-auto p-4 md:p-8 space-y-6 text-left ${maxWidthStyles[maxWidth]} ${className}`}
+      className={`w-full mx-auto p-4 md:p-6 space-y-5 text-left ${maxWidthStyles[maxWidth]} ${className}`}
       {...props}
     >
       {children}

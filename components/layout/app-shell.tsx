@@ -25,12 +25,12 @@ export function AppShell({ children, pageTitle }: AppShellProps) {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen bg-[#000000] text-white items-center justify-center">
+      <div className="flex h-screen bg-surface-canvas text-white items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 rounded bg-white text-black font-bold flex items-center justify-center text-xs tracking-tighter mx-auto animate-pulse">
+          <div className="w-8 h-8 rounded-lg bg-white text-zinc-950 font-bold flex items-center justify-center text-xs tracking-tighter mx-auto shadow-sm animate-pulse">
             VDS
           </div>
-          <p className="text-xs text-[#737373] tracking-wide">Restoring secure session...</p>
+          <p className="text-xs text-zinc-400 tracking-wide">Restoring secure session...</p>
         </div>
       </div>
     );
@@ -41,7 +41,7 @@ export function AppShell({ children, pageTitle }: AppShellProps) {
   }
 
   return (
-    <div className="flex h-screen bg-[#000000] text-white overflow-hidden">
+    <div className="flex h-screen bg-surface-canvas text-white overflow-hidden">
       {/* Sidebar Navigation */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -57,7 +57,7 @@ export function AppShell({ children, pageTitle }: AppShellProps) {
         <AcquisitionWorkflowNav />
 
         {/* Generic Scrollable Main Content Surface */}
-        <main className="flex-1 overflow-y-auto bg-[#000000] text-left">
+        <main className="flex-1 overflow-y-auto bg-surface-canvas text-left">
           {children}
         </main>
       </div>
