@@ -36,18 +36,18 @@ export default function ForgotPasswordPage() {
     <AuthCard>
       <AuthHeader
         title="Reset your password"
-        description="Enter your work email address and we will send instructions to reset your security credentials."
+        description="Enter your work email address and we will dispatch recovery instructions for your workspace."
       />
 
       {isSubmitted ? (
-        <div className="space-y-4">
+        <div className="space-y-4 pt-1 animate-in fade-in duration-200">
           <Alert variant="default" title="Reset Instructions Dispatched">
-            If an active account exists for <strong className="text-white">{email}</strong>, password reset instructions have been queued.
+            If an active account exists for <strong className="text-white font-medium">{email}</strong>, password reset instructions have been queued.
           </Alert>
 
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            Please check your inbox or spam folder. For self-hosted instances without an external SMTP gateway configured, please contact your workspace administrator directly.
-          </p>
+          <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.08] text-xs text-zinc-400 leading-relaxed">
+            Please check your inbox or security quarantine folder. For self-hosted enterprise deployments with private relay routing, contact your workspace administrator directly.
+          </div>
 
           <Link href="/login" className="block pt-2">
             <Button variant="secondary" size="md" className="w-full">
@@ -56,13 +56,13 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-2.5">
+            <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-2.5 animate-in fade-in duration-200">
               <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <span className="leading-relaxed">{errorMsg}</span>
+              <span className="leading-relaxed font-medium">{errorMsg}</span>
             </div>
           )}
 
@@ -81,7 +81,9 @@ export default function ForgotPasswordPage() {
           <Button
             type="submit"
             variant="primary"
-            className="w-full font-medium"
+            size="md"
+            className="w-full font-semibold shadow-sm mt-2"
+            isLoading={isSubmitting}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Sending Reset Link..." : "Send Reset Link"}

@@ -45,6 +45,7 @@ export function LeadDetailModal({
   const { addToast } = useToast();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "overview" | "ai" | "crm" | "audit">("all");
 
   const handleDeleteLead = async () => {
     if (!leadId || isDeleting) return;
@@ -259,6 +260,7 @@ export function LeadDetailModal({
 
   useEffect(() => {
     if (isOpen && leadId) {
+      setActiveTab("all");
       fetchLeadDetails(leadId);
     } else {
       setLead(null);
@@ -344,12 +346,12 @@ export function LeadDetailModal({
       }}
       title={lead?.businessName || "Lead Intelligence Dossier"}
       description="Prospect operational records, website gap audits, and LangGraph AI analysis."
-      className="!max-w-4xl max-h-[90vh] overflow-y-auto"
+      className="!max-w-4xl max-h-[90vh] overflow-y-auto !bg-[#0d0d12] !border-white/[0.10] !rounded-xl !p-6 shadow-[0_24px_64px_rgba(0,0,0,0.85)]"
     >
       <div className="space-y-6 pt-2">
         {/* Loading State */}
         {isLoading && (
-          <div className="py-16 text-center border border-white/[0.08] rounded-xl bg-[#121216]">
+          <div className="py-16 text-center border border-white/[0.08] rounded-xl bg-[#121218]">
             <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-xs text-zinc-400">Loading lead intelligence...</p>
           </div>
@@ -393,7 +395,7 @@ export function LeadDetailModal({
         {lead && !isLoading && (
           <>
             {/* Lead Header Overview */}
-            <div className="p-4 rounded-xl bg-[#121216] border border-white/[0.08] space-y-4">
+            <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
                 <div>
                   <h3 className="text-base font-semibold text-white">
@@ -441,7 +443,38 @@ export function LeadDetailModal({
                 </div>
               </div>
 
-              {/* Core Attributes Grid */}
+            </div>
+
+            {/* Dossier Navigation Tabs */}
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#09090b] border border-white/[0.08] overflow-x-auto">
+              {[
+                { id: "all", label: "All Dossier" },
+                { id: "overview", label: "Overview & Contacts" },
+                { id: "ai", label: "AI & Execution" },
+                { id: "crm", label: `CRM Timeline (${activities.length})` },
+                { id: "audit", label: "Audit & Opportunity" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono whitespace-nowrap transition-all cursor-pointer ${
+                    activeTab === tab.id
+                      ? "bg-white/[0.12] text-white shadow-sm font-semibold border border-white/[0.12]"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Core Attributes Grid */}
+            {(activeTab === "all" || activeTab === "overview") && (
+              <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-3">
+                <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
+                  Prospect Attributes
+                </h4>
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
                 {/* Website / Domain (6 cols) */}
                 <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
@@ -941,9 +974,11 @@ export function LeadDetailModal({
                 </div>
               </div>
             </div>
+            )}
 
             {/* Contacts Roster */}
-            <div className="p-4 rounded-xl bg-[#121216] border border-white/[0.08] space-y-3">
+            {(activeTab === "all" || activeTab === "overview") && (
+              <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                   Associated Contacts ({lead.contacts?.length || 0})
@@ -985,9 +1020,11 @@ export function LeadDetailModal({
                 </p>
               )}
             </div>
+            )}
 
             {/* CRM Notes & Activity Timeline (Phase 2.3 & 2.4 Server Grounded) */}
-            <div className="p-4 sm:p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-4">
+            {(activeTab === "all" || activeTab === "crm") && (
+              <div className="p-4 sm:p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
                 <div className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1013,7 +1050,7 @@ export function LeadDetailModal({
                     onChange={(e) => setNewNote(e.target.value)}
                     placeholder="Enter call notes, client objection, or follow-up reason..."
                     disabled={isSavingNote}
-                    className="flex-1 bg-[#14141c] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/25 transition-colors font-sans"
+                    className="flex-1 bg-[#09090b] border border-white/[0.10] rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors font-sans"
                   />
                   <Button
                     type="submit"
@@ -1081,12 +1118,13 @@ export function LeadDetailModal({
                 </div>
               )}
             </div>
+            )}
 
             {/* Stored Intelligence: Audit & Scoring (if available in lead data) */}
-            {(audit || score) && (
+            {(activeTab === "all" || activeTab === "audit") && (audit || score) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {score && (
-                  <div className="p-4 rounded-xl bg-[#121216] border border-white/[0.08] space-y-2 text-xs">
+                  <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-2 text-xs">
                     <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                       Lead Scoring
                     </h4>
@@ -1109,7 +1147,7 @@ export function LeadDetailModal({
                 )}
 
                 {audit && (
-                  <div className="p-4 rounded-xl bg-[#121216] border border-white/[0.08] space-y-2 text-xs">
+                  <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-2 text-xs">
                     <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                       Website Audit
                     </h4>
@@ -1138,8 +1176,8 @@ export function LeadDetailModal({
             )}
 
             {/* B4 Lead Actionability Section */}
-            {lead.actionability && (
-              <div className="p-4 sm:p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-4">
+            {(activeTab === "all" || activeTab === "audit" || activeTab === "overview") && lead.actionability && (
+              <div className="p-4 sm:p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1238,7 +1276,8 @@ export function LeadDetailModal({
             )}
 
             {/* Service Opportunity & Recommendation Section */}
-            <div className="p-4 sm:p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-4">
+            {(activeTab === "all" || activeTab === "audit" || activeTab === "overview") && (
+              <div className="p-4 sm:p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
                 <div className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1331,9 +1370,11 @@ export function LeadDetailModal({
                 </div>
               )}
             </div>
+            )}
 
             {/* AI Results & Execution Section */}
-            <div className="p-5 rounded-xl bg-[#121216] border border-white/[0.08] space-y-5">
+            {(activeTab === "all" || activeTab === "ai") && (
+              <div className="p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
                 <div>
                   <h4 className="text-sm font-semibold text-white flex items-center gap-2">
@@ -1720,7 +1761,7 @@ export function LeadDetailModal({
                             placeholder="Enter review feedback, target instructions, or rejection reason..."
                             rows={2}
                             disabled={isSubmittingApproval || isExecutingAi}
-                            className="w-full bg-[#14141c] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/25 resize-none transition-colors"
+                            className="w-full bg-[#09090b] border border-white/[0.10] rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-none transition-colors"
                           />
                         </div>
 
@@ -1793,6 +1834,7 @@ export function LeadDetailModal({
                 </div>
               )}
             </div>
+            )}
           </>
         )}
 

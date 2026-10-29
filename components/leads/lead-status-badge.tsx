@@ -17,7 +17,7 @@ export function LeadStatusBadge({ status }: LeadStatusBadgeProps) {
     LeadStatus,
     { label: string; dotColor?: string; textColor: string; bgClass: string; dot: boolean }
   > = {
-    discovered: { label: "Discovered", dotColor: "bg-zinc-400", textColor: "text-zinc-300", bgClass: "bg-white/[0.04] border-white/[0.07]", dot: true },
+    discovered: { label: "Discovered", dotColor: "bg-zinc-400", textColor: "text-zinc-300", bgClass: "bg-white/[0.04] border-white/[0.08]", dot: true },
     analyzing: { label: "Auditing", dotColor: "bg-amber-400", textColor: "text-amber-300", bgClass: "bg-amber-500/[0.08] border-amber-500/20", dot: true },
     qualified: { label: "Qualified", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
     disqualified: { label: "Disqualified", textColor: "text-zinc-500", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
@@ -34,7 +34,7 @@ export function LeadStatusBadge({ status }: LeadStatusBadgeProps) {
   const config = statusLabels[status] || {
     label: status,
     textColor: "text-zinc-400",
-    bgClass: "bg-white/[0.04] border-white/[0.07]",
+    bgClass: "bg-white/[0.04] border-white/[0.08]",
     dot: false,
   };
 
@@ -65,7 +65,7 @@ export function QualificationBadge({ qualification, score }: QualificationBadgeP
       ? "text-emerald-300 bg-emerald-500/[0.08] border-emerald-500/20"
       : isModerate
       ? "text-amber-300 bg-amber-500/[0.08] border-amber-500/20"
-      : "text-zinc-400 bg-white/[0.03] border-white/[0.06]";
+      : "text-zinc-400 bg-white/[0.03] border-white/[0.07]";
 
     const dotColor = isHigh || isQualified
       ? "bg-emerald-400"
@@ -78,7 +78,7 @@ export function QualificationBadge({ qualification, score }: QualificationBadgeP
         className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-mono tabular-nums font-medium ${colorClasses}`}
       >
         <span className={`w-1 h-1 rounded-full shrink-0 ${dotColor}`} />
-        <span>Score {score}/100</span>
+        <span>Score <span className="tabular-nums font-semibold">{score}</span>/100</span>
       </span>
     );
   }

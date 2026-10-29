@@ -42,20 +42,20 @@ export default function LoginPage() {
   return (
     <AuthCard>
       <AuthHeader
-        title="Welcome back"
-        description="Sign in to your closeVDS workspace."
+        title="Sign in to workspace"
+        description="Enter your credentials to access the CloseVDS client acquisition engine."
       />
 
       {errorMsg && (
-        <div className="mb-4 p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-2.5">
+        <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-2.5 animate-in fade-in duration-200">
           <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <span className="leading-relaxed">{errorMsg}</span>
+          <span className="leading-relaxed font-medium">{errorMsg}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-1">
         <Input
           id="email"
           type="email"
@@ -68,7 +68,7 @@ export default function LoginPage() {
           disabled={isLoading}
         />
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <PasswordField
             id="password"
             label="Password"
@@ -79,10 +79,10 @@ export default function LoginPage() {
             required
             disabled={isLoading}
           />
-          <div className="text-right">
+          <div className="flex justify-end pt-0.5">
             <Link
               href="/forgot-password"
-              className="text-xs text-[#737373] hover:text-white transition-colors"
+              className="text-xs text-zinc-400 hover:text-white transition-colors"
             >
               Forgot password?
             </Link>
@@ -92,16 +92,18 @@ export default function LoginPage() {
         <Button
           type="submit"
           variant="primary"
-          className="w-full"
+          size="md"
+          className="w-full font-semibold shadow-sm mt-2"
+          isLoading={isLoading}
           disabled={isLoading}
         >
-          {isLoading ? "Signing in..." : "Sign in"}
+          {isLoading ? "Signing in..." : "Sign In to Workspace"}
         </Button>
       </form>
 
       <AuthFooter>
-        <p className="text-xs text-[#737373]">
-          Don&apos;t have an account?{" "}
+        <p className="text-xs text-zinc-400">
+          Don&apos;t have a workspace?{" "}
           <Link href="/register" className="text-white hover:underline font-medium">
             Create workspace
           </Link>

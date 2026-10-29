@@ -38,17 +38,33 @@ export interface DropdownTriggerProps {
   asChild?: boolean;
 }
 
-export function DropdownTrigger({ children }: DropdownTriggerProps) {
+export function DropdownTrigger({ children, asChild }: DropdownTriggerProps) {
   const { open, setOpen, triggerRef } = useDropdownContext();
+
+  if (asChild && React.isValidElement(children)) {
+    const child = children as React.ReactElement<{
+      onClick?: (e: React.MouseEvent) => void;
+      [key: string]: unknown;
+    }>;
+    return React.cloneElement(child, {
+      ref: triggerRef,
+      "aria-expanded": open,
+      "aria-haspopup": "menu",
+      onClick: (e: React.MouseEvent) => {
+        child.props.onClick?.(e);
+        setOpen(!open);
+      },
+    });
+  }
 
   return (
     <button
       ref={triggerRef}
       type="button"
       aria-expanded={open}
-      aria-haspopup="true"
+      aria-haspopup="menu"
       onClick={() => setOpen(!open)}
-      className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-1 focus-visible:ring-white"
+      className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-1 focus-visible:ring-white rounded-lg"
     >
       {children}
     </button>
@@ -108,8 +124,13 @@ export function DropdownContent({
       aria-orientation="vertical"
       className={`absolute ${
         align === "right" ? "right-0" : "left-0"
-      } mt-2 min-w-[200px] bg-[#121218] border border-white/[0.12] rounded-xl shadow-2xl p-1.5 space-y-0.5 z-50 text-left backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-100 ${className}`}
+      } mt-2 min-w-[200px] bg-surface-card border border-white/[0.10] rounded-xl shadow-[0_16px_40px_rgba(0,0,0,0.8)] p-1.5 space-y-0.5 z-50 text-left backdrop-blur-xl relative overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 ${className}`}
     >
+      {/* Specular hairline top reflection */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
       {children}
     </div>
   );

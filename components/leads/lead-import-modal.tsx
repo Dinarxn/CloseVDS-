@@ -366,11 +366,11 @@ export function LeadImportModal({
       }}
       title="Import Leads"
       description="Upload and validate your prospect list (.csv) with column mapping and deduplication."
-      className="sm:max-w-3xl !bg-[#0a0a0f] !border-white/[0.08] !rounded-xl !p-5 shadow-[0_24px_64px_rgba(0,0,0,0.85)]"
+      className="sm:max-w-3xl !bg-[#0d0d12] !border-white/[0.10] !rounded-xl !p-5 shadow-[0_24px_64px_rgba(0,0,0,0.85)]"
     >
       <div className="relative space-y-4">
         {/* Step Indicator Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] text-xs font-mono">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.08] text-xs font-mono">
           <div className="flex items-center gap-3">
             <span
               className={`flex items-center gap-1.5 ${
@@ -433,7 +433,7 @@ export function LeadImportModal({
           <button
             type="button"
             onClick={handleDownloadSample}
-            className="text-[11px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-sans"
+            className="text-[11px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-sans bg-white/[0.03] hover:bg-white/[0.07] px-2.5 py-1 rounded-md border border-white/[0.08]"
             title="Download example CSV structure"
           >
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -460,7 +460,7 @@ export function LeadImportModal({
               className={`relative p-8 sm:p-10 border-2 border-dashed rounded-xl text-center cursor-pointer transition-all ${
                 isDragging
                   ? "border-white bg-white/[0.06] scale-[0.99]"
-                  : "border-white/[0.12] hover:border-white/[0.24] bg-[#07070a]/80 hover:bg-[#07070a]"
+                  : "border-white/[0.14] hover:border-white/[0.28] bg-[#09090b]/80 hover:bg-[#09090b]"
               }`}
             >
               <input
@@ -493,7 +493,7 @@ export function LeadImportModal({
 
             {/* Quick Helper Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-              <div className="p-2.5 rounded-lg bg-[#07070a] border border-white/[0.06] space-y-1">
+              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-1">
                 <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
                   Required Fields
                 </div>
@@ -501,7 +501,7 @@ export function LeadImportModal({
                 <p className="text-[10px] text-zinc-500">Company title is required for record creation.</p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#07070a] border border-white/[0.06] space-y-1">
+              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-1">
                 <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
                   Contact Details
                 </div>
@@ -509,7 +509,7 @@ export function LeadImportModal({
                 <p className="text-[10px] text-zinc-500">Normalized for AI outreach and call preparation.</p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#07070a] border border-white/[0.06] space-y-1">
+              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-1">
                 <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
                   Deduplication
                 </div>
@@ -524,7 +524,7 @@ export function LeadImportModal({
         {step === "configure" && (
           <div className="space-y-4 max-h-[68vh] overflow-y-auto pr-1">
             {/* File Info Bar */}
-            <div className="p-2.5 rounded-lg bg-[#07070a] border border-white/[0.06] flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] flex items-center justify-between">
               <div className="flex items-center gap-2 truncate">
                 <div className="w-6 h-6 rounded bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-zinc-300 shrink-0">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -533,7 +533,7 @@ export function LeadImportModal({
                 </div>
                 <span className="text-xs font-semibold text-white truncate">{fileName}</span>
                 <span className="text-[11px] font-mono text-zinc-500 shrink-0">({fileSize})</span>
-                <Badge variant="outline" className="text-[10px] font-mono">
+                <Badge variant="outline" className="text-[10px] font-mono tabular-nums">
                   {rawRows.length} rows detected
                 </Badge>
               </div>
@@ -549,35 +549,35 @@ export function LeadImportModal({
 
             {/* Validation & Deduplication Health Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="p-2.5 rounded-lg bg-[#07070a] border border-white/[0.06]">
+              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08]">
                 <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Total Rows</div>
-                <div className="text-lg font-bold text-white font-mono mt-0.5">{summary.totalRows}</div>
+                <div className="text-lg font-bold text-white font-mono mt-0.5 tabular-nums">{summary.totalRows}</div>
                 <div className="text-[10px] text-zinc-500">In uploaded CSV</div>
               </div>
 
               <div className="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/25">
                 <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider">Valid Rows</div>
-                <div className="text-lg font-bold text-emerald-300 font-mono mt-0.5">{summary.validCount}</div>
+                <div className="text-lg font-bold text-emerald-300 font-mono mt-0.5 tabular-nums">{summary.validCount}</div>
                 <div className="text-[10px] text-emerald-400/70">Ready for import</div>
               </div>
 
               <div className="p-2.5 rounded-lg bg-amber-950/20 border border-amber-500/25">
                 <div className="text-[10px] font-mono text-amber-400 uppercase tracking-wider">Duplicates</div>
-                <div className="text-lg font-bold text-amber-300 font-mono mt-0.5">{summary.duplicateCount}</div>
-                <div className="text-[10px] text-amber-400/70">
+                <div className="text-lg font-bold text-amber-300 font-mono mt-0.5 tabular-nums">{summary.duplicateCount}</div>
+                <div className="text-[10px] text-amber-400/70 tabular-nums">
                   {summary.inFileDuplicateCount} file / {summary.workspaceDuplicateCount} workspace
                 </div>
               </div>
 
               <div className="p-2.5 rounded-lg bg-rose-950/20 border border-rose-500/25">
                 <div className="text-[10px] font-mono text-rose-400 uppercase tracking-wider">Invalid Rows</div>
-                <div className="text-lg font-bold text-rose-300 font-mono mt-0.5">{summary.invalidCount}</div>
+                <div className="text-lg font-bold text-rose-300 font-mono mt-0.5 tabular-nums">{summary.invalidCount}</div>
                 <div className="text-[10px] text-rose-400/70">Missing business name</div>
               </div>
             </div>
 
             {/* Deduplication & Exclusion Policy Toggles */}
-            <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06] space-y-2">
+            <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                 <div className="text-xs font-semibold text-zinc-200">Import &amp; Deduplication Policy</div>
                 <span className="text-[10px] font-mono text-zinc-500">
@@ -624,7 +624,7 @@ export function LeadImportModal({
                 <span className="text-[11px] font-mono text-zinc-400">Map CSV headers to lead fields</span>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08] grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {TARGET_FIELDS.map((field) => {
                   const currentValue = columnMapping[field.key] || "";
                   return (
@@ -642,7 +642,7 @@ export function LeadImportModal({
                         id={`map-${field.key}`}
                         value={currentValue}
                         onChange={(e) => handleMappingChange(field.key, e.target.value)}
-                        className="h-8 text-xs bg-[#0D0D12] border-white/[0.08]"
+                        className="h-8 text-xs bg-[#0d0d12] border-white/[0.08]"
                       >
                         <option value="">(Not Mapped)</option>
                         {csvHeaders.map((header) => (
@@ -664,10 +664,10 @@ export function LeadImportModal({
                 <span className="text-[11px] font-mono text-zinc-400">Showing first 5 records with validation status</span>
               </div>
 
-              <div className="border border-white/[0.06] rounded-lg overflow-x-auto bg-[#07070a]">
+              <div className="border border-white/[0.08] rounded-lg overflow-x-auto bg-[#09090b]">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-white/[0.06] bg-white/[0.02] text-zinc-400 text-[10px] font-mono uppercase tracking-wider">
+                    <tr className="border-b border-white/[0.08] bg-white/[0.02] text-zinc-400 text-[10px] font-mono uppercase tracking-wider">
                       <th className="py-2 px-3">Row</th>
                       <th className="py-2 px-3">Status</th>
                       <th className="py-2 px-3">Company Name</th>
@@ -833,25 +833,25 @@ export function LeadImportModal({
             )}
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06]">
+              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
                 <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider">Created</div>
-                <div className="text-xl font-bold text-emerald-300 font-mono mt-0.5">
+                <div className="text-xl font-bold text-emerald-300 font-mono mt-0.5 tabular-nums">
                   {importResult.importedCount}
                 </div>
                 <div className="text-[10px] text-zinc-500">New leads persisted</div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06]">
+              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
                 <div className="text-[10px] font-mono text-zinc-300 uppercase tracking-wider">Updated</div>
-                <div className="text-xl font-bold text-white font-mono mt-0.5">
+                <div className="text-xl font-bold text-white font-mono mt-0.5 tabular-nums">
                   {importResult.updatedCount}
                 </div>
                 <div className="text-[10px] text-zinc-500">Existing records synced</div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06]">
+              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
                 <div className="text-[10px] font-mono text-amber-400 uppercase tracking-wider">Skipped</div>
-                <div className="text-xl font-bold text-amber-300 font-mono mt-0.5">
+                <div className="text-xl font-bold text-amber-300 font-mono mt-0.5 tabular-nums">
                   {totalSkippedDuplicatesCount}
                 </div>
                 <div
@@ -872,9 +872,9 @@ export function LeadImportModal({
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06]">
+              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
                 <div className="text-[10px] font-mono text-rose-400 uppercase tracking-wider">Failed</div>
-                <div className="text-xl font-bold text-rose-300 font-mono mt-0.5">
+                <div className="text-xl font-bold text-rose-300 font-mono mt-0.5 tabular-nums">
                   {importResult.failedCount}
                 </div>
                 <div className="text-[10px] text-zinc-500">Rejections / errors</div>
@@ -882,7 +882,7 @@ export function LeadImportModal({
             </div>
 
             {clientExcludedInvalidCount > 0 && (
-              <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-xs text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.08] text-xs text-zinc-400 flex items-center justify-between">
                 <span>{clientExcludedInvalidCount} invalid {clientExcludedInvalidCount === 1 ? "row was" : "rows were"} excluded based on import settings.</span>
                 <span className="text-[10px] font-mono text-zinc-500">Excluded upfront</span>
               </div>

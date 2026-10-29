@@ -1,51 +1,48 @@
 import React from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { LandingNavbar } from "@/components/landing/landing-navbar";
+import { LandingHero } from "@/components/landing/landing-hero";
+import { LandingPipeline } from "@/components/landing/landing-pipeline";
+import { LandingFeatures } from "@/components/landing/landing-features";
+import { LandingArchitecture } from "@/components/landing/landing-architecture";
+import { LandingSpecs } from "@/components/landing/landing-specs";
+import { LandingCTA } from "@/components/landing/landing-cta";
+import { LandingFooter } from "@/components/landing/landing-footer";
+
+export const metadata = {
+  title: "CloseVDS — AI Client Acquisition Operating System",
+  description:
+    "The unified autonomous operating system for B2B client acquisition. High-intent prospect discovery, deterministic opportunity auditing, governed cold outreach, and closed-loop deal acceleration.",
+};
 
 export default function RootPage() {
   return (
-    <main className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center bg-[#09090b] text-white relative overflow-hidden selection:bg-white/20 selection:text-white">
-      {/* Ambient background glow */}
-      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
+    <div className="min-h-screen bg-surface-canvas text-white selection:bg-white/20 selection:text-white flex flex-col font-sans">
+      {/* Navigation Header */}
+      <LandingNavbar />
 
-      <div className="space-y-6 max-w-md relative z-10">
-        {/* Brand Emblem */}
-        <div className="w-12 h-12 rounded-2xl bg-[#121216] border border-white/[0.12] flex items-center justify-center mx-auto shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.2] to-transparent" />
-          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
+      {/* Main Landing Flow */}
+      <main className="flex-1">
+        {/* 1. Hero with Interactive Telemetry Viewport */}
+        <LandingHero />
 
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight text-white">
-            closeVDS
-          </h1>
-          <p className="text-zinc-300 font-medium text-base">
-            AI Client Acquisition Operating System
-          </p>
-          <p className="text-[11px] text-zinc-500 tracking-widest uppercase font-mono font-semibold">
-            Find &bull; Qualify &bull; Reach &bull; Close
-          </p>
-        </div>
+        {/* 2. 4-Stage Autonomous Pipeline */}
+        <LandingPipeline />
 
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href="/dashboard" className="w-full sm:w-auto">
-            <Button variant="primary" size="lg" className="w-full flex items-center justify-center gap-2">
-              <span>Enter Workspace</span>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Button>
-          </Link>
-          <Link href="/login" className="w-full sm:w-auto">
-            <Button variant="secondary" size="lg" className="w-full">
-              Sign In
-            </Button>
-          </Link>
-        </div>
-      </div>
-    </main>
+        {/* 3. Core System Capabilities */}
+        <LandingFeatures />
+
+        {/* 4. Enterprise Architecture & Safety Safeguards */}
+        <LandingArchitecture />
+
+        {/* 5. Empirical Technical Specs & Guarantees */}
+        <LandingSpecs />
+
+        {/* 6. Closing Conversion CTA */}
+        <LandingCTA />
+      </main>
+
+      {/* Enterprise Platform Footer */}
+      <LandingFooter />
+    </div>
   );
 }

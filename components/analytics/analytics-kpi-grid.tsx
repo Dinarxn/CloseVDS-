@@ -46,22 +46,32 @@ export function AnalyticsKpiGrid({ kpis }: AnalyticsKpiGridProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
       {cards.map((c, i) => (
         <div
           key={i}
-          className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden transition-colors hover:border-white/[0.14]"
+          className="relative rounded-xl border border-white/[0.08] bg-surface-card p-4 space-y-2 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-150 hover:border-white/[0.16] hover:bg-surface-card-hover group"
         >
           {/* Top hairline reflection */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+          <div
+            className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
+            aria-hidden="true"
+          />
 
-          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block line-clamp-1 font-medium">
-            {c.title}
-          </span>
-          <div className={`text-xl sm:text-2xl font-bold font-mono tracking-tight tabular-nums ${c.isPrimary ? "text-emerald-400" : "text-white"}`}>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block truncate font-medium">
+              {c.title}
+            </span>
+            {c.isPrimary && (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+            )}
+          </div>
+
+          <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight tabular-nums text-white">
             {c.value}
           </div>
-          <span className="text-[10px] text-zinc-400 block line-clamp-1">
+
+          <span className="text-[11px] text-zinc-400 block truncate font-sans">
             {c.helper}
           </span>
         </div>

@@ -172,11 +172,11 @@ export function CrmActivityTimeline({
   return (
     <div className="space-y-4">
       {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-white/[0.06]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
         <div>
           <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono flex items-center gap-2">
             <span>Unified Activity Timeline</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] text-zinc-300 border border-white/[0.1] tabular-nums">
               {activities.length} total
             </span>
           </h4>
@@ -194,7 +194,7 @@ export function CrmActivityTimeline({
               key={cat}
               type="button"
               onClick={() => setFilterType(cat)}
-              className={`text-[10px] font-mono uppercase px-2 py-1 rounded transition-colors ${
+              className={`text-[10px] font-mono uppercase px-2.5 py-1 rounded-md transition-all cursor-pointer ${
                 filterType === cat
                   ? "bg-white text-black font-semibold shadow-xs"
                   : "bg-white/[0.03] text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06] border border-white/[0.06]"
@@ -209,22 +209,24 @@ export function CrmActivityTimeline({
       {/* Record Activity / Note Form */}
       <form
         onSubmit={handleRecordActivity}
-        className="rounded-xl border border-white/[0.08] bg-[#09090f]/90 p-3.5 space-y-3 shadow-xs"
+        className="rounded-xl border border-white/[0.08] bg-[#09090e] p-3.5 space-y-3 shadow-xs relative overflow-hidden"
       >
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-            Log CRM Activity
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Log CRM Activity</span>
           </span>
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] font-mono text-zinc-500 mr-1">Type:</span>
+          <div className="flex items-center gap-1 p-0.5 rounded-lg bg-black/40 border border-white/[0.06]">
             {(["NOTE", "CALL_LOG"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setNewNoteType(t)}
-                className={`text-[10px] font-mono px-2 py-0.5 rounded transition-colors ${
+                className={`text-[10px] font-mono px-2.5 py-1 rounded transition-colors cursor-pointer ${
                   newNoteType === t
-                    ? "bg-white/[0.12] text-white font-medium border border-white/[0.2]"
+                    ? "bg-white/[0.12] text-white font-medium shadow-xs"
                     : "text-zinc-400 hover:text-zinc-200"
                 }`}
               >
@@ -249,13 +251,13 @@ export function CrmActivityTimeline({
 
         <div className="flex items-center justify-between pt-0.5">
           <p className="text-[10px] text-zinc-500 italic">
-            * Note is logged locally to this lead&apos;s CRM audit history.
+            * Recorded into CRM audit log with UTC timestamp.
           </p>
           <Button
             type="submit"
             size="sm"
             disabled={!newNote.trim() || isSubmitting}
-            className="h-7 px-3 text-xs font-medium bg-white text-black hover:bg-zinc-200"
+            className="h-7.5 px-3 text-xs font-medium bg-white text-black hover:bg-zinc-200 cursor-pointer shadow-xs"
           >
             {isSubmitting ? "Saving..." : "Record Activity"}
           </Button>
@@ -263,7 +265,7 @@ export function CrmActivityTimeline({
       </form>
 
       {errorMsg && (
-        <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-start gap-2">
+        <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-start gap-2 shadow-xs">
           <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
@@ -287,7 +289,7 @@ export function CrmActivityTimeline({
           </p>
         </div>
       ) : (
-        <div className="relative pl-5 space-y-4 before:absolute before:top-2 before:bottom-2 before:left-2 before:w-[1px] before:bg-white/[0.08]">
+        <div className="relative pl-5 space-y-3.5 before:absolute before:top-2 before:bottom-2 before:left-2 before:w-[1px] before:bg-white/[0.08]">
           {filteredActivities.map((act) => {
             const meta = getActivityTypeMeta(act.type);
             const isConfirmed = act.metadata && (act.metadata as Record<string, unknown>).isConfirmed === true;
@@ -295,11 +297,11 @@ export function CrmActivityTimeline({
             return (
               <div key={act.id} className="relative group">
                 {/* Timeline Node Icon */}
-                <div className="absolute -left-5 top-1 w-4 h-4 rounded-full bg-[#0c0c12] border border-white/[0.14] flex items-center justify-center text-zinc-400 group-hover:border-white/40 transition-colors">
+                <div className="absolute -left-5 top-1.5 w-4 h-4 rounded-full bg-[#0d0d12] border border-white/[0.14] flex items-center justify-center text-zinc-400 group-hover:border-white/40 transition-colors">
                   <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 group-hover:bg-white transition-colors" />
                 </div>
 
-                <div className="p-3 bg-[#0c0c12]/80 border border-white/[0.07] hover:border-white/[0.14] rounded-lg transition-colors space-y-2">
+                <div className="p-3 bg-[#121218] border border-white/[0.07] hover:border-white/[0.14] rounded-lg transition-colors space-y-2 shadow-xs">
                   <div className="flex flex-wrap items-center justify-between gap-1.5">
                     <div className="flex items-center gap-2">
                       <span className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded border font-medium ${meta.badgeClass}`}>
@@ -307,7 +309,7 @@ export function CrmActivityTimeline({
                         {meta.label}
                       </span>
 
-                      {/* Integrity / Confirmation Badge */}
+                      {/* Integrity / Outcome Badge */}
                       {act.type === "CALL_LOG" ? (
                         (() => {
                           const metaRec = act.metadata as Record<string, unknown> | undefined;
@@ -315,7 +317,7 @@ export function CrmActivityTimeline({
                           if (outcome) {
                             if (["COMPLETED", "MEETING_REQUESTED", "CALLBACK_REQUESTED"].includes(outcome)) {
                               return (
-                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
                                   {outcome === "MEETING_REQUESTED"
                                     ? "Meeting Booked"
                                     : outcome === "CALLBACK_REQUESTED"
@@ -326,21 +328,21 @@ export function CrmActivityTimeline({
                             }
                             if (outcome === "VOICEMAIL") {
                               return (
-                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
                                   Voicemail
                                 </span>
                               );
                             }
                             if (outcome === "NO_ANSWER" || outcome === "BUSY") {
                               return (
-                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 font-medium">
                                   {outcome === "BUSY" ? "Line Busy" : "No Answer"}
                                 </span>
                               );
                             }
                             if (outcome === "FAILED") {
                               return (
-                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-medium">
                                   Call Failed
                                 </span>
                               );
@@ -366,7 +368,7 @@ export function CrmActivityTimeline({
                         })()
                       ) : act.type === "EMAIL_SENT" ? (
                         isConfirmed ? (
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
                             SMTP Dispatched
                           </span>
                         ) : (
@@ -377,7 +379,7 @@ export function CrmActivityTimeline({
                       ) : null}
                     </div>
 
-                    <span className="text-[10px] font-mono text-zinc-500">
+                    <span className="text-[10px] font-mono text-zinc-500 tabular-nums">
                       {formatActivityDate(act.createdAt)}
                     </span>
                   </div>
@@ -386,20 +388,22 @@ export function CrmActivityTimeline({
                     {act.description}
                   </p>
 
-                  {/* Metadata Inspector if notes or transitions present */}
+                  {/* Metadata Transition Details */}
                   {act.metadata && Object.keys(act.metadata).length > 0 && (
-                    <div className="pt-1 flex flex-wrap gap-2 text-[10px] font-mono text-zinc-500 border-t border-white/[0.04]">
+                    <div className="pt-1 flex flex-wrap gap-2.5 text-[10px] font-mono text-zinc-500 border-t border-white/[0.04]">
                       {Boolean(act.metadata.previousStatus && act.metadata.newStatus) ? (
-                        <span>
-                          Transition: <span className="text-zinc-400">{String(act.metadata.previousStatus)}</span> →{" "}
+                        <span className="flex items-center gap-1">
+                          <span>Transition:</span>
+                          <span className="text-zinc-400">{String(act.metadata.previousStatus)}</span>
+                          <span className="text-zinc-600">→</span>
                           <span className="text-white font-medium">{String(act.metadata.newStatus)}</span>
                         </span>
                       ) : null}
                       {act.metadata.channel ? (
-                        <span>Channel: {String(act.metadata.channel)}</span>
+                        <span>Channel: <strong className="text-zinc-400">{String(act.metadata.channel)}</strong></span>
                       ) : null}
                       {act.metadata.duration ? (
-                        <span>Duration: {String(act.metadata.duration)}s</span>
+                        <span>Duration: <strong className="text-zinc-400">{String(act.metadata.duration)}s</strong></span>
                       ) : null}
                     </div>
                   )}

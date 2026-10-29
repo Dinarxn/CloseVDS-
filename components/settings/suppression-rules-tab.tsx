@@ -53,8 +53,8 @@ export function SuppressionRulesTab({
   return (
     <div className="space-y-5">
       {/* 1. Global Domain Suppression List */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-5 space-y-4 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
           <div className="space-y-1">
@@ -73,7 +73,7 @@ export function SuppressionRulesTab({
             </p>
           </div>
 
-          <span className="font-mono text-[10px] text-zinc-400 bg-white/[0.05] border border-white/[0.08] px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
+          <span className="font-mono text-[10px] text-zinc-300 bg-surface-panel border border-subtle px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto tabular-nums">
             {suppression.blockedDomains.length} BLOCKED
           </span>
         </div>
@@ -91,7 +91,7 @@ export function SuppressionRulesTab({
           <button
             type="button"
             onClick={handleAddDomain}
-            className="h-9 px-3.5 rounded-lg text-xs font-semibold bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/[0.1] inline-flex items-center gap-1.5 transition-all shrink-0 mt-auto"
+            className="h-9 px-3.5 rounded-lg text-xs font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-white border border-subtle hover:border-white/[0.2] inline-flex items-center gap-1.5 transition-all shrink-0 mt-auto shadow-xs"
           >
             <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -103,7 +103,7 @@ export function SuppressionRulesTab({
 
         <div className="pt-1">
           {suppression.blockedDomains.length === 0 ? (
-            <div className="p-4 rounded-lg bg-[#07070c] border border-dashed border-white/[0.08] text-center font-mono text-xs text-zinc-500">
+            <div className="p-4 rounded-lg bg-surface-panel border border-dashed border-subtle text-center font-mono text-xs text-zinc-500">
               No domains currently suppressed
             </div>
           ) : (
@@ -111,7 +111,7 @@ export function SuppressionRulesTab({
               {suppression.blockedDomains.map((dom) => (
                 <div
                   key={dom}
-                  className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#07070c] border border-white/[0.08] hover:border-white/[0.16] text-xs font-mono text-zinc-300 transition-colors group"
+                  className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface-panel border border-subtle hover:border-white/[0.2] text-xs font-mono text-zinc-300 transition-colors group shadow-xs"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400/80" />
                   <span>{dom}</span>
@@ -134,8 +134,8 @@ export function SuppressionRulesTab({
       </div>
 
       {/* 2. Inbound Reply Opt-Out Triggers */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-5 space-y-4 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
           <div className="space-y-1">
@@ -152,7 +152,7 @@ export function SuppressionRulesTab({
             </p>
           </div>
 
-          <span className="font-mono text-[10px] text-zinc-400 bg-white/[0.05] border border-white/[0.08] px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
+          <span className="font-mono text-[10px] text-zinc-300 bg-surface-panel border border-subtle px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto tabular-nums">
             {suppression.optOutKeywords.length} TRIGGERS
           </span>
         </div>
@@ -170,7 +170,7 @@ export function SuppressionRulesTab({
           <button
             type="button"
             onClick={handleAddKeyword}
-            className="h-9 px-3.5 rounded-lg text-xs font-semibold bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/[0.1] inline-flex items-center gap-1.5 transition-all shrink-0 mt-auto"
+            className="h-9 px-3.5 rounded-lg text-xs font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-white border border-subtle hover:border-white/[0.2] inline-flex items-center gap-1.5 transition-all shrink-0 mt-auto shadow-xs"
           >
             <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -182,7 +182,7 @@ export function SuppressionRulesTab({
 
         <div className="pt-1">
           {suppression.optOutKeywords.length === 0 ? (
-            <div className="p-4 rounded-lg bg-[#07070c] border border-dashed border-white/[0.08] text-center font-mono text-xs text-zinc-500">
+            <div className="p-4 rounded-lg bg-surface-panel border border-dashed border-subtle text-center font-mono text-xs text-zinc-500">
               No opt-out triggers configured
             </div>
           ) : (
@@ -190,7 +190,7 @@ export function SuppressionRulesTab({
               {suppression.optOutKeywords.map((kw) => (
                 <div
                   key={kw}
-                  className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#07070c] border border-white/[0.08] hover:border-white/[0.16] text-xs font-mono text-zinc-300 transition-colors group"
+                  className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface-panel border border-subtle hover:border-white/[0.2] text-xs font-mono text-zinc-300 transition-colors group shadow-xs"
                 >
                   <span className="text-zinc-500">&ldquo;</span>
                   <span>{kw}</span>
@@ -214,8 +214,8 @@ export function SuppressionRulesTab({
       </div>
 
       {/* 3. CAN-SPAM / GDPR Mandatory Footer */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-5 space-y-4 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/25 to-transparent pointer-events-none" aria-hidden="true" />
 
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">

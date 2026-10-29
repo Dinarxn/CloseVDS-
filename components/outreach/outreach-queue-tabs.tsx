@@ -100,14 +100,18 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
         onValueChange={(val) => setActiveStage(val as OutreachStage)}
         defaultValue="pending_approval"
       >
-        <TabList className="w-full">
+        <TabList className="w-full sm:w-auto">
           {OUTREACH_QUEUE_TABS.map((tab) => {
             const count = drafts.filter((d) => d.stage === tab.key).length;
             return (
               <Tab key={tab.key} value={tab.key}>
-                <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-2">
                   <span>{tab.label}</span>
-                  <Badge variant={count > 0 ? "solid" : "outline"} className="text-[10px] px-1.5 py-0">
+                  <Badge
+                    variant={count > 0 ? "solid" : "secondary"}
+                    size="sm"
+                    className="font-mono text-[10px] tabular-nums"
+                  >
                     {count}
                   </Badge>
                 </div>
@@ -117,9 +121,14 @@ export function OutreachQueueTabs({ drafts = [], onRefresh }: OutreachQueueTabsP
         </TabList>
 
         {OUTREACH_QUEUE_TABS.map((tab) => (
-          <TabPanel key={tab.key} value={tab.key} className="space-y-4">
-            <div className="text-xs text-[#737373] pb-2">
-              {tab.description}
+          <TabPanel key={tab.key} value={tab.key} className="space-y-4 pt-2">
+            <div className="flex items-center justify-between pb-1 border-b border-white/[0.06]">
+              <p className="text-xs text-zinc-400 font-sans">
+                {tab.description}
+              </p>
+              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+                {filteredDrafts.length} item{filteredDrafts.length === 1 ? "" : "s"}
+              </span>
             </div>
 
             {filteredDrafts.length === 0 ? (

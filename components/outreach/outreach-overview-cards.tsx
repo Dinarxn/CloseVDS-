@@ -17,26 +17,26 @@ export function OutreachOverviewCards({ stats, isLoading = false }: OutreachOver
       count: stats.pendingApproval,
       subtext: "Gate 1/2: Awaiting operator approval",
       badge: "Pending",
-      badgeVariant: stats.pendingApproval > 0 ? ("solid" as const) : ("outline" as const),
+      badgeVariant: stats.pendingApproval > 0 ? ("warning" as const) : ("outline" as const),
       accentBorder: stats.pendingApproval > 0 ? "border-amber-500/30" : "border-white/[0.08]",
       indicatorColor: "bg-amber-400",
     },
     {
-      label: "Approved & Queued",
+      label: "Approved & Scheduled",
       count: stats.approvedQueue,
       subtext: "Ready for delivery window dispatch",
       badge: "Approved",
       badgeVariant: stats.approvedQueue > 0 ? ("solid" as const) : ("outline" as const),
-      accentBorder: stats.approvedQueue > 0 ? "border-sky-500/30" : "border-white/[0.08]",
-      indicatorColor: "bg-sky-400",
+      accentBorder: stats.approvedQueue > 0 ? "border-white/[0.20]" : "border-white/[0.08]",
+      indicatorColor: "bg-white",
     },
     {
       label: "Active Sequences",
       count: stats.sentActive,
       subtext: "Touchpoints dispatched & awaiting reply",
       badge: "Sent",
-      badgeVariant: stats.sentActive > 0 ? ("solid" as const) : ("outline" as const),
-      accentBorder: "border-white/[0.08]",
+      badgeVariant: stats.sentActive > 0 ? ("success" as const) : ("outline" as const),
+      accentBorder: stats.sentActive > 0 ? "border-emerald-500/30" : "border-white/[0.08]",
       indicatorColor: "bg-emerald-400",
     },
     {
@@ -44,7 +44,7 @@ export function OutreachOverviewCards({ stats, isLoading = false }: OutreachOver
       count: stats.suppressed,
       subtext: "Regulatory suppressions active",
       badge: "Suppressed",
-      badgeVariant: "outline" as const,
+      badgeVariant: stats.suppressed > 0 ? ("danger" as const) : ("outline" as const),
       accentBorder: stats.suppressed > 0 ? "border-rose-500/30" : "border-white/[0.08]",
       indicatorColor: "bg-rose-400",
     },
@@ -55,14 +55,20 @@ export function OutreachOverviewCards({ stats, isLoading = false }: OutreachOver
       {cards.map((c, idx) => (
         <Card
           key={idx}
-          className={`relative p-4 rounded-xl bg-[#0c0c12] border ${c.accentBorder} shadow-xs backdrop-blur-sm transition-all`}
+          className={`relative p-4 rounded-xl bg-surface-card border ${c.accentBorder} shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all hover:border-white/[0.16] hover:bg-surface-card-hover`}
         >
+          {/* Specular hairline top reflection */}
+          <div
+            className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
+            aria-hidden="true"
+          />
+
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${c.indicatorColor}`} />
-              <span className="text-xs font-medium text-zinc-300 font-sans">{c.label}</span>
+              <span className={`w-2 h-2 rounded-full ${c.indicatorColor} shrink-0`} />
+              <span className="text-xs font-medium text-zinc-300 font-sans tracking-tight">{c.label}</span>
             </div>
-            <Badge variant={c.badgeVariant} className="text-[10px] font-mono px-1.5 py-0 uppercase">
+            <Badge variant={c.badgeVariant} size="sm" className="font-mono uppercase text-[10px]">
               {c.badge}
             </Badge>
           </div>
@@ -71,13 +77,13 @@ export function OutreachOverviewCards({ stats, isLoading = false }: OutreachOver
             {isLoading ? (
               <div className="h-7 w-12 bg-white/[0.06] rounded animate-pulse my-0.5" />
             ) : (
-              <span className="text-2xl font-bold font-mono tracking-tight text-white">
+              <span className="text-2xl font-bold font-mono tracking-tight tabular-nums text-white">
                 {c.count}
               </span>
             )}
           </div>
 
-          <p className="text-[11px] text-zinc-500 mt-1.5 leading-snug font-sans">
+          <p className="text-[11px] text-zinc-400 mt-1.5 leading-snug font-sans">
             {c.subtext}
           </p>
         </Card>

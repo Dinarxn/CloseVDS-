@@ -180,7 +180,7 @@ export default function SettingsPage() {
     <PageContainer>
       <div className="space-y-6">
         {/* Header & Primary Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-subtle pb-5">
           <PageHeader
             title="Settings"
             description="Manage acquisition bounds, global kill switches, suppression rules, and AI providers."
@@ -233,8 +233,8 @@ export default function SettingsPage() {
         </div>
 
         {isLoading ? (
-          <div className="relative overflow-hidden p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]">
-            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+          <div className="relative overflow-hidden p-12 text-center border border-subtle rounded-xl bg-surface-card shadow-sm">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
             <div className="w-6 h-6 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="font-mono text-xs text-zinc-400">Loading workspace configuration from server...</p>
           </div>

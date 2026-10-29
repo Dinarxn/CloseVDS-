@@ -48,10 +48,10 @@ export function LeadsCardGrid({
         <div
           key={lead.id}
           onClick={() => onSelectLead?.(lead)}
-          className="group relative p-3.5 sm:p-4 bg-[#0a0a0f] hover:bg-[#0e0e14] border border-white/[0.06] hover:border-white/[0.12] rounded-xl transition-all duration-150 cursor-pointer flex flex-col justify-between space-y-3 hover:shadow-xs backdrop-blur-sm"
+          className="group relative p-3.5 sm:p-4 bg-[#0d0d12] hover:bg-[#121218] border border-white/[0.08] hover:border-white/[0.18] rounded-xl transition-all duration-150 cursor-pointer flex flex-col justify-between space-y-3 hover:shadow-xs backdrop-blur-sm"
         >
           {/* Top hairline specular highlight on hover */}
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
           {/* Card Header */}
           <div className="space-y-1">

@@ -1,22 +1,19 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { api } from "@/lib/api-client";
-import {
-  AcquisitionHealthStrip,
-  LeadDiscoveryCard,
-  PipelineIntelligence,
-  CallingReadiness,
-  ActionRequired,
-  RecentActivity,
-  SafetyGovernance,
-  type PipelineStageCounts,
-  type ActivityItem,
-} from "@/components/dashboard";
-import type { PreviewLead } from "@/components/dashboard/lead-discovery-card";
+import { AcquisitionHealthStrip } from "@/components/dashboard/acquisition-health-strip";
+import { LeadDiscoveryCard, type PreviewLead } from "@/components/dashboard/lead-discovery-card";
+import { PipelineIntelligence, type PipelineStageCounts } from "@/components/dashboard/pipeline-intelligence";
+import { CallingReadiness } from "@/components/dashboard/calling-readiness";
+import { ActionRequired } from "@/components/dashboard/action-required";
+import { RecentActivity, type ActivityItem } from "@/components/dashboard/recent-activity";
+import { SafetyGovernance } from "@/components/dashboard/safety-governance";
 
 interface LeadItem {
   id: string;

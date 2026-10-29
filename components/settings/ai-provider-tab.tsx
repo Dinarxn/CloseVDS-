@@ -15,8 +15,8 @@ export function AiProviderTab({ ai, onChange }: AiProviderTabProps) {
   return (
     <div className="space-y-5">
       {/* 1. Policy Notice — Technical Governance Panel */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-4 flex items-start gap-3.5">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-4 flex items-start gap-3.5 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent pointer-events-none" aria-hidden="true" />
         <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 shrink-0 mt-0.5">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -39,8 +39,8 @@ export function AiProviderTab({ ai, onChange }: AiProviderTabProps) {
       </div>
 
       {/* 2. Active AI Service Provider */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-5 space-y-4 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
 
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">
@@ -103,8 +103,8 @@ export function AiProviderTab({ ai, onChange }: AiProviderTabProps) {
       </div>
 
       {/* 3. Anti-Hallucination & Generation Guardrails */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-5 space-y-4 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/25 to-transparent pointer-events-none" aria-hidden="true" />
 
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">

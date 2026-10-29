@@ -125,21 +125,21 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
       onOpenChange={(open) => !open && onClose()}
       title="Global Lead Discovery"
       description="Target any business vertical across any city, region, or country worldwide."
-      className="sm:max-w-xl !bg-[#0D0F12] !border-[#252932] !rounded-xl !p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)]"
+      className="sm:max-w-xl !bg-[#0d0d12] !border-white/[0.10] !rounded-xl !p-5 shadow-[0_24px_64px_rgba(0,0,0,0.85)]"
     >
       <div className="relative space-y-3.5">
         {/* Intelligence Telemetry Banner Box */}
-        <div className="relative overflow-hidden p-3 rounded-lg bg-[#131519] border border-[#252932]">
+        <div className="relative overflow-hidden p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
           <div className="relative flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-md bg-[#08090B] border border-[#252932] flex items-center justify-center text-emerald-400 shrink-0">
+              <div className="w-7 h-7 rounded-md bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-emerald-400 shrink-0">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold text-[#E8E9EB] tracking-tight">
+                  <span className="text-xs font-semibold text-white tracking-tight">
                     Worldwide Multi-Niche Engine
                   </span>
                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-[9px] font-mono text-emerald-400 font-medium">
@@ -147,14 +147,14 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                     STANDBY
                   </span>
                 </div>
-                <p className="text-[11px] text-[#8B8F99] mt-0.5">
+                <p className="text-[11px] text-zinc-400 mt-0.5">
                   Zero-restriction prospect search with 4-factor deduplication
                 </p>
               </div>
             </div>
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#08090B] border border-[#252932] text-[10px] font-mono text-[#8B8F99]">
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#09090b] border border-white/[0.08] text-[10px] font-mono text-zinc-400">
               <span>Coverage:</span>
-              <span className="text-[#E8E9EB] font-semibold">190+ Countries</span>
+              <span className="text-white font-semibold">190+ Countries</span>
             </div>
           </div>
         </div>
@@ -186,16 +186,16 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
             <div className="flex items-center justify-between">
               <label
                 htmlFor="modal-discovery-niche"
-                className="text-[10px] font-mono uppercase tracking-wider text-[#8B8F99] flex items-center gap-1.5"
+                className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5"
               >
                 <span>Target Niche / Industry</span>
                 <span className="text-emerald-400">• Any Vertical</span>
               </label>
-              <span className="text-[10px] font-mono text-[#626773]">Free-text input</span>
+              <span className="text-[10px] font-mono text-zinc-500">Free-text input</span>
             </div>
 
             <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#626773]">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
@@ -208,14 +208,14 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                 placeholder="e.g. Dentist, Restaurant, Luxury Salon, Commercial Real Estate..."
                 disabled={isSubmitting}
                 style={{ outline: "none", outlineOffset: 0 }}
-                className="w-full h-9 pl-9 pr-8 bg-[#08090B] text-[#E8E9EB] text-xs rounded-lg border border-[#252932] hover:border-[#383D4A] focus:border-[#3D5CFF] focus:ring-1 focus:ring-[#3D5CFF]/30 placeholder-[#626773] transition-colors font-sans"
+                className="w-full h-9 pl-9 pr-8 bg-[#09090b] text-white text-xs rounded-lg border border-white/[0.08] hover:border-white/[0.16] focus:border-white/30 focus:ring-1 focus:ring-white/20 placeholder-zinc-500 transition-colors font-sans"
               />
               {niche && !isSubmitting && (
                 <button
                   type="button"
                   onClick={() => setNiche("")}
                   style={{ outline: "none" }}
-                  className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#626773] hover:text-[#E8E9EB] transition-colors cursor-pointer"
+                  className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-zinc-500 hover:text-white transition-colors cursor-pointer"
                   title="Clear niche"
                 >
                   ✕
@@ -225,7 +225,7 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
 
             {/* Quick Suggestion Pills */}
             <div className="flex items-center flex-wrap gap-1.5 pt-0.5">
-              <span className="text-[10px] font-mono text-[#626773] uppercase tracking-wider mr-0.5">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mr-0.5">
                 Presets:
               </span>
               {EXAMPLE_NICHES.map((item) => {
@@ -239,8 +239,8 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                     style={{ outline: "none" }}
                     className={`text-xs px-2.5 py-0.5 rounded-md border transition-colors cursor-pointer font-sans ${
                       isSelected
-                        ? "bg-[#3D5CFF]/15 border-[#3D5CFF]/60 text-[#E8E9EB] font-medium"
-                        : "bg-[#131519] hover:bg-[#1A1D24] text-[#8B8F99] hover:text-[#E8E9EB] border-[#252932] hover:border-[#383D4A]"
+                        ? "bg-white text-black font-semibold border-white shadow-xs"
+                        : "bg-[#09090b] hover:bg-white/[0.06] text-zinc-300 hover:text-white border-white/[0.08] hover:border-white/[0.16]"
                     }`}
                   >
                     {item}
@@ -256,16 +256,16 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="modal-discovery-location"
-                  className="text-[10px] font-mono uppercase tracking-wider text-[#8B8F99] flex items-center gap-1.5"
+                  className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5"
                 >
                   <span>Location / Market</span>
                   <span className="text-emerald-400">• Global</span>
                 </label>
-                <span className="text-[10px] font-mono text-[#626773]">City, state, or country</span>
+                <span className="text-[10px] font-mono text-zinc-500">City, state, or country</span>
               </div>
 
               <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#626773]">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -279,14 +279,14 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                   placeholder="e.g. London, Dubai, Toronto, Mumbai, New York..."
                   disabled={isSubmitting}
                   style={{ outline: "none", outlineOffset: 0 }}
-                  className="w-full h-9 pl-9 pr-8 bg-[#08090B] text-[#E8E9EB] text-xs rounded-lg border border-[#252932] hover:border-[#383D4A] focus:border-[#3D5CFF] focus:ring-1 focus:ring-[#3D5CFF]/30 placeholder-[#626773] transition-colors font-sans"
+                  className="w-full h-9 pl-9 pr-8 bg-[#09090b] text-white text-xs rounded-lg border border-white/[0.08] hover:border-white/[0.16] focus:border-white/30 focus:ring-1 focus:ring-white/20 placeholder-zinc-500 transition-colors font-sans"
                 />
                 {location && !isSubmitting && (
                   <button
                     type="button"
                     onClick={() => setLocation("")}
                     style={{ outline: "none" }}
-                    className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#626773] hover:text-[#E8E9EB] transition-colors cursor-pointer"
+                    className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-zinc-500 hover:text-white transition-colors cursor-pointer"
                     title="Clear location"
                   >
                     ✕
@@ -296,7 +296,7 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
 
               {/* Location Presets */}
               <div className="flex items-center flex-wrap gap-1.5 pt-0.5">
-                <span className="text-[10px] font-mono text-[#626773] uppercase tracking-wider mr-0.5">
+                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mr-0.5">
                   Presets:
                 </span>
                 {EXAMPLE_LOCATIONS.map((loc) => {
@@ -310,8 +310,8 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                       style={{ outline: "none" }}
                       className={`text-xs px-2.5 py-0.5 rounded-md border transition-colors cursor-pointer font-sans ${
                         isSelected
-                          ? "bg-[#3D5CFF]/15 border-[#3D5CFF]/60 text-[#E8E9EB] font-medium"
-                          : "bg-[#131519] hover:bg-[#1A1D24] text-[#8B8F99] hover:text-[#E8E9EB] border-[#252932] hover:border-[#383D4A]"
+                          ? "bg-white text-black font-semibold border-white shadow-xs"
+                          : "bg-[#09090b] hover:bg-white/[0.06] text-zinc-300 hover:text-white border-white/[0.08] hover:border-white/[0.16]"
                       }`}
                     >
                       {loc}
@@ -326,15 +326,15 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="modal-discovery-country"
-                  className="text-[10px] font-mono uppercase tracking-wider text-[#8B8F99]"
+                  className="text-[10px] font-mono uppercase tracking-wider text-zinc-400"
                 >
                   Country Code
                 </label>
-                <span className="text-[10px] font-mono text-[#626773]">Optional</span>
+                <span className="text-[10px] font-mono text-zinc-500">Optional</span>
               </div>
 
               <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-[#626773]">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-zinc-500">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
                   </svg>
@@ -348,10 +348,10 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                   placeholder="US, GB, AE"
                   disabled={isSubmitting}
                   style={{ outline: "none", outlineOffset: 0 }}
-                  className="w-full h-9 pl-8.5 pr-2.5 bg-[#08090B] text-[#E8E9EB] text-xs rounded-lg border border-[#252932] hover:border-[#383D4A] focus:border-[#3D5CFF] focus:ring-1 focus:ring-[#3D5CFF]/30 placeholder-[#626773] transition-colors font-mono uppercase tracking-wider"
+                  className="w-full h-9 pl-8.5 pr-2.5 bg-[#09090b] text-white text-xs rounded-lg border border-white/[0.08] hover:border-white/[0.16] focus:border-white/30 focus:ring-1 focus:ring-white/20 placeholder-zinc-500 transition-colors font-mono uppercase tracking-wider"
                 />
               </div>
-              <p className="text-[10px] font-mono text-[#626773] leading-tight">
+              <p className="text-[10px] font-mono text-zinc-500 leading-tight">
                 2-letter ISO code
               </p>
             </div>
@@ -360,11 +360,11 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
           {/* Discovery Engine / Provider - Segmented Tactile Selector */}
           <div className="space-y-1.5 pt-0.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono uppercase tracking-wider text-[#8B8F99] flex items-center gap-1.5">
+              <label className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
                 <span>Discovery Engine / Provider</span>
                 <span className="text-emerald-400">• Multi-Source</span>
               </label>
-              <span className="text-[10px] font-mono text-[#626773]">Server-side integration</span>
+              <span className="text-[10px] font-mono text-zinc-500">Server-side integration</span>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
@@ -405,28 +405,28 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                     style={{ outline: "none" }}
                     className={`relative p-2.5 rounded-lg border text-left transition-colors select-none ${
                       option.disabled
-                        ? "bg-[#090A0D] border-[#1C1F26] text-[#555A66] cursor-not-allowed opacity-60"
+                        ? "bg-[#09090b] border-white/[0.04] text-zinc-600 cursor-not-allowed opacity-50"
                         : isSelected
-                        ? "bg-[#131519] border-[#383D4A] text-[#E8E9EB] shadow-xs cursor-pointer"
-                        : "bg-[#131519] hover:bg-[#1A1D24] border-[#252932] hover:border-[#383D4A] text-[#8B8F99] hover:text-[#E8E9EB] cursor-pointer"
+                        ? "bg-[#121218] border-white/30 text-white shadow-xs cursor-pointer"
+                        : "bg-[#09090b] hover:bg-[#121218] border-white/[0.08] hover:border-white/[0.16] text-zinc-300 hover:text-white cursor-pointer"
                     }`}
                   >
                     {isSelected && (
                       <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     )}
                     {option.badge && (
-                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[8px] font-mono font-medium bg-[#14171F] border border-[#252932] text-[#626773]">
+                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[8px] font-mono font-medium bg-white/[0.04] border border-white/[0.08] text-zinc-500">
                         {option.badge}
                       </span>
                     )}
                     <div
                       className={`text-xs font-semibold tracking-tight ${
-                        option.disabled ? "text-[#626773]" : "text-[#E8E9EB]"
+                        option.disabled ? "text-zinc-600" : "text-white"
                       }`}
                     >
                       {option.title}
                     </div>
-                    <div className="text-[10px] font-mono text-[#626773] mt-0.5">
+                    <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
                       {option.desc}
                     </div>
                   </button>
@@ -438,11 +438,11 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
           {/* Result Limit / Batch Size - Segmented Tactile Selector */}
           <div className="space-y-1.5 pt-0.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono uppercase tracking-wider text-[#8B8F99] flex items-center gap-1.5">
+              <label className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
                 <span>Result Limit / Candidate Batch</span>
-                <span className="text-[#626773]">• Deduplicated</span>
+                <span className="text-zinc-500">• Deduplicated</span>
               </label>
-              <span className="text-[10px] font-mono text-[#626773]">MVP cap: 50/day</span>
+              <span className="text-[10px] font-mono text-zinc-500">MVP cap: 50/day</span>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
@@ -461,17 +461,17 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
                     style={{ outline: "none" }}
                     className={`relative p-2.5 rounded-lg border text-left transition-colors cursor-pointer select-none ${
                       isSelected
-                        ? "bg-[#131519] border-[#383D4A] text-[#E8E9EB] shadow-xs"
-                        : "bg-[#131519] hover:bg-[#1A1D24] border-[#252932] hover:border-[#383D4A] text-[#8B8F99] hover:text-[#E8E9EB]"
+                        ? "bg-[#121218] border-white/30 text-white shadow-xs"
+                        : "bg-[#09090b] hover:bg-[#121218] border-white/[0.08] hover:border-white/[0.16] text-zinc-300 hover:text-white"
                     }`}
                   >
                     {isSelected && (
                       <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     )}
-                    <div className="text-xs font-semibold tracking-tight text-[#E8E9EB]">
+                    <div className="text-xs font-semibold tracking-tight text-white">
                       {option.title}
                     </div>
-                    <div className="text-[10px] font-mono text-[#626773] mt-0.5">
+                    <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
                       {option.desc}
                     </div>
                   </button>
@@ -481,27 +481,27 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
           </div>
 
           {/* Live Telemetry Query Preview Box */}
-          <div className="p-2.5 rounded-lg bg-[#08090B] border border-[#252932] flex items-center justify-between text-[11px] font-mono text-[#8B8F99]">
+          <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] flex items-center justify-between text-[11px] font-mono text-zinc-400">
             <div className="flex items-center gap-2 truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-              <span className="text-[#626773]">Query:</span>
-              <span className="text-[#E8E9EB] font-sans truncate">
+              <span className="text-zinc-500">Query:</span>
+              <span className="text-white font-sans truncate">
                 {niche.trim() || "<Target Niche>"}
               </span>
-              <span className="text-[#626773]">in</span>
-              <span className="text-[#E8E9EB] font-sans truncate">
+              <span className="text-zinc-500">in</span>
+              <span className="text-white font-sans truncate">
                 {location.trim() || "<Location>"}
                 {countryCode.trim() ? ` (${countryCode.trim().toUpperCase()})` : ""}
               </span>
             </div>
-            <div className="shrink-0 pl-2 flex items-center gap-2 text-[10px] text-[#626773]">
+            <div className="shrink-0 pl-2 flex items-center gap-2 text-[10px] text-zinc-500">
               <span>
                 Engine:{" "}
                 <span className="text-emerald-400 font-semibold font-mono">
                   {provider === "osm" ? "OSM" : "Geoapify"}
                 </span>
               </span>
-              <span className="text-[#383D4A]">|</span>
+              <span className="text-zinc-700">|</span>
               <span>
                 Batch:{" "}
                 <span className="text-emerald-400 font-semibold">{batchSize} candidates</span>
@@ -511,13 +511,13 @@ export function LeadDiscoveryModal({ isOpen, onClose }: LeadDiscoveryModalProps)
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center justify-end space-x-2.5 pt-3 border-t border-[#252932]">
+        <div className="flex items-center justify-end space-x-2.5 pt-3 border-t border-white/[0.08]">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
             style={{ outline: "none" }}
-            className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-[#8B8F99] hover:text-[#E8E9EB] bg-[#131519] hover:bg-[#1A1D24] border border-[#252932] hover:border-[#383D4A] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white bg-[#09090b] hover:bg-white/[0.06] border border-white/[0.08] hover:border-white/[0.16] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Cancel
           </button>

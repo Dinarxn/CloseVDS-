@@ -140,16 +140,16 @@ export function LeadsPipelineView({
   return (
     <div className="space-y-3.5">
       {/* Scope & Pagination Context Surface */}
-      <div className="relative p-2.5 sm:p-3 bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+      <div className="relative p-2.5 sm:p-3 bg-[#0d0d12] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
         <div className="flex items-center gap-2 text-xs">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
           <span className="font-mono text-zinc-400">
-            Pipeline Scope: <span className="text-white font-medium">{leadsCount} leads</span> loaded on page{" "}
-            <span className="text-white font-medium">{page}</span> of{" "}
-            <span className="text-white font-medium">{totalPages}</span>{" "}
-            {total > 0 && <span className="text-zinc-500 font-mono">({total} total in workspace)</span>}
+            Pipeline Scope: <span className="text-white font-medium tabular-nums">{leadsCount} leads</span> loaded on page{" "}
+            <span className="text-white font-medium tabular-nums">{page}</span> of{" "}
+            <span className="text-white font-medium tabular-nums">{totalPages}</span>{" "}
+            {total > 0 && <span className="text-zinc-500 font-mono">(<span className="tabular-nums">{total}</span> total in workspace)</span>}
           </span>
         </div>
 
@@ -159,19 +159,19 @@ export function LeadsPipelineView({
               type="button"
               onClick={onPreviousPage}
               disabled={page <= 1 || isLoading}
-              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.07]"
+              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08]"
             >
               <span>←</span>
               <span>Prev Page</span>
             </button>
-            <span className="text-[11px] font-mono text-zinc-400">
+            <span className="text-[11px] font-mono text-zinc-400 tabular-nums">
               {page} / {totalPages}
             </span>
             <button
               type="button"
               onClick={onNextPage}
               disabled={page >= totalPages || isLoading}
-              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.07]"
+              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08]"
             >
               <span>Next Page</span>
               <span>→</span>
@@ -216,13 +216,13 @@ export function LeadsPipelineView({
             return (
               <div
                 key={stage.id}
-                className="flex-1 min-w-[270px] max-w-[320px] bg-[#0c0c12]/90 border border-white/[0.08] rounded-xl flex flex-col max-h-[780px] shadow-xs relative overflow-hidden"
+                className="flex-1 min-w-[270px] max-w-[320px] bg-[#0d0d12] border border-white/[0.08] rounded-xl flex flex-col max-h-[780px] shadow-xs relative overflow-hidden"
               >
                 {/* Specular hairline */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
                 {/* Column Header */}
-                <div className="p-3.5 border-b border-white/[0.06] bg-[#09090f]/95 space-y-1">
+                <div className="p-3.5 border-b border-white/[0.08] bg-[#09090b]/95 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                       {stage.label}
@@ -261,12 +261,12 @@ export function LeadsPipelineView({
                         <div
                           key={lead.id}
                           onClick={() => onSelectLead(lead)}
-                          className="group relative p-3 bg-[#09090f]/90 hover:bg-[#12121c] border border-white/[0.07] hover:border-white/[0.16] rounded-lg transition-all cursor-pointer space-y-2 text-xs shadow-xs"
+                          className="group relative p-3 bg-[#121218] hover:bg-[#171720] border border-white/[0.08] hover:border-white/[0.18] rounded-lg transition-all cursor-pointer space-y-2 text-xs shadow-xs"
                         >
                           {/* Card Header: Business name & Status Selector */}
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
-                              <h5 className="font-semibold text-white tracking-tight truncate group-hover:text-cyan-200 transition-colors">
+                              <h5 className="font-semibold text-white tracking-tight truncate group-hover:text-zinc-100 transition-colors">
                                 {lead.companyName}
                               </h5>
                               {lead.website ? (

@@ -189,8 +189,11 @@ export default function OutreachPage() {
           ]}
           action={
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-[11px] font-mono border-white/20 text-zinc-300">
+              <Badge variant="outline" size="sm" className="font-mono text-[11px] border-white/20 text-zinc-300">
                 Permission Gated · Zero-Spam
+              </Badge>
+              <Badge variant="solid" size="sm" className="font-mono text-[11px]">
+                Safeguards Enforced
               </Badge>
             </div>
           }
@@ -199,9 +202,48 @@ export default function OutreachPage() {
         {/* Real Overview KPI Metrics */}
         <OutreachOverviewCards stats={overviewStats} isLoading={isLoadingDrafts} />
 
+        {/* Campaign & Deliverability Safeguards Summary Bar */}
+        <div className="relative p-4 rounded-xl bg-surface-card border border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)] flex flex-col md:flex-row md:items-center justify-between gap-3 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+          <div className="flex items-start md:items-center gap-3">
+            <div className="p-2 rounded-lg bg-surface-elevated border border-white/[0.08] text-white shrink-0 mt-0.5 md:mt-0">
+              <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-white tracking-tight">Campaign Deliverability Safeguards Active</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              </div>
+              <p className="text-[11px] text-zinc-400 leading-snug font-sans mt-0.5">
+                Dispatch safeguards disabled by default. Outbound messages require explicit Gate 2 operator sign-off before transmission.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-xs font-mono shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/[0.06]">
+            <div className="text-right">
+              <span className="text-[10px] text-zinc-500 uppercase block">Active Leads</span>
+              <span className="text-white font-bold tabular-nums">{totalLeads}</span>
+            </div>
+            <div className="h-6 w-px bg-white/[0.08]" />
+            <div className="text-right">
+              <span className="text-[10px] text-zinc-500 uppercase block">Review Queue</span>
+              <span className={`font-bold tabular-nums ${overviewStats.pendingApproval > 0 ? "text-amber-400" : "text-white"}`}>
+                {overviewStats.pendingApproval}
+              </span>
+            </div>
+            <div className="h-6 w-px bg-white/[0.08]" />
+            <div className="text-right">
+              <span className="text-[10px] text-zinc-500 uppercase block">Suppressed</span>
+              <span className="text-rose-400 font-bold tabular-nums">{overviewStats.suppressed}</span>
+            </div>
+          </div>
+        </div>
+
         {/* Error Alert if Drafts or Leads failed */}
         {(draftsError || leadsError) && (
-          <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-center justify-between gap-3">
+          <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3 shadow-xs font-sans">
             <div className="flex items-center gap-2.5">
               <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -213,7 +255,7 @@ export default function OutreachPage() {
                 fetchDrafts();
                 fetchLeads();
               }}
-              className="px-2.5 py-1 rounded bg-rose-900/60 hover:bg-rose-900 text-rose-200 text-xs font-semibold shrink-0 cursor-pointer"
+              className="px-2.5 py-1 rounded bg-rose-900/60 hover:bg-rose-900 text-rose-200 text-xs font-semibold shrink-0 cursor-pointer transition-colors"
             >
               Retry
             </button>
@@ -230,7 +272,7 @@ export default function OutreachPage() {
             <Tab value="hub">
               <div className="flex items-center gap-2">
                 <span>Lead Outreach Hub</span>
-                <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.08] px-1.5 py-0.2 rounded">
+                <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.08] px-1.5 py-0.5 rounded">
                   Compose &amp; Engage
                 </span>
               </div>
@@ -238,7 +280,11 @@ export default function OutreachPage() {
             <Tab value="queue">
               <div className="flex items-center gap-2">
                 <span>Permission Review Queue</span>
-                <Badge variant={overviewStats.pendingApproval > 0 ? "solid" : "outline"} className="text-[10px] px-1.5 py-0">
+                <Badge
+                  variant={overviewStats.pendingApproval > 0 ? "solid" : "secondary"}
+                  size="sm"
+                  className="font-mono text-[10px] tabular-nums"
+                >
                   {overviewStats.pendingApproval}
                 </Badge>
               </div>
@@ -293,9 +339,10 @@ export default function OutreachPage() {
 
             {/* Queue Management Interface */}
             {isLoadingDrafts ? (
-              <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-[#121216]">
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-xs text-zinc-400">Loading outreach drafts from workspace...</p>
+              <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-surface-card shadow-xs overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+                <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-xs text-zinc-400 font-mono">Loading outreach drafts from workspace...</p>
               </div>
             ) : (
               <OutreachQueueTabs drafts={drafts} onRefresh={fetchDrafts} />

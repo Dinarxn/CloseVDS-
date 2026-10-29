@@ -67,30 +67,30 @@ export function PermissionApprovalDialog({
         )}
 
         <div className="flex items-center justify-between">
-          <Badge variant="solid" size="sm">Gate 2 Approval</Badge>
-          <span className="text-xs text-zinc-400 font-medium">{draft.companyName}</span>
+          <Badge variant="solid" size="sm" className="font-mono text-[10px]">Gate 2 Approval</Badge>
+          <span className="text-xs text-zinc-400 font-medium font-sans">{draft.companyName}</span>
         </div>
 
-        <div className="p-3.5 bg-[#0d0d12] border border-white/[0.08] rounded-xl space-y-2 text-xs">
+        <div className="p-3.5 bg-surface-panel border border-white/[0.08] rounded-xl space-y-2 text-xs shadow-xs">
           <div className="flex justify-between border-b border-white/[0.04] pb-1.5">
-            <span className="text-zinc-400">Recipient:</span>
-            <span className="font-semibold text-white">{draft.contactName} ({draft.companyName})</span>
+            <span className="text-zinc-400 font-sans">Recipient:</span>
+            <span className="font-semibold text-white font-sans">{draft.contactName} ({draft.companyName})</span>
           </div>
           <div className="flex justify-between border-b border-white/[0.04] pb-1.5">
-            <span className="text-zinc-400">Subject:</span>
-            <span className="font-medium text-white">{draft.subjectLine}</span>
+            <span className="text-zinc-400 font-sans">Subject:</span>
+            <span className="font-medium text-white font-sans">{draft.subjectLine}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-zinc-400">Channel &amp; Touch:</span>
-            <span className="font-mono text-zinc-200 capitalize">{draft.channel} &bull; Touch {draft.touchNumber}</span>
+            <span className="text-zinc-400 font-sans">Channel &amp; Touch:</span>
+            <span className="font-mono text-zinc-200 capitalize text-[11px]">{draft.channel} &bull; Touch {draft.touchNumber}</span>
           </div>
         </div>
 
-        <div className="p-3.5 bg-[#121216] border border-white/[0.08] rounded-xl space-y-2">
+        <div className="p-3.5 bg-surface-card border border-white/[0.08] rounded-xl space-y-2 shadow-xs">
           <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 font-mono">
             Personalized Message Body
           </h4>
-          <p className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap">
+          <p className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap font-sans">
             {draft.bodyContent}
           </p>
         </div>
@@ -99,7 +99,7 @@ export function PermissionApprovalDialog({
           By confirming, you authorize closeVDS to transition this draft from pending approval to approved queue. Outbound sending remains subject to safety gates and suppression lists.
         </Alert>
 
-        <div className="flex items-center justify-end space-x-3 pt-3 border-t border-white/[0.06]">
+        <div className="flex items-center justify-end space-x-3 pt-3 border-t border-white/[0.07]">
           <Button variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

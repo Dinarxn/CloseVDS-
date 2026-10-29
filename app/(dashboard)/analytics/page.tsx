@@ -233,9 +233,9 @@ export default function AnalyticsPage() {
 
   return (
     <PageContainer>
-      <div className="space-y-5">
+      <div className="space-y-6">
         {/* Header & Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
           <PageHeader
             title="Sales Analytics & Intelligence"
             description="Verified acquisition funnel performance, pipeline progression, and outbound AI voice telemetry."
@@ -246,7 +246,7 @@ export default function AnalyticsPage() {
           />
 
           {/* Timeframe & Export Action */}
-          <div className="flex items-center space-x-2.5 self-start sm:self-auto">
+          <div className="flex items-center space-x-2.5 self-start sm:self-auto shrink-0">
             <div className="w-36">
               <Select
                 id="analytics-timeframe"
@@ -265,7 +265,7 @@ export default function AnalyticsPage() {
               size="sm"
               onClick={handleExportCsv}
               disabled={isExporting}
-              className="text-xs h-8.5 px-3 bg-[#101017] hover:bg-[#161622] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5 shrink-0"
+              className="text-xs h-9 px-3.5 flex items-center gap-1.5 shrink-0"
             >
               <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -276,7 +276,7 @@ export default function AnalyticsPage() {
         </div>
 
         {errorMsg && (
-          <div className="relative rounded-xl border border-rose-500/30 bg-[#140b0e] p-4 flex items-start gap-3 shadow-xs">
+          <div className="relative rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 flex items-start gap-3 shadow-xs">
             <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
@@ -284,13 +284,13 @@ export default function AnalyticsPage() {
               <span className="text-[10px] font-mono uppercase tracking-wider text-rose-300 font-semibold block">
                 Analytics Service Error
               </span>
-              <p className="text-xs text-rose-200/80 leading-relaxed">{errorMsg}</p>
+              <p className="text-xs text-rose-200/90 leading-relaxed font-sans">{errorMsg}</p>
             </div>
           </div>
         )}
 
         {exportError && (
-          <div className="relative rounded-xl border border-rose-500/30 bg-[#140b0e] p-4 flex items-start gap-3 shadow-xs">
+          <div className="relative rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 flex items-start gap-3 shadow-xs">
             <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
@@ -298,7 +298,7 @@ export default function AnalyticsPage() {
               <span className="text-[10px] font-mono uppercase tracking-wider text-rose-300 font-semibold block">
                 Export Error
               </span>
-              <p className="text-xs text-rose-200/80 leading-relaxed">{exportError}</p>
+              <p className="text-xs text-rose-200/90 leading-relaxed font-sans">{exportError}</p>
             </div>
           </div>
         )}
@@ -320,8 +320,8 @@ export default function AnalyticsPage() {
           {/* TAB 1: Acquisition Funnel & KPIs */}
           <TabPanel value="overview" className="pt-4 space-y-5">
             {isLoading ? (
-              <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+              <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-surface-card shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
                 <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                 <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
                   Aggregating live analytics from workspace...
@@ -339,7 +339,7 @@ export default function AnalyticsPage() {
           {/* TAB 2: Pipeline Stage Breakdown */}
           <TabPanel value="pipeline" className="pt-4 space-y-5">
             {isLoading ? (
-              <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs">
+              <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-surface-card shadow-xs">
                 <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                 <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
                   Loading pipeline stage breakdown...
@@ -347,41 +347,53 @@ export default function AnalyticsPage() {
               </div>
             ) : leadsAnalytics?.stages && leadsAnalytics.stages.length > 0 ? (
               <div className="space-y-4">
-                <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-5 space-y-4 shadow-xs overflow-hidden">
+                <div className="relative rounded-xl border border-white/[0.08] bg-surface-card p-5 space-y-4 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
                   <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
                     <div>
                       <h3 className="text-sm font-semibold text-white tracking-tight">
                         Pipeline Distribution by Canonical Stage
                       </h3>
-                      <p className="text-xs text-zinc-400">
+                      <p className="text-xs text-zinc-400 font-sans mt-0.5">
                         Exact counts and proportion of leads in each CRM lifecycle status
                       </p>
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] text-zinc-300 border border-white/[0.08]">
+                    <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-surface-elevated text-zinc-300 border border-white/[0.08] tabular-nums">
                       {leadsAnalytics.totalLeads} Total Prospects
                     </span>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {leadsAnalytics.stages.map((st) => (
                       <div
                         key={st.stage}
-                        className="p-3 bg-[#09090f]/80 border border-white/[0.06] rounded-lg flex items-center justify-between text-xs"
+                        className="p-3.5 bg-surface-panel border border-white/[0.07] hover:border-white/[0.14] rounded-xl text-xs space-y-2 transition-all duration-150"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <span className="font-mono text-zinc-200 font-semibold text-xs">
-                            {st.stage}
-                          </span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                            <span className="font-mono text-zinc-200 font-semibold text-xs">
+                              {st.stage}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-6">
+                            <div className="text-right">
+                              <span className="text-[10px] font-mono text-zinc-500 uppercase block">Count</span>
+                              <span className="font-mono text-white font-bold tabular-nums">{st.count}</span>
+                            </div>
+                            <div className="text-right min-w-[50px]">
+                              <span className="text-[10px] font-mono text-zinc-500 uppercase block">Share</span>
+                              <span className="font-mono text-white font-semibold tabular-nums">{st.percentage}%</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-6">
-                          <div className="text-right">
-                            <span className="text-[10px] font-mono text-zinc-500 uppercase block">Count</span>
-                            <span className="font-mono text-white font-bold">{st.count}</span>
-                          </div>
-                          <div className="text-right min-w-[50px]">
-                            <span className="text-[10px] font-mono text-zinc-500 uppercase block">Share</span>
-                            <span className="font-mono text-emerald-400 font-semibold">{st.percentage}%</span>
-                          </div>
+
+                        {/* Subtle proportion bar */}
+                        <div className="h-1 w-full bg-white/[0.04] rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-zinc-500 to-zinc-200 rounded-full transition-all duration-300"
+                            style={{ width: `${Math.max(2, st.percentage)}%` }}
+                          />
                         </div>
                       </div>
                     ))}
@@ -391,21 +403,24 @@ export default function AnalyticsPage() {
                 {/* Score Summary */}
                 {leadsAnalytics.scoreSummary && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                    <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 space-y-1">
-                      <span className="text-[10px] font-mono uppercase text-zinc-400">Avg Relevance Score</span>
-                      <div className="text-2xl font-bold font-mono text-white">
+                    <div className="relative p-4 rounded-xl border border-white/[0.08] bg-surface-card space-y-1 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-medium">Avg Relevance Score</span>
+                      <div className="text-2xl font-bold font-mono tabular-nums text-white">
                         {leadsAnalytics.scoreSummary.averageRelevance}/100
                       </div>
                     </div>
-                    <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 space-y-1">
-                      <span className="text-[10px] font-mono uppercase text-zinc-400">Avg Opportunity Score</span>
-                      <div className="text-2xl font-bold font-mono text-white">
+                    <div className="relative p-4 rounded-xl border border-white/[0.08] bg-surface-card space-y-1 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-medium">Avg Opportunity Score</span>
+                      <div className="text-2xl font-bold font-mono tabular-nums text-white">
                         {leadsAnalytics.scoreSummary.averageOpportunity}/100
                       </div>
                     </div>
-                    <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 space-y-1">
-                      <span className="text-[10px] font-mono uppercase text-zinc-400">Avg Composite Total</span>
-                      <div className="text-2xl font-bold font-mono text-emerald-400">
+                    <div className="relative p-4 rounded-xl border border-white/[0.08] bg-surface-card space-y-1 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-medium">Avg Composite Total</span>
+                      <div className="text-2xl font-bold font-mono tabular-nums text-white">
                         {leadsAnalytics.scoreSummary.averageTotalScore}/100
                       </div>
                     </div>
@@ -413,7 +428,7 @@ export default function AnalyticsPage() {
                 )}
               </div>
             ) : (
-              <div className="p-10 text-center border border-dashed border-white/[0.08] rounded-xl bg-[#0c0c12]/40 text-xs text-zinc-400">
+              <div className="p-10 text-center border border-dashed border-white/[0.08] rounded-xl bg-surface-card text-xs text-zinc-400 font-sans">
                 No pipeline stage distribution data found for this timeframe.
               </div>
             )}
@@ -422,17 +437,17 @@ export default function AnalyticsPage() {
           {/* TAB 3: AI Voice Analytics */}
           <TabPanel value="voice" className="pt-4 space-y-5">
             {isLoading ? (
-              <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+              <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-surface-card shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
                 <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                 <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
                   Aggregating voice telemetry metrics...
                 </p>
               </div>
             ) : !voiceAnalytics || voiceAnalytics.totalCalls === 0 ? (
-              <div className="relative p-10 sm:p-14 text-center border border-white/[0.08] rounded-xl bg-[#09090f]/90 space-y-3.5 shadow-xs overflow-hidden">
+              <div className="relative p-10 sm:p-14 text-center border border-white/[0.08] rounded-xl bg-surface-card space-y-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
+                <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400 shadow-xs">
                   <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                   </svg>
@@ -444,13 +459,13 @@ export default function AnalyticsPage() {
                   <h4 className="text-sm sm:text-base font-semibold text-white tracking-tight">
                     No voice outreach data recorded
                   </h4>
-                  <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                  <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed font-sans">
                     Metrics will display here automatically once AI voice outreach calls are prepared and dispatched.
                   </p>
                 </div>
                 <div className="pt-2">
                   <Link href="/calling">
-                    <Button variant="secondary" size="sm" className="h-8 px-3.5 text-xs shadow-xs font-medium">
+                    <Button variant="secondary" size="sm" className="h-8.5 px-4 text-xs font-medium">
                       Go to Calling Dashboard →
                     </Button>
                   </Link>
@@ -460,42 +475,47 @@ export default function AnalyticsPage() {
               <div className="space-y-5">
                 {/* Voice Calling KPI Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-                  <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
+                  <div className="relative rounded-xl border border-white/[0.08] bg-surface-card p-4 space-y-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Total Calls</div>
                     <div className="text-2xl font-bold font-mono tabular-nums text-white tracking-tight">{voiceAnalytics.totalCalls}</div>
-                    <div className="text-[10px] text-zinc-400">Placed in workspace</div>
+                    <div className="text-[11px] text-zinc-400 font-sans">Placed in workspace</div>
                   </div>
 
-                  <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
+                  <div className="relative rounded-xl border border-white/[0.08] bg-surface-card p-4 space-y-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Meetings Booked</div>
-                    <div className="text-2xl font-bold font-mono tabular-nums text-emerald-400 tracking-tight">{voiceAnalytics.meetingsRequested}</div>
-                    <div className="text-[10px] text-zinc-400">
+                    <div className="text-2xl font-bold font-mono tabular-nums text-white tracking-tight">{voiceAnalytics.meetingsRequested}</div>
+                    <div className="text-[11px] text-zinc-400 font-sans">
                       {voiceAnalytics.totalCalls > 0
                         ? `${Math.round((voiceAnalytics.meetingsRequested / voiceAnalytics.totalCalls) * 100)}% conversion`
                         : "0%"}
                     </div>
                   </div>
 
-                  <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
+                  <div className="relative rounded-xl border border-white/[0.08] bg-surface-card p-4 space-y-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Callbacks Requested</div>
-                    <div className="text-2xl font-bold font-mono tabular-nums text-indigo-300 tracking-tight">{voiceAnalytics.callbacksRequested}</div>
-                    <div className="text-[10px] text-zinc-400">Tasks created in CRM</div>
+                    <div className="text-2xl font-bold font-mono tabular-nums text-white tracking-tight">{voiceAnalytics.callbacksRequested}</div>
+                    <div className="text-[11px] text-zinc-400 font-sans">Tasks created in CRM</div>
                   </div>
 
-                  <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-4 space-y-1.5 shadow-xs overflow-hidden">
+                  <div className="relative rounded-xl border border-white/[0.08] bg-surface-card p-4 space-y-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-medium">Avg Call Duration</div>
                     <div className="text-2xl font-bold font-mono tabular-nums text-white tracking-tight">
                       {formatCallDuration(voiceAnalytics.averageDurationSeconds)}
                     </div>
-                    <div className="text-[10px] text-zinc-400">Live runtime</div>
+                    <div className="text-[11px] text-zinc-400 font-sans">Live runtime</div>
                   </div>
                 </div>
 
                 {/* Breakdown by Status and by Outcome */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* Status Distribution */}
-                  <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-5 space-y-3.5 shadow-xs overflow-hidden">
-                    <div className="flex items-center justify-between pb-1 border-b border-white/[0.06]">
+                  <div className="relative rounded-xl border border-white/[0.08] bg-surface-card p-5 space-y-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+                    <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
                       <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         Calls by Telephony Status
                       </h4>
@@ -512,8 +532,9 @@ export default function AnalyticsPage() {
                   </div>
 
                   {/* Outcome Distribution */}
-                  <div className="relative rounded-xl border border-white/[0.08] bg-[#0c0c12]/90 p-5 space-y-3.5 shadow-xs overflow-hidden">
-                    <div className="flex items-center justify-between pb-1 border-b border-white/[0.06]">
+                  <div className="relative rounded-xl border border-white/[0.08] bg-surface-card p-5 space-y-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+                    <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
                       <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         Calls by AI Outcome
                       </h4>
@@ -523,12 +544,12 @@ export default function AnalyticsPage() {
                       {Object.entries(voiceAnalytics.byOutcome || {}).length > 0 ? (
                         Object.entries(voiceAnalytics.byOutcome || {}).map(([oc, count]) => (
                           <div key={oc} className="flex items-center justify-between text-xs py-1.5 border-b border-white/[0.04]">
-                            <span className="font-medium text-zinc-200 capitalize">{oc.replace(/_/g, " ").toLowerCase()}</span>
-                            <span className="font-semibold text-emerald-400 font-mono tabular-nums">{count}</span>
+                            <span className="font-medium text-zinc-200 capitalize font-sans">{oc.replace(/_/g, " ").toLowerCase()}</span>
+                            <span className="font-semibold text-white font-mono tabular-nums">{count}</span>
                           </div>
                         ))
                       ) : (
-                        <p className="text-xs text-zinc-500 py-2">No outcomes classified yet.</p>
+                        <p className="text-xs text-zinc-500 py-2 font-sans">No outcomes classified yet.</p>
                       )}
                     </div>
                   </div>

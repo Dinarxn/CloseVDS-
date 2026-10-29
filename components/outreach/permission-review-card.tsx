@@ -58,29 +58,33 @@ export function PermissionReviewCard({
   };
 
   return (
-    <Card variant="standard" className="space-y-4">
+    <Card variant="standard" specular={true} className="space-y-4 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
       <CardHeader className="mb-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <CardTitle className="text-sm font-bold text-white">{draft.companyName}</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-sm font-bold text-white tracking-tight">{draft.companyName}</CardTitle>
+            <CardDescription className="text-xs text-zinc-400 font-sans mt-0.5">
               Attn: {draft.contactName} {draft.contactEmail ? `(${draft.contactEmail})` : ""}
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge variant="solid" size="sm">Score {draft.qualificationScore}/100</Badge>
-            <Badge variant="outline" size="sm">Touch {draft.touchNumber}</Badge>
+            <Badge variant="solid" size="sm" className="font-mono text-[10px] tabular-nums">
+              Score {draft.qualificationScore}/100
+            </Badge>
+            <Badge variant="secondary" size="sm" className="font-mono text-[10px]">
+              Touch {draft.touchNumber}
+            </Badge>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3 pt-2 text-xs border-t border-white/[0.06]">
+      <CardContent className="space-y-3 pt-2 text-xs border-t border-white/[0.07]">
         {/* Verified Facts & Reasoning */}
-        <div className="p-3 bg-[#0d0d12] border border-white/[0.06] rounded-xl space-y-1.5">
+        <div className="p-3 bg-surface-panel border border-white/[0.07] rounded-xl space-y-1.5 shadow-xs">
           <span className="text-[10px] font-mono uppercase text-zinc-400 tracking-wider font-semibold">
             Verified Audit Facts Grounding
           </span>
-          <ul className="text-[11px] text-zinc-300 space-y-1 list-disc list-inside">
+          <ul className="text-[11px] text-zinc-300 space-y-1 list-disc list-inside font-sans">
             {draft.observedFacts && draft.observedFacts.length > 0 ? (
               draft.observedFacts.map((fact, idx) => <li key={idx}>{fact}</li>)
             ) : (
@@ -90,26 +94,26 @@ export function PermissionReviewCard({
         </div>
 
         {/* Draft Subject & Body */}
-        <div className="space-y-2 p-3 bg-[#0d0d12] border border-white/[0.06] rounded-xl">
+        <div className="space-y-2 p-3 bg-surface-panel border border-white/[0.07] rounded-xl shadow-xs">
           <div className="flex items-center space-x-2 text-xs">
             <span className="font-semibold text-zinc-400">Subject:</span>
             <span className="font-medium text-white">{draft.subjectLine}</span>
           </div>
-          <div className="pt-2 border-t border-white/[0.04] text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap">
+          <div className="pt-2 border-t border-white/[0.04] text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap font-sans">
             {draft.bodyContent}
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="flex items-center justify-between pt-3 border-t border-white/[0.06] mt-2">
+      <CardFooter className="flex items-center justify-between pt-3 border-t border-white/[0.07] mt-2">
         {draft.stage === "pending_approval" ? (
           <>
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
               onClick={handleRejectClick}
               disabled={isRejecting}
-              className="text-xs text-zinc-400 hover:text-rose-300 hover:border-rose-800/60"
+              className="text-xs"
             >
               {isRejecting ? "Rejecting..." : "Reject / Disqualify"}
             </Button>
@@ -129,7 +133,7 @@ export function PermissionReviewCard({
               size="sm"
               onClick={handleCancelClick}
               disabled={isCancelling}
-              className="text-xs text-zinc-400 hover:text-rose-300"
+              className="text-xs text-zinc-400 hover:text-white"
             >
               {isCancelling ? "Cancelling..." : "Cancel Queue"}
             </Button>
@@ -145,16 +149,20 @@ export function PermissionReviewCard({
           </>
         ) : draft.stage === "sent_active" ? (
           <div className="w-full flex items-center justify-between text-xs text-emerald-400">
-            <span className="font-mono text-[11px]">Touchpoint Dispatched</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              <span className="font-mono text-[11px]">Touchpoint Dispatched</span>
+            </div>
             {draft.sentAt && (
-              <span className="text-[10px] text-zinc-500 font-mono">
+              <span className="text-[10px] text-zinc-400 font-mono tabular-nums">
                 {new Date(draft.sentAt).toLocaleDateString()}
               </span>
             )}
           </div>
         ) : (
-          <div className="w-full text-xs text-rose-400 font-mono text-[11px]">
-            Suppressed / Opted Out
+          <div className="w-full flex items-center gap-1.5 text-xs text-rose-400 font-mono text-[11px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
+            <span>Suppressed / Opted Out</span>
           </div>
         )}
       </CardFooter>

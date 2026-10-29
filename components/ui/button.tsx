@@ -6,7 +6,7 @@ export interface ButtonProps
   variant?: "primary" | "secondary" | "outline" | "ghost" | "destructive" | "accent";
   size?: "xs" | "sm" | "md" | "lg";
   isLoading?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       destructive:
         "bg-rose-950/30 text-rose-300 border border-rose-800/50 hover:bg-rose-900/50 hover:text-rose-100 hover:border-rose-700/80 shadow-xs active:bg-rose-900/70",
       accent:
-        "bg-emerald-500 text-zinc-950 hover:bg-emerald-400 shadow-[0_1px_8px_rgba(16,185,129,0.3)] font-semibold border border-emerald-400/80 active:bg-emerald-600",
+        "bg-emerald-600 text-white hover:bg-emerald-500 shadow-xs font-semibold border border-emerald-500/50 active:bg-emerald-700",
     };
 
     // Standardized sizes (xs=h-7, sm=h-8, md=h-9, lg=h-10)

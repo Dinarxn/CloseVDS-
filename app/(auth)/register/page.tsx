@@ -57,19 +57,19 @@ export default function RegisterPage() {
     <AuthCard>
       <AuthHeader
         title="Create your workspace"
-        description="Set up your closeVDS workspace to start building your acquisition system."
+        description="Set up your sovereign CloseVDS workspace to initialize your acquisition engine."
       />
 
       {validationError && (
-        <div className="mb-4 p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-2.5">
+        <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-2.5 animate-in fade-in duration-200">
           <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <span className="leading-relaxed">{validationError}</span>
+          <span className="leading-relaxed font-medium">{validationError}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5 pt-1">
         <Input
           id="fullName"
           type="text"
@@ -105,40 +105,48 @@ export default function RegisterPage() {
           disabled={isLoading}
         />
 
-        <PasswordField
-          id="password"
-          label="Password"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="new-password"
-          required
-          disabled={isLoading}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <PasswordField
+            id="password"
+            label="Password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+            disabled={isLoading}
+          />
 
-        <PasswordField
-          id="confirmPassword"
-          label="Confirm Password"
-          placeholder="••••••••"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          autoComplete="new-password"
-          required
-          disabled={isLoading}
-        />
+          <PasswordField
+            id="confirmPassword"
+            label="Confirm Password"
+            placeholder="••••••••"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+            disabled={isLoading}
+          />
+        </div>
+
+        <p className="text-[11px] text-zinc-500 font-mono">
+          Security: Minimum 8 characters required.
+        </p>
 
         <Button
           type="submit"
           variant="primary"
-          className="w-full"
+          size="md"
+          className="w-full font-semibold shadow-sm mt-2"
+          isLoading={isLoading}
           disabled={isLoading}
         >
-          {isLoading ? "Creating workspace..." : "Create workspace"}
+          {isLoading ? "Creating workspace..." : "Create Workspace"}
         </Button>
       </form>
 
       <AuthFooter>
-        <p className="text-xs text-[#737373]">
+        <p className="text-xs text-zinc-400">
           Already have an account?{" "}
           <Link href="/login" className="text-white hover:underline font-medium">
             Sign in

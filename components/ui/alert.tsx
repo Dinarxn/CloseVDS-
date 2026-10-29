@@ -14,9 +14,9 @@ export function Alert({
   ...props
 }: AlertProps) {
   const variantStyles = {
-    default: "bg-[#0c0c12] border-white/[0.08] text-zinc-300",
-    warning: "bg-amber-500/[0.06] border-amber-500/25 text-amber-200",
-    destructive: "bg-rose-500/[0.08] border-rose-500/30 text-rose-200 font-medium",
+    default: "bg-surface-panel border-white/[0.08] text-zinc-300",
+    warning: "bg-amber-950/20 border-amber-500/25 text-amber-200",
+    destructive: "bg-rose-950/20 border-rose-500/30 text-rose-200 font-medium",
   };
 
   return (

@@ -27,13 +27,15 @@ export function KillSwitchDialog({
           : "Activating the Emergency Kill Switch will instantly halt all outbound sequences, pause sending queues, and reject new automated dispatches across all acquisition queues."
       }
     >
-      <div className="space-y-4 text-xs">
+      <div className="relative overflow-hidden space-y-4 text-xs">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
+
         {/* Global Impact Banner */}
         <div
           className={`p-3.5 rounded-xl border space-y-1 ${
             isActive
-              ? "bg-[#0c0c12] border-white/[0.08] text-zinc-300"
-              : "bg-rose-950/20 border-rose-500/35 text-rose-200"
+              ? "bg-surface-card border-subtle text-zinc-300 shadow-sm"
+              : "bg-rose-950/20 border-rose-500/35 text-rose-200 shadow-sm"
           }`}
         >
           <div className="flex items-center gap-2">
@@ -59,7 +61,7 @@ export function KillSwitchDialog({
         </div>
 
         {/* Safety Checklist */}
-        <div className="p-3.5 bg-[#07070c] border border-white/[0.08] rounded-xl space-y-2">
+        <div className="p-3.5 bg-surface-panel border border-subtle rounded-xl space-y-2 shadow-sm">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
             Safety Checklist:
           </p>
@@ -80,11 +82,11 @@ export function KillSwitchDialog({
         </div>
 
         {/* Modal Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-subtle">
           <button
             type="button"
             onClick={onClose}
-            className="h-9 px-4 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white border border-white/[0.08] hover:bg-white/[0.04] transition-all"
+            className="h-9 px-4 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white border border-subtle hover:bg-white/[0.04] transition-all"
           >
             Cancel
           </button>

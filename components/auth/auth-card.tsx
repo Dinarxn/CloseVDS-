@@ -7,12 +7,17 @@ export interface AuthCardProps extends React.HTMLAttributes<HTMLDivElement> {
 export function AuthCard({ children, className = "", ...props }: AuthCardProps) {
   return (
     <div
-      className={`w-full bg-[#121217] border border-white/[0.12] rounded-2xl p-6 sm:p-8 space-y-6 shadow-[0_8px_40px_rgba(0,0,0,0.7)] relative overflow-hidden ${className}`}
+      className={`w-full bg-surface-card border border-white/[0.09] rounded-2xl p-7 sm:p-9 space-y-6 shadow-[0_16px_56px_rgba(0,0,0,0.8)] relative overflow-hidden backdrop-blur-sm ${className}`}
       {...props}
     >
-      {/* Subtle top light edge reflection */}
+      {/* Specular top hairline reflection */}
       <div
-        className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent pointer-events-none"
+        className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.18] to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
+      {/* Subtle bottom rim */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none"
         aria-hidden="true"
       />
       {children}

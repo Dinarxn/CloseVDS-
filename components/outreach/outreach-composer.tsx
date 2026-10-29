@@ -112,14 +112,19 @@ export function OutreachComposer({
 
   if (!lead) {
     return (
-      <div className="flex flex-col items-center justify-center h-full min-h-[400px] p-8 text-center bg-[#0a0a0e] border border-white/[0.08] rounded-xl">
-        <div className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mb-3">
-          <svg className="w-6 h-6 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="relative flex flex-col items-center justify-center h-full min-h-[440px] p-8 text-center bg-surface-panel border border-white/[0.08] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.5)] overflow-hidden">
+        {/* Specular hairline top reflection */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+        <div className="w-12 h-12 rounded-xl bg-surface-card border border-white/[0.08] flex items-center justify-center mb-3.5 shadow-xs">
+          <svg className="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
         </div>
-        <h3 className="text-sm font-semibold text-white">Select a Lead to Begin Outreach</h3>
-        <p className="text-xs text-zinc-400 max-w-sm mt-1 leading-relaxed">
+        <h3 className="text-sm font-semibold text-white tracking-tight">Select a Lead to Begin Outreach</h3>
+        <p className="text-xs text-zinc-400 max-w-sm mt-1.5 leading-relaxed font-sans">
           Choose a qualified lead from the directory on the left to prepare personalized email, WhatsApp, or phone engagement.
         </p>
       </div>
@@ -357,35 +362,41 @@ export function OutreachComposer({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0e] border border-white/[0.08] rounded-xl overflow-hidden shadow-xs">
+    <div className="relative flex flex-col h-full bg-surface-panel border border-white/[0.08] rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+      {/* Specular hairline top reflection */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
+
       {/* Header Context Bar */}
-      <div className="p-3.5 bg-[#0f0f14] border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div className="p-3.5 bg-surface-card border-b border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-white tracking-tight">{lead.companyName}</h3>
             {lead.qualification?.totalScore !== undefined && (
-              <Badge variant="solid" className="text-[10px] font-mono px-1.5 py-0">
+              <Badge variant="solid" size="sm" className="font-mono text-[10px] tabular-nums">
                 {lead.qualification.totalScore} pts
               </Badge>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400 mt-0.5">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400 mt-1">
             {lead.contactName && <span>Attn: <strong className="text-zinc-200">{lead.contactName}</strong></span>}
-            {lead.email && <span>&bull; {lead.email}</span>}
-            {lead.phone && <span>&bull; {lead.phone}</span>}
+            {lead.email && <span className="text-zinc-400">&bull; {lead.email}</span>}
+            {lead.phone && <span className="font-mono text-zinc-400">&bull; {lead.phone}</span>}
             {lead.city && <span>&bull; {lead.city}</span>}
           </div>
         </div>
 
         {/* Channel Selector Pills */}
-        <div className="flex items-center gap-1 bg-[#15151c] p-1 rounded-lg border border-white/[0.06] self-start sm:self-auto">
+        <div className="flex items-center gap-1 bg-surface-panel p-1 rounded-lg border border-white/[0.08] self-start sm:self-auto">
           <button
             type="button"
             onClick={() => handleChannelSwitch("email")}
             disabled={isOptedOut}
-            className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
               activeChannel === "email"
-                ? "bg-white text-black font-semibold shadow-xs"
+                ? "bg-white text-zinc-950 font-semibold shadow-xs"
                 : "text-zinc-400 hover:text-white"
             } disabled:opacity-30 disabled:cursor-not-allowed`}
           >
@@ -395,9 +406,9 @@ export function OutreachComposer({
             type="button"
             onClick={() => handleChannelSwitch("whatsapp")}
             disabled={isOptedOut}
-            className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
               activeChannel === "whatsapp"
-                ? "bg-white text-black font-semibold shadow-xs"
+                ? "bg-white text-zinc-950 font-semibold shadow-xs"
                 : "text-zinc-400 hover:text-white"
             } disabled:opacity-30 disabled:cursor-not-allowed`}
           >
@@ -407,9 +418,9 @@ export function OutreachComposer({
             type="button"
             onClick={() => handleChannelSwitch("phone")}
             disabled={isOptedOut}
-            className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
               activeChannel === "phone"
-                ? "bg-white text-black font-semibold shadow-xs"
+                ? "bg-white text-zinc-950 font-semibold shadow-xs"
                 : "text-zinc-400 hover:text-white"
             } disabled:opacity-30 disabled:cursor-not-allowed`}
           >
@@ -419,9 +430,9 @@ export function OutreachComposer({
             type="button"
             onClick={() => handleChannelSwitch("manual")}
             disabled={isOptedOut}
-            className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
               activeChannel === "manual"
-                ? "bg-white text-black font-semibold shadow-xs"
+                ? "bg-white text-zinc-950 font-semibold shadow-xs"
                 : "text-zinc-400 hover:text-white"
             } disabled:opacity-30 disabled:cursor-not-allowed`}
           >
@@ -434,9 +445,9 @@ export function OutreachComposer({
       <div className="p-4 flex-1 overflow-y-auto space-y-4">
         {/* Opt-out Regulatory Lockdown */}
         {isOptedOut && (
-          <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/40 space-y-2">
+          <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 space-y-2">
             <div className="flex items-center gap-2 text-rose-300 font-bold text-xs uppercase font-mono tracking-wider">
-              <svg className="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <span>Regulatory Suppression Active · Opt-Out Prohibited</span>
@@ -450,16 +461,22 @@ export function OutreachComposer({
 
         {/* Feedback Banners */}
         {successMessage && (
-          <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between gap-2">
-            <span>{successMessage}</span>
-            <button onClick={() => setSuccessMessage(null)} className="text-emerald-400 hover:text-white text-xs">✕</button>
+          <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 text-xs flex items-center justify-between gap-2 shadow-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              <span>{successMessage}</span>
+            </div>
+            <button onClick={() => setSuccessMessage(null)} className="text-emerald-400 hover:text-white text-xs cursor-pointer">✕</button>
           </div>
         )}
 
         {errorMessage && (
-          <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs flex items-center justify-between gap-2">
-            <span>{errorMessage}</span>
-            <button onClick={() => setErrorMessage(null)} className="text-rose-400 hover:text-white text-xs">✕</button>
+          <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/30 text-rose-200 text-xs flex items-center justify-between gap-2 shadow-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+            <button onClick={() => setErrorMessage(null)} className="text-rose-400 hover:text-white text-xs cursor-pointer">✕</button>
           </div>
         )}
 
@@ -468,13 +485,13 @@ export function OutreachComposer({
             {/* Channel-Specific Configuration & Templates */}
             {activeChannel !== "manual" && (
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-1">
-                <label className="text-xs font-semibold text-zinc-300 font-sans">
-                  Copy Template:
+                <label className="text-xs font-semibold text-zinc-300 font-sans tracking-tight">
+                  Outreach Copy Template:
                 </label>
                 <select
                   value={selectedTemplateId}
                   onChange={(e) => handleTemplateChange(e.target.value)}
-                  className="w-full sm:w-auto text-xs px-2.5 py-1.5 rounded-lg bg-[#14141c] border border-white/[0.1] text-zinc-200 focus:outline-none focus:border-white/30 cursor-pointer"
+                  className="w-full sm:w-auto text-xs px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/[0.10] text-zinc-200 focus:outline-none focus:border-white/30 cursor-pointer font-sans"
                   aria-label="Select outreach template"
                 >
                   {OUTREACH_TEMPLATES.filter((t) => t.channel === activeChannel).map((tmpl) => (
@@ -494,7 +511,7 @@ export function OutreachComposer({
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-zinc-400">Recipient Email:</span>
                     {lead.email && !isValidEmail(lead.email) && (
-                      <span className="text-amber-400 text-[11px]">Format warning</span>
+                      <span className="text-amber-400 text-[11px] font-mono">Format warning</span>
                     )}
                   </div>
                   <Input
@@ -502,7 +519,7 @@ export function OutreachComposer({
                     value={lead.email || ""}
                     disabled
                     placeholder="No email recorded for this lead"
-                    className="h-8 text-xs bg-white/[0.03] border-white/[0.08] text-zinc-300"
+                    className="h-8.5 text-xs bg-white/[0.03] border-white/[0.08] text-zinc-300 font-mono"
                   />
                   {!lead.email && (
                     <p className="text-[11px] text-amber-400/90 font-mono">
@@ -519,7 +536,7 @@ export function OutreachComposer({
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     placeholder="Subject line..."
-                    className="h-9 text-xs bg-white/[0.03] border-white/[0.1] text-white focus:border-white/30"
+                    className="h-9 text-xs bg-white/[0.03] border-white/[0.10] text-white focus:border-white/30"
                   />
                 </div>
 
@@ -527,32 +544,32 @@ export function OutreachComposer({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <label className="text-zinc-400">Message Content:</label>
-                    <span className="text-[11px] font-mono text-zinc-500">{body.length} characters</span>
+                    <span className="text-[11px] font-mono text-zinc-400 tabular-nums">{body.length} characters</span>
                   </div>
                   <Textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     rows={8}
-                    className="text-xs bg-white/[0.03] border-white/[0.1] text-white leading-relaxed focus:border-white/30 font-sans"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-white/30 font-sans"
                     placeholder="Compose email draft..."
                   />
                 </div>
 
                 {/* Action Bar */}
-                <div className="pt-2 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-2">
+                <div className="pt-2 border-t border-white/[0.07] flex flex-wrap items-center justify-between gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleQueueBackendDraft}
                     disabled={isSubmitting || !body.trim()}
-                    className="text-xs"
+                    className="text-xs text-zinc-300 hover:text-white"
                   >
                     {isSubmitting ? "Saving..." : "Queue Backend Draft (Gate 1)"}
                   </Button>
 
                   <div className="flex items-center gap-2">
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={handleOpenEmailClient}
                       disabled={!lead.email}
@@ -582,7 +599,7 @@ export function OutreachComposer({
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-zinc-400">Recipient Phone:</span>
                     {lead.phone && isValidPhone(lead.phone) && (
-                      <span className="text-emerald-400 text-[11px]">Valid format</span>
+                      <span className="text-emerald-400 text-[11px] font-mono">Valid phone</span>
                     )}
                   </div>
                   <Input
@@ -590,7 +607,7 @@ export function OutreachComposer({
                     value={lead.phone || ""}
                     disabled
                     placeholder="No phone number recorded"
-                    className="h-8 text-xs bg-white/[0.03] border-white/[0.08] text-zinc-300 font-mono"
+                    className="h-8.5 text-xs bg-white/[0.03] border-white/[0.08] text-zinc-300 font-mono"
                   />
                   {!lead.phone && (
                     <p className="text-[11px] text-amber-400/90 font-mono">
@@ -603,19 +620,19 @@ export function OutreachComposer({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <label className="text-zinc-400">WhatsApp Message:</label>
-                    <span className="text-[11px] font-mono text-zinc-500">{body.length} characters</span>
+                    <span className="text-[11px] font-mono text-zinc-400 tabular-nums">{body.length} characters</span>
                   </div>
                   <Textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     rows={6}
-                    className="text-xs bg-white/[0.03] border-white/[0.1] text-white leading-relaxed focus:border-white/30 font-sans"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-white/30 font-sans"
                     placeholder="Type WhatsApp message..."
                   />
                 </div>
 
                 {/* Explicit Disclaimer */}
-                <div className="p-3 rounded-lg bg-[#14141c] border border-white/[0.08] text-[11px] text-zinc-400 space-y-1">
+                <div className="p-3.5 rounded-lg bg-surface-card border border-white/[0.08] text-[11px] text-zinc-400 space-y-1">
                   <span className="font-semibold text-zinc-300 font-mono uppercase tracking-wider block">
                     WhatsApp Delivery Notice:
                   </span>
@@ -625,7 +642,7 @@ export function OutreachComposer({
                 </div>
 
                 {/* Action Bar */}
-                <div className="pt-2 border-t border-white/[0.06] flex items-center justify-end gap-2">
+                <div className="pt-2 border-t border-white/[0.07] flex items-center justify-end gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -652,16 +669,16 @@ export function OutreachComposer({
             {activeChannel === "phone" && (
               <div className="space-y-4">
                 {/* Phone & Dial Action */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-[#111118] border border-white/[0.08] rounded-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-surface-card border border-white/[0.08] rounded-xl shadow-xs">
                   <div>
                     <span className="text-[11px] text-zinc-400 uppercase font-mono block">Direct Phone Number</span>
-                    <span className="text-sm font-bold font-mono text-white">{lead.phone || "No phone number available"}</span>
+                    <span className="text-sm font-bold font-mono text-white tabular-nums">{lead.phone || "No phone number available"}</span>
                   </div>
 
                   {lead.phone && (
                     <a
                       href={`tel:${lead.phone.replace(/\s+/g, "")}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-black hover:bg-zinc-200 transition-colors shrink-0"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-200 transition-colors shrink-0 shadow-xs"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -673,28 +690,28 @@ export function OutreachComposer({
 
                 {/* Call Talking Points & Script */}
                 <div className="space-y-1">
-                  <label className="text-xs text-zinc-400 font-semibold">Call Talking Points &amp; Script:</label>
+                  <label className="text-xs text-zinc-400 font-semibold tracking-tight">Call Talking Points &amp; Script:</label>
                   <Textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     rows={6}
-                    className="text-xs bg-white/[0.03] border-white/[0.1] text-zinc-200 font-sans leading-relaxed"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-zinc-200 font-sans leading-relaxed"
                   />
                 </div>
 
                 {/* Log Call Outcome Form */}
-                <div className="p-3.5 bg-[#101016] border border-white/[0.08] rounded-xl space-y-3">
+                <div className="p-4 bg-surface-card border border-white/[0.08] rounded-xl space-y-3 shadow-xs">
                   <h4 className="text-xs font-semibold text-white uppercase font-mono tracking-wider">
                     Log Real Call Outcome
                   </h4>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-[11px] text-zinc-400 block mb-1">Outcome Status:</label>
                       <select
                         value={callOutcome}
                         onChange={(e) => setCallOutcome(e.target.value as CallLogOutcome)}
-                        className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-[#181822] border border-white/[0.1] text-zinc-200 focus:outline-none focus:border-white/30"
+                        className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-surface-elevated border border-white/[0.10] text-zinc-200 focus:outline-none focus:border-white/30 cursor-pointer font-sans"
                       >
                         <option value="CONNECTED_INTERESTED">Connected · Interested Prospect</option>
                         <option value="CONNECTED_FOLLOWUP">Connected · Follow-up Requested</option>
@@ -712,7 +729,7 @@ export function OutreachComposer({
                         value={callNotes}
                         onChange={(e) => setCallNotes(e.target.value)}
                         placeholder="e.g. Spoke with Dr. Marcus, requested callback Friday 2pm"
-                        className="h-8 text-xs bg-white/[0.03] border-white/[0.1] text-white"
+                        className="h-8.5 text-xs bg-white/[0.03] border-white/[0.10] text-white"
                       />
                     </div>
                   </div>
@@ -736,7 +753,7 @@ export function OutreachComposer({
             {activeChannel === "manual" && (
               <div className="space-y-3.5">
                 <div className="space-y-1">
-                  <label className="text-xs text-zinc-400 font-semibold">
+                  <label className="text-xs text-zinc-400 font-semibold tracking-tight">
                     Record Manual Outreach or Interaction Note:
                   </label>
                   <Textarea
@@ -744,7 +761,7 @@ export function OutreachComposer({
                     onChange={(e) => setBody(e.target.value)}
                     rows={5}
                     placeholder="e.g. Met representative at local conference, shared portfolio card..."
-                    className="text-xs bg-white/[0.03] border-white/[0.1] text-white leading-relaxed focus:border-white/30"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-white/30 font-sans"
                   />
                 </div>
 

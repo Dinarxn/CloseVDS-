@@ -85,14 +85,14 @@ export function LeadsTable({
 
   return (
     <>
-      <div className="relative border border-white/[0.06] rounded-xl overflow-hidden bg-[#0a0a0f] shadow-xs backdrop-blur-sm">
+      <div className="relative border border-white/[0.08] rounded-xl overflow-hidden bg-[#0d0d12] shadow-xs backdrop-blur-sm">
         {/* Top specular hairline highlight */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-white/[0.06] bg-[#0c0c12]/95 text-zinc-400 text-[10px] font-mono uppercase tracking-wider font-semibold">
+              <tr className="border-b border-white/[0.08] bg-[#09090b]/95 text-zinc-400 text-[10px] font-mono uppercase tracking-wider font-semibold">
                 <th className="py-3 px-4">Company &amp; Domain</th>
                 <th className="py-3 px-3.5">Contact</th>
                 <th className="py-3 px-3.5">Location &amp; Industry</th>
@@ -108,10 +108,10 @@ export function LeadsTable({
                 <tr
                   key={lead.id}
                   onClick={() => onSelectLead?.(lead)}
-                  className="group hover:bg-white/[0.025] transition-colors cursor-pointer"
+                  className="group hover:bg-white/[0.035] transition-colors duration-150 cursor-pointer"
                 >
                   <td className="py-3 px-4">
-                    <div className="font-semibold text-zinc-100 text-xs sm:text-[13px] tracking-tight leading-snug group-hover:text-white transition-colors">
+                    <div className="font-semibold text-white text-xs sm:text-[13px] tracking-tight leading-snug group-hover:text-white transition-colors">
                       {lead.companyName}
                     </div>
                     {lead.website && (

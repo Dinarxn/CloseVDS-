@@ -190,9 +190,9 @@ export function LeadStatusSelect({
         <div
           role="listbox"
           aria-label="Select lead stage"
-          className="absolute z-50 left-0 top-full mt-1.5 w-56 max-h-72 overflow-y-auto rounded-xl bg-[#0c0c14] border border-white/[0.12] shadow-2xl py-1 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100 divide-y divide-white/[0.04]"
+          className="absolute z-50 left-0 top-full mt-1.5 w-56 max-h-72 overflow-y-auto rounded-xl bg-[#0d0d12] border border-white/[0.10] shadow-[0_16px_36px_rgba(0,0,0,0.7)] py-1 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100 divide-y divide-white/[0.05]"
         >
-          <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-semibold bg-white/[0.02]">
+          <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold bg-white/[0.02]">
             Move Stage / Status
           </div>
 

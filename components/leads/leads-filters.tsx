@@ -14,16 +14,16 @@ export interface LeadsFiltersProps {
 
 export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFiltersProps) {
   return (
-    <div className="relative p-3.5 sm:p-4 bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm space-y-3">
+    <div className="relative p-3.5 sm:p-4 bg-[#0d0d12] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm space-y-3.5">
       {/* Top specular hairline highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
-      <div className="flex items-center justify-between border-b border-white/[0.05] pb-2.5">
+      <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
         <div>
-          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-medium block">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-medium block">
             Workspace Segmentation
           </span>
-          <h3 className="text-xs font-semibold text-zinc-100 tracking-tight">
+          <h3 className="text-xs font-semibold text-white tracking-tight">
             Lead Filter Criteria
           </h3>
         </div>

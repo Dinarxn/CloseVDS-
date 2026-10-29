@@ -24,13 +24,13 @@ export function SafetyBoundsTab({
       <div
         className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-200 ${
           isKillSwitchActive
-            ? "bg-gradient-to-br from-rose-950/25 via-[#0e0910] to-[#08070c] border-rose-500/40 shadow-[0_0_24px_rgba(244,63,94,0.08)]"
-            : "bg-[#0c0c12] border-white/[0.08]"
+            ? "bg-rose-950/25 border-rose-500/40 shadow-[0_0_24px_rgba(244,63,94,0.08)]"
+            : "bg-surface-card border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
         }`}
       >
         <div
           className={`absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent ${
-            isKillSwitchActive ? "via-rose-500/50" : "via-white/[0.12]"
+            isKillSwitchActive ? "via-rose-500/50" : "via-white/[0.10]"
           } to-transparent`}
         />
 
@@ -69,7 +69,7 @@ export function SafetyBoundsTab({
               </span>
             </div>
 
-            <p className="text-xs text-zinc-400 max-w-xl leading-relaxed">
+            <p className="text-xs text-zinc-400 max-w-xl leading-relaxed font-sans">
               Instantly halt all outbound outreach dispatches, sequence progression, and follow-up sending across the entire workspace.
             </p>
           </div>
@@ -77,14 +77,14 @@ export function SafetyBoundsTab({
           <button
             type="button"
             onClick={onOpenKillSwitch}
-            className={`h-9 px-4 rounded-lg text-xs font-semibold shrink-0 transition-all shadow-xs inline-flex items-center justify-center gap-2 ${
+            className={`h-9 px-4 rounded-lg text-xs font-semibold shrink-0 transition-all shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer ${
               isKillSwitchActive
-                ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-950/30"
-                : "border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60 shadow-rose-950/20"
+                ? "bg-white text-zinc-950 hover:bg-zinc-100"
+                : "border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60"
             }`}
           >
             <svg
-              className={`w-3.5 h-3.5 ${isKillSwitchActive ? "text-black" : "text-rose-400"}`}
+              className={`w-3.5 h-3.5 ${isKillSwitchActive ? "text-zinc-950" : "text-rose-400"}`}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -98,8 +98,8 @@ export function SafetyBoundsTab({
       </div>
 
       {/* 2. Outreach Velocity & Daily Caps */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-5 space-y-4 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
 
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">
@@ -135,8 +135,8 @@ export function SafetyBoundsTab({
       </div>
 
       {/* 3. Timezone & Delivery Windows */}
-      <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] p-5 space-y-4">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-5 space-y-4 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
 
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">
@@ -181,8 +181,8 @@ export function SafetyBoundsTab({
       </div>
 
       {/* 4. Phase 1 Safety Configuration Governance Panel */}
-      <div className="relative overflow-hidden rounded-xl bg-[#09090f] border border-white/[0.07] p-4 flex items-start gap-3 text-xs">
-        <div className="p-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-zinc-400 shrink-0 mt-0.5">
+      <div className="relative overflow-hidden rounded-xl bg-surface-panel border border-white/[0.07] p-4 flex items-start gap-3 text-xs shadow-xs">
+        <div className="p-1.5 rounded-lg bg-surface-elevated border border-white/[0.08] text-zinc-400 shrink-0 mt-0.5">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="16" x2="12" y2="12" />
@@ -191,10 +191,10 @@ export function SafetyBoundsTab({
         </div>
         <div className="space-y-1">
           <h5 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
-            Phase 1 Safety Configuration
+            Safety Configuration Governance
           </h5>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            These safety bounds govern the dispatch orchestration queue. Values are currently held in local configuration state and will bind to the Fastify rate limiter in Phase 2.
+          <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+            These safety bounds govern the dispatch orchestration queue. Values are currently held in workspace configuration state and bind directly to the deliverability rate limiter.
           </p>
         </div>
       </div>

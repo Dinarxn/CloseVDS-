@@ -18,7 +18,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             type="checkbox"
             id={checkboxId}
             disabled={disabled}
-            className={`w-4 h-4 bg-[#0d0d12] border border-white/[0.16] rounded text-emerald-500 focus:ring-1 focus:ring-emerald-500/40 focus:ring-offset-0 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer ${className}`}
+            className={`w-4 h-4 bg-surface-panel border border-white/[0.16] rounded accent-white text-zinc-950 checked:bg-white checked:border-white focus:ring-1 focus:ring-white/40 focus:ring-offset-0 focus:ring-offset-zinc-950 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer ${className}`}
             {...props}
           />
         </div>

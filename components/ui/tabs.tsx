@@ -100,7 +100,7 @@ export function TabList({ children, className = "", variant: listVariant }: TabL
 
   const defaultClasses =
     effectiveVariant === "pills"
-      ? "inline-flex items-center p-1 rounded-xl bg-[#0a0a10] border border-white/[0.08] gap-1 overflow-x-auto max-w-full"
+      ? "inline-flex items-center p-1 rounded-xl bg-surface-canvas border border-white/[0.08] gap-1 overflow-x-auto max-w-full"
       : "flex items-center space-x-1 border-b border-white/[0.08] overflow-x-auto";
 
   return (
@@ -166,7 +166,7 @@ export function Tab({
       onClick={() => !disabled && setActiveTab(value)}
       className={`px-3 py-2 text-xs font-medium border-b-2 -mb-px transition-colors duration-150 whitespace-nowrap focus:outline-none focus-visible:text-white ${
         isActive
-          ? "border-emerald-400 text-white font-semibold"
+          ? "border-white text-white font-semibold"
           : "border-transparent text-zinc-400 hover:text-zinc-200"
       } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"} ${className}`}
     >

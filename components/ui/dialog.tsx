@@ -112,7 +112,7 @@ export function Dialog({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
-        className={`relative w-full max-w-lg bg-[#0D0D12] border border-white/[0.10] rounded-xl sm:rounded-2xl p-6 shadow-[0_24px_64px_rgba(0,0,0,0.85)] space-y-4 z-10 text-left overflow-hidden transition-all duration-150 animate-in fade-in-0 zoom-in-95 ${className}`}
+        className={`relative w-full max-w-lg bg-surface-panel border border-white/[0.10] rounded-xl sm:rounded-2xl p-6 shadow-[0_24px_64px_rgba(0,0,0,0.85)] space-y-4 z-10 text-left overflow-hidden transition-all duration-150 animate-in fade-in-0 zoom-in-95 ${className}`}
       >
         {/* Specular hairline top reflection */}
         <div

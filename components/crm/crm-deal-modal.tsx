@@ -109,23 +109,50 @@ export function CrmDealModal({
       title={deal.companyName}
       className="max-w-3xl"
     >
-      <div className="space-y-6">
-        {/* Deal Header Summary */}
-        <div className="p-4 rounded-xl bg-[#09090f] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-zinc-300 border border-white/[0.12] font-semibold uppercase">
+      <div className="space-y-5">
+        {/* Deal Header Summary Card */}
+        <div className="p-4 rounded-xl bg-[#0d0d12] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs relative overflow-hidden">
+          {/* Precision top hairline */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
+
+          <div className="space-y-1.5 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-white border border-white/[0.12] font-semibold uppercase">
                 {deal.rawStatus}
+              </span>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 tabular-nums">
+                {deal.valueEstimate ? `$${deal.valueEstimate.toLocaleString()}` : "$3,500"}
               </span>
               <span className="text-xs text-zinc-400 font-mono">
                 Pipeline: <span className="text-white capitalize">{deal.stage.replace(/_/g, " ")}</span>
               </span>
             </div>
-            <div className="text-xs text-zinc-400 flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
-              {deal.contactName && <span>Contact: <strong className="text-zinc-200">{deal.contactName}</strong></span>}
-              {deal.contactEmail && <span>Email: <strong className="text-zinc-200">{deal.contactEmail}</strong></span>}
-              {deal.contactPhone && <span>Phone: <strong className="text-zinc-200">{deal.contactPhone}</strong></span>}
-              <span>Source: <strong className="text-zinc-200">{deal.leadSource}</strong></span>
+
+            <div className="text-xs text-zinc-400 flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5">
+              {deal.contactName && (
+                <span className="flex items-center gap-1.5">
+                  <span className="text-zinc-500">Contact:</span>
+                  <strong className="text-zinc-200 font-medium">{deal.contactName}</strong>
+                </span>
+              )}
+              {deal.contactEmail && (
+                <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                  <span className="text-zinc-500">Email:</span>
+                  <strong className="text-zinc-200 font-medium">{deal.contactEmail}</strong>
+                </span>
+              )}
+              {deal.contactPhone && (
+                <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                  <span className="text-zinc-500">Phone:</span>
+                  <strong className="text-zinc-200 font-medium">{deal.contactPhone}</strong>
+                </span>
+              )}
+              {deal.leadSource && (
+                <span className="flex items-center gap-1.5">
+                  <span className="text-zinc-500">Source:</span>
+                  <strong className="text-zinc-200 font-medium">{deal.leadSource}</strong>
+                </span>
+              )}
             </div>
           </div>
 
@@ -134,26 +161,28 @@ export function CrmDealModal({
               <Button
                 size="sm"
                 variant="secondary"
-                className="h-8 text-xs bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border-white/[0.08]"
+                className="h-8 text-xs bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border-white/[0.08] flex items-center gap-1.5"
               >
-                Calling Studio →
+                <span>Calling Studio</span>
+                <span className="text-zinc-500">→</span>
               </Button>
             </Link>
             <Link href="/outreach">
               <Button
                 size="sm"
                 variant="secondary"
-                className="h-8 text-xs bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border-white/[0.08]"
+                className="h-8 text-xs bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border-white/[0.08] flex items-center gap-1.5"
               >
-                Outreach Center →
+                <span>Outreach Center</span>
+                <span className="text-zinc-500">→</span>
               </Button>
             </Link>
           </div>
         </div>
 
         {/* SECTION: Stage Transition Controls */}
-        <div className="p-4 rounded-xl bg-[#0c0c12]/90 border border-white/[0.08] space-y-3.5 shadow-xs">
-          <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+        <div className="p-4 rounded-xl bg-[#0d0d12] border border-white/[0.08] space-y-3.5 shadow-xs relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
             <div>
               <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                 CRM Stage Progression
@@ -170,21 +199,25 @@ export function CrmDealModal({
           </div>
 
           {stageSuccess && (
-            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300">
-              {stageSuccess}
+            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center justify-between">
+              <span>{stageSuccess}</span>
+              <button type="button" onClick={() => setStageSuccess(null)} className="text-emerald-400 hover:text-emerald-200">✕</button>
             </div>
           )}
 
           {stageError && (
-            <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">
-              {stageError}
+            <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center justify-between">
+              <span>{stageError}</span>
+              <button type="button" onClick={() => setStageError(null)} className="text-rose-400 hover:text-rose-200">✕</button>
             </div>
           )}
 
           {isTerminal ? (
-            <p className="text-xs text-rose-300/80 italic">
-              This prospect has requested OPT_OUT. Regulatory suppression boundary is active; stage cannot be mutated.
-            </p>
+            <div className="p-3 rounded-lg bg-rose-500/5 border border-rose-500/15">
+              <p className="text-xs text-rose-300/80 leading-relaxed">
+                This prospect has recorded an explicit OPT_OUT request. Regulatory suppression boundary is active; stage transitions and further outbound touches are strictly halted.
+              </p>
+            </div>
           ) : allowedNextStages.length === 0 ? (
             <p className="text-xs text-zinc-400 italic">
               No further automatic transitions available from stage {deal.rawStatus}.
@@ -200,7 +233,7 @@ export function CrmDealModal({
                     value={selectedNextStage}
                     onChange={(e) => setSelectedNextStage(e.target.value)}
                     disabled={isUpdatingStage}
-                    className="w-full h-8.5 px-3 bg-[#09090f] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs"
+                    className="w-full h-8.5 px-3 bg-[#09090e] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs font-mono"
                   >
                     <option value="" disabled>Select allowed stage...</option>
                     {allowedNextStages.map((st) => (
@@ -221,7 +254,7 @@ export function CrmDealModal({
                     value={transitionNote}
                     onChange={(e) => setTransitionNote(e.target.value)}
                     disabled={isUpdatingStage}
-                    className="w-full h-8.5 px-3 bg-[#09090f] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs"
+                    className="w-full h-8.5 px-3 bg-[#09090e] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs"
                   />
                 </div>
               </div>
@@ -234,7 +267,7 @@ export function CrmDealModal({
                   type="submit"
                   size="sm"
                   disabled={!selectedNextStage || isUpdatingStage}
-                  className="h-8 px-3 text-xs bg-white text-black hover:bg-zinc-200 font-medium"
+                  className="h-8 px-3.5 text-xs bg-white text-black hover:bg-zinc-200 font-medium cursor-pointer shadow-xs"
                 >
                   {isUpdatingStage ? "Saving..." : "Update CRM Stage"}
                 </Button>
@@ -244,8 +277,8 @@ export function CrmDealModal({
         </div>
 
         {/* SECTION: Quick Follow-Up Scheduler */}
-        <div className="p-4 rounded-xl bg-[#0c0c12]/90 border border-white/[0.08] space-y-3 shadow-xs">
-          <div className="border-b border-white/[0.06] pb-2">
+        <div className="p-4 rounded-xl bg-[#0d0d12] border border-white/[0.08] space-y-3 shadow-xs relative overflow-hidden">
+          <div className="border-b border-white/[0.06] pb-2.5">
             <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
               Schedule Follow-Up Task
             </h4>
@@ -255,14 +288,16 @@ export function CrmDealModal({
           </div>
 
           {taskSuccess && (
-            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300">
-              {taskSuccess}
+            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center justify-between">
+              <span>{taskSuccess}</span>
+              <button type="button" onClick={() => setTaskSuccess(null)} className="text-emerald-400 hover:text-emerald-200">✕</button>
             </div>
           )}
 
           {taskError && (
-            <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">
-              {taskError}
+            <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center justify-between">
+              <span>{taskError}</span>
+              <button type="button" onClick={() => setTaskError(null)} className="text-rose-400 hover:text-rose-200">✕</button>
             </div>
           )}
 
@@ -274,14 +309,14 @@ export function CrmDealModal({
                 value={taskTitle}
                 onChange={(e) => setTaskTitle(e.target.value)}
                 disabled={isCreatingTask}
-                className="w-full h-8.5 px-3 bg-[#09090f] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs"
+                className="w-full h-8.5 px-3 bg-[#09090e] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs"
               />
               <input
                 type="datetime-local"
                 value={taskDueDate}
                 onChange={(e) => setTaskDueDate(e.target.value)}
                 disabled={isCreatingTask}
-                className="w-full h-8.5 px-3 bg-[#09090f] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs"
+                className="w-full h-8.5 px-3 bg-[#09090e] text-zinc-100 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors shadow-xs"
               />
             </div>
             <div className="flex justify-end">
@@ -289,7 +324,7 @@ export function CrmDealModal({
                 type="submit"
                 size="sm"
                 disabled={!taskTitle.trim() || isCreatingTask}
-                className="h-7.5 px-3 text-xs bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/[0.12]"
+                className="h-8 px-3.5 text-xs bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/[0.12] cursor-pointer"
               >
                 {isCreatingTask ? "Saving..." : "+ Add Follow-Up"}
               </Button>
@@ -298,7 +333,7 @@ export function CrmDealModal({
         </div>
 
         {/* SECTION: Unified Activity Timeline */}
-        <div className="p-4 rounded-xl bg-[#0c0c12]/90 border border-white/[0.08] shadow-xs">
+        <div className="p-4 rounded-xl bg-[#0d0d12] border border-white/[0.08] shadow-xs">
           <CrmActivityTimeline
             leadId={deal.leadId}
             leadBusinessName={deal.companyName}

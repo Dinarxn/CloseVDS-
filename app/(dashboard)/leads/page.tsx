@@ -259,8 +259,8 @@ export default function LeadsPage() {
 
       {/* Main Content Area: Table vs Cards with Loading State */}
       {isLoading ? (
-        <div className="relative p-8 text-center border border-white/[0.06] rounded-xl bg-[#0a0a0f] shadow-xs backdrop-blur-sm space-y-2">
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+        <div className="relative p-8 text-center border border-white/[0.08] rounded-xl bg-[#0d0d12] shadow-xs backdrop-blur-sm space-y-2">
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
           <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
           <p className="text-xs font-mono text-zinc-400">Loading prospects from workspace...</p>
         </div>
@@ -301,37 +301,37 @@ export default function LeadsPage() {
 
       {/* Pagination Surface for Table/Cards Views */}
       {!isLoading && viewMode !== "pipeline" && leads.length > 0 && (
-        <div className="relative p-2.5 sm:p-3 bg-[#0a0a0f] border border-white/[0.06] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-2.5">
+        <div className="relative p-2.5 sm:p-3 bg-[#0d0d12] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-2.5">
           {/* Top specular hairline highlight */}
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
           <div className="text-[11px] font-mono text-zinc-400">
-            Showing <span className="text-zinc-100 font-medium">{startItem}</span>–<span className="text-zinc-100 font-medium">{endItem}</span> of{" "}
-            <span className="text-zinc-100 font-medium">{totalCount}</span> leads
+            Showing <span className="text-zinc-100 font-medium tabular-nums">{startItem}</span>–<span className="text-zinc-100 font-medium tabular-nums">{endItem}</span> of{" "}
+            <span className="text-zinc-100 font-medium tabular-nums">{totalCount}</span> leads
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || isLoading}
-              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.07] disabled:hover:bg-white/[0.03] disabled:hover:text-zinc-300"
+              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08] disabled:hover:bg-white/[0.03] disabled:hover:text-zinc-300"
               aria-label="Previous page"
             >
               <span>←</span>
               <span>Previous</span>
             </button>
 
-            <div className="h-8 px-3 rounded-lg border border-white/[0.06] bg-[#07070a] flex items-center text-xs font-mono text-zinc-400">
+            <div className="h-8 px-3 rounded-lg border border-white/[0.08] bg-[#09090b] flex items-center text-xs font-mono text-zinc-400">
               <span>Page</span>
-              <span className="text-white font-semibold mx-1.5">{page}</span>
+              <span className="text-white font-semibold mx-1.5 tabular-nums">{page}</span>
               <span>of</span>
-              <span className="text-white font-semibold ml-1.5">{totalPages}</span>
+              <span className="text-white font-semibold ml-1.5 tabular-nums">{totalPages}</span>
             </div>
 
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || isLoading}
-              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.07] disabled:hover:bg-white/[0.03] disabled:hover:text-zinc-300"
+              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08] disabled:hover:bg-white/[0.03] disabled:hover:text-zinc-300"
               aria-label="Next page"
             >
               <span>Next</span>
