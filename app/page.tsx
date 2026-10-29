@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 
 export default function RootPage() {
   return (
-    <main className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center bg-[#09090b] text-white relative overflow-hidden selection:bg-indigo-500/20 selection:text-indigo-200">
+    <main className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center bg-[#09090b] text-white relative overflow-hidden selection:bg-white/20 selection:text-white">
       {/* Ambient background glow */}
-      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
       <div className="space-y-6 max-w-md relative z-10">

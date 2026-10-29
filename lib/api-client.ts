@@ -611,6 +611,14 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
+    delete: (id: string) =>
+      apiRequest<{
+        success: boolean;
+        message: string;
+      }>(`/leads/${id}`, {
+        method: 'DELETE',
+      }),
+
     importBatch: (body: { leads: ImportLeadCandidateInput[] }) =>
       apiRequest<ImportLeadsResponse>('/lead-discovery/import-closebds', {
         method: 'POST',

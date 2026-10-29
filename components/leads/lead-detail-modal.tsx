@@ -3,6 +3,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { TrashIcon } from "@/components/ui/icons";
+import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { LeadStatusSelect } from "./lead-status-select";
 import { api, ApiClientError } from "@/lib/api-client";
@@ -20,6 +23,7 @@ export interface LeadDetailModalProps {
   leadId: string | null;
   onClose: () => void;
   onLeadUpdated?: () => void;
+  onLeadDeleted?: () => void;
 }
 
 function getSafeWebsiteUrl(raw: string): string {
@@ -33,10 +37,45 @@ export function LeadDetailModal({
   leadId,
   onClose,
   onLeadUpdated,
+  onLeadDeleted,
 }: LeadDetailModalProps) {
   const [lead, setLead] = useState<BackendLead | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const { addToast } = useToast();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteLead = async () => {
+    if (!leadId || isDeleting) return;
+    setIsDeleting(true);
+    try {
+      await api.leads.delete(leadId);
+      addToast({
+        title: "Lead permanently deleted",
+        description: `"${lead?.businessName || "Lead"}" and associated records were permanently deleted.`,
+        variant: "success",
+      });
+      setDeleteConfirmOpen(false);
+      onClose();
+      onLeadDeleted?.();
+      onLeadUpdated?.();
+    } catch (err: unknown) {
+      const msg =
+        err instanceof ApiClientError
+          ? err.message
+          : err instanceof Error
+          ? err.message
+          : "Failed to delete lead from workspace.";
+      addToast({
+        title: "Deletion failed",
+        description: msg,
+        variant: "error",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -295,6 +334,7 @@ export function LeadDetailModal({
     !isDisqualifiedOrSkipped;
 
   return (
+    <>
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
@@ -1757,7 +1797,18 @@ export function LeadDetailModal({
         )}
 
         {/* Modal Footer */}
-        <div className="flex justify-end pt-2 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={() => setDeleteConfirmOpen(true)}
+            disabled={isExecutingAi || isDeleting || !leadId}
+            className="text-xs flex items-center gap-1.5"
+          >
+            <TrashIcon size={13} />
+            <span>{isDeleting ? "Deleting..." : "Delete Lead"}</span>
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -1770,5 +1821,18 @@ export function LeadDetailModal({
         </div>
       </div>
     </Dialog>
+
+    <ConfirmDialog
+      open={deleteConfirmOpen}
+      onOpenChange={setDeleteConfirmOpen}
+      title="Permanently Delete Lead"
+      description={`Are you sure you want to delete "${lead?.businessName || "this lead"}"? This action cannot be undone. All associated contacts, CRM activities, website audits, and outreach history will be permanently deleted from the workspace.`}
+      confirmLabel="Permanently Delete"
+      cancelLabel="Cancel"
+      variant="destructive"
+      isLoading={isDeleting}
+      onConfirm={handleDeleteLead}
+    />
+    </>
   );
 }

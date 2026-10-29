@@ -76,7 +76,7 @@ body {
 }
 
 .glow-pill {
-  box-shadow: 0 0 12px -2px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 0 12px -2px rgba(255, 255, 255, 0.12);
 }
 
 /* Tabular Numerals for Analytics & KPIs */

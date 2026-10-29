@@ -68,6 +68,12 @@ export function LeadImportModal({
   const [importResult, setImportResult] = useState<ImportExecutionResult | null>(null);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [clientSkippedDuplicatesCount, setClientSkippedDuplicatesCount] = useState(0);
+  const [clientExcludedInvalidCount, setClientExcludedInvalidCount] = useState(0);
+  const [totalFileRowsCount, setTotalFileRowsCount] = useState(0);
+
+  const totalSkippedDuplicatesCount =
+    clientSkippedDuplicatesCount + (importResult?.skippedDuplicateCount || 0);
 
   // Reset state when modal is opened
   useEffect(() => {
@@ -81,6 +87,9 @@ export function LeadImportModal({
       setErrorMessage(null);
       setProgressText("");
       setProgressPercent(0);
+      setClientSkippedDuplicatesCount(0);
+      setClientExcludedInvalidCount(0);
+      setTotalFileRowsCount(0);
     }
   }, [isOpen]);
 
@@ -232,6 +241,21 @@ export function LeadImportModal({
     setErrorMessage(null);
     setProgressText(`Preparing ${readyCandidates.length} leads for persistence...`);
     setProgressPercent(5);
+
+    const clientSkippedDuplicates = processedRows.filter((row) => {
+      if (excludeInvalidRows && row.status === "invalid") return false;
+      if (skipInFileDuplicates && row.isDuplicateInFile) return true;
+      if (skipWorkspaceDuplicates && row.isDuplicateInWorkspace) return true;
+      return false;
+    }).length;
+
+    const clientExcludedInvalid = processedRows.filter((row) => {
+      return excludeInvalidRows && row.status === "invalid";
+    }).length;
+
+    setClientSkippedDuplicatesCount(clientSkippedDuplicates);
+    setClientExcludedInvalidCount(clientExcludedInvalid);
+    setTotalFileRowsCount(processedRows.length);
 
     const candidatesPayload: ImportLeadCandidateInput[] = readyCandidates.map(
       (row, idx) => {
@@ -777,7 +801,9 @@ export function LeadImportModal({
                   <span>Import Completed Successfully</span>
                 </div>
                 <p className="text-xs text-zinc-300">
-                  Successfully processed all {importResult.totalRequested} requested records against the backend database.
+                  {totalFileRowsCount > 0
+                    ? `Processed ${totalFileRowsCount} records from file: ${importResult.importedCount} created, ${totalSkippedDuplicatesCount} duplicates skipped${clientExcludedInvalidCount > 0 ? `, ${clientExcludedInvalidCount} invalid excluded` : ""}.`
+                    : `Successfully processed all ${importResult.totalRequested} requested records against the backend database.`}
                 </p>
               </div>
             ) : importResult.importedCount > 0 || importResult.updatedCount > 0 ? (
@@ -826,9 +852,24 @@ export function LeadImportModal({
               <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06]">
                 <div className="text-[10px] font-mono text-amber-400 uppercase tracking-wider">Skipped</div>
                 <div className="text-xl font-bold text-amber-300 font-mono mt-0.5">
-                  {importResult.skippedDuplicateCount}
+                  {totalSkippedDuplicatesCount}
                 </div>
-                <div className="text-[10px] text-zinc-500">Identified duplicates</div>
+                <div
+                  className="text-[10px] text-zinc-500 truncate"
+                  title={
+                    clientSkippedDuplicatesCount > 0 && importResult.skippedDuplicateCount > 0
+                      ? `${clientSkippedDuplicatesCount} preview + ${importResult.skippedDuplicateCount} server duplicates`
+                      : clientSkippedDuplicatesCount > 0
+                      ? `${clientSkippedDuplicatesCount} duplicates skipped`
+                      : "Identified duplicates"
+                  }
+                >
+                  {clientSkippedDuplicatesCount > 0 && importResult.skippedDuplicateCount > 0
+                    ? `${clientSkippedDuplicatesCount} preview + ${importResult.skippedDuplicateCount} server`
+                    : clientSkippedDuplicatesCount > 0
+                    ? `${clientSkippedDuplicatesCount} duplicates skipped`
+                    : "Identified duplicates"}
+                </div>
               </div>
 
               <div className="p-3 rounded-lg bg-[#07070a] border border-white/[0.06]">
@@ -839,6 +880,13 @@ export function LeadImportModal({
                 <div className="text-[10px] text-zinc-500">Rejections / errors</div>
               </div>
             </div>
+
+            {clientExcludedInvalidCount > 0 && (
+              <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-xs text-zinc-400 flex items-center justify-between">
+                <span>{clientExcludedInvalidCount} invalid {clientExcludedInvalidCount === 1 ? "row was" : "rows were"} excluded based on import settings.</span>
+                <span className="text-[10px] font-mono text-zinc-500">Excluded upfront</span>
+              </div>
+            )}
 
             {importResult.errors.length > 0 && (
               <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-500/20 space-y-1 text-xs">

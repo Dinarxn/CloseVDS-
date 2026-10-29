@@ -364,6 +364,7 @@ export default function LeadsPage() {
         leadId={selectedLeadId}
         onClose={() => setSelectedLeadId(null)}
         onLeadUpdated={fetchLeads}
+        onLeadDeleted={fetchLeads}
       />
 
       {/* Call Preparation Modal */}
