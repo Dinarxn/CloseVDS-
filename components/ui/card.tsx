@@ -13,11 +13,11 @@ export function Card({
   ...props
 }: CardProps) {
   const variantStyles = {
-    standard: "bg-[#121218] border border-white/[0.07] shadow-[0_1px_3px_rgba(0,0,0,0.5)]",
-    elevated: "bg-[#171720] border border-white/[0.10] shadow-[0_4px_20px_rgba(0,0,0,0.6)]",
+    standard: "bg-surface-card border border-white/[0.07] shadow-[0_1px_3px_rgba(0,0,0,0.5)]",
+    elevated: "bg-surface-elevated border border-white/[0.10] shadow-[0_4px_20px_rgba(0,0,0,0.6)]",
     bordered: "bg-transparent border border-white/[0.08]",
     interactive:
-      "bg-[#121218] border border-white/[0.07] hover:border-white/[0.16] hover:bg-[#171720] transition-all duration-150 cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-[0.995]",
+      "bg-surface-card border border-white/[0.07] hover:border-white/[0.16] hover:bg-surface-card-hover transition-all duration-150 cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-[0.995]",
   };
 
   return (

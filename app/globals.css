@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@theme {
+  --color-surface-canvas: #09090b;
+  --color-surface-panel: #0d0d12;
+  --color-surface-card: #121218;
+  --color-surface-card-hover: #171720;
+  --color-surface-elevated: #171720;
+
+  --color-border-subtle: rgba(255, 255, 255, 0.07);
+  --color-border-medium: rgba(255, 255, 255, 0.10);
+  --color-border-highlight: rgba(255, 255, 255, 0.16);
+}
+
 :root {
   --color-black: #09090b;
   --color-white: #ffffff;
@@ -15,6 +27,12 @@
   --border-subtle: rgba(255, 255, 255, 0.07);
   --border-medium: rgba(255, 255, 255, 0.10);
   --border-highlight: rgba(255, 255, 255, 0.16);
+
+  /* Semantic Typography Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --text-subtle: #71717a;
 
   /* Approved Phase 0 Neutral Scale */
   --neutral-950: #09090b;
@@ -39,6 +57,48 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.01em;
+}
+
+/* Explicit Obsidian Surface Utilities */
+.bg-surface-canvas {
+  background-color: var(--surface-canvas);
+}
+.bg-surface-panel {
+  background-color: var(--surface-panel);
+}
+.bg-surface-card {
+  background-color: var(--surface-card);
+}
+.bg-surface-card-hover {
+  background-color: var(--surface-card-hover);
+}
+.bg-surface-elevated {
+  background-color: var(--surface-elevated);
+}
+
+/* Explicit Obsidian Border Utilities */
+.border-subtle {
+  border-color: var(--border-subtle);
+}
+.border-medium {
+  border-color: var(--border-medium);
+}
+.border-highlight {
+  border-color: var(--border-highlight);
+}
+
+/* Explicit Obsidian Typography Utilities */
+.text-primary {
+  color: var(--text-primary);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-subtle {
+  color: var(--text-subtle);
 }
 
 /* Consolidated Specular Top Hairline Utility */

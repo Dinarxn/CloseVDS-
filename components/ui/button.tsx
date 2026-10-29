@@ -25,22 +25,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     // Base styles: Obsidian Precision geometric rhythm, active press, accessible focus
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] disabled:opacity-40 disabled:pointer-events-none cursor-pointer active:scale-[0.98] select-none shrink-0";
+      "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-40 disabled:pointer-events-none cursor-pointer active:scale-[0.98] select-none shrink-0";
 
     // Standardized variants aligned with Obsidian Precision palette
     const variantStyles = {
       primary:
-        "bg-white text-zinc-950 hover:bg-zinc-100 shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.9)] font-semibold border border-white/80",
+        "bg-white text-zinc-950 hover:bg-zinc-100 shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.9)] font-semibold border border-white/80 active:bg-zinc-200",
       secondary:
-        "bg-[#121218] text-zinc-200 border border-white/[0.08] hover:bg-[#171720] hover:text-white hover:border-white/[0.16] shadow-xs",
+        "bg-surface-card text-zinc-200 border border-white/[0.08] hover:bg-surface-card-hover hover:text-white hover:border-white/[0.16] shadow-xs active:bg-[#1a1a24]",
       outline:
-        "bg-transparent text-zinc-300 border border-white/[0.10] hover:bg-white/[0.05] hover:text-white hover:border-white/[0.20]",
+        "bg-transparent text-zinc-300 border border-white/[0.10] hover:bg-white/[0.05] hover:text-white hover:border-white/[0.20] active:bg-white/[0.08]",
       ghost:
-        "bg-transparent text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent",
+        "bg-transparent text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent active:bg-white/[0.10]",
       destructive:
-        "bg-rose-950/30 text-rose-300 border border-rose-800/50 hover:bg-rose-900/50 hover:text-rose-100 hover:border-rose-700/80 shadow-xs",
+        "bg-rose-950/30 text-rose-300 border border-rose-800/50 hover:bg-rose-900/50 hover:text-rose-100 hover:border-rose-700/80 shadow-xs active:bg-rose-900/70",
       accent:
-        "bg-emerald-500 text-zinc-950 hover:bg-emerald-400 shadow-[0_1px_8px_rgba(16,185,129,0.3)] font-semibold border border-emerald-400/80",
+        "bg-emerald-500 text-zinc-950 hover:bg-emerald-400 shadow-[0_1px_8px_rgba(16,185,129,0.3)] font-semibold border border-emerald-400/80 active:bg-emerald-600",
     };
 
     // Standardized sizes (xs=h-7, sm=h-8, md=h-9, lg=h-10)

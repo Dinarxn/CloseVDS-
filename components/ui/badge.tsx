@@ -32,8 +32,8 @@ export function Badge({
   };
 
   const variantStyles = {
-    default: "bg-[#121218] text-zinc-300 border border-white/[0.08]",
-    secondary: "bg-white/[0.04] text-zinc-400 border border-white/[0.06]",
+    default: "bg-surface-card text-zinc-200 border border-white/[0.08]",
+    secondary: "bg-white/[0.05] text-zinc-300 border border-white/[0.06]",
     outline: "bg-transparent text-zinc-300 border border-white/[0.12]",
     solid: "bg-white text-zinc-950 font-semibold shadow-xs border border-white",
     success: "bg-emerald-950/30 text-emerald-300 border border-emerald-500/25",
@@ -47,10 +47,10 @@ export function Badge({
     secondary: "bg-zinc-500",
     outline: "bg-zinc-400",
     solid: "bg-zinc-950",
-    success: "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]",
-    warning: "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.5)]",
-    danger: "bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.5)]",
-    info: "bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.5)]",
+    success: "bg-emerald-400",
+    warning: "bg-amber-400",
+    danger: "bg-rose-400",
+    info: "bg-cyan-400",
   };
 
   return (

@@ -45,7 +45,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             id={selectId}
             disabled={disabled}
             value={value}
-            className={`w-full h-9 px-3 bg-[#0D0D12] text-white text-xs rounded-lg border appearance-none pr-8 transition-all duration-150 ${
+            className={`w-full h-9 px-3 bg-surface-panel text-white text-xs rounded-lg border appearance-none pr-8 transition-all duration-150 ${
               error
                 ? "border-rose-500/80 focus:border-rose-500 focus-visible:ring-1 focus-visible:ring-rose-500/30"
                 : "border-white/[0.08] hover:border-white/[0.16] focus:border-white/[0.30] focus-visible:ring-1 focus-visible:ring-white/20"
@@ -53,19 +53,19 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             {...props}
           >
             {placeholder && (
-              <option value="" disabled className="bg-[#121218] text-zinc-500">
+              <option value="" disabled className="bg-surface-card text-zinc-500">
                 {placeholder}
               </option>
             )}
             {children
               ? children
               : options.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-[#121218] text-zinc-200">
+                  <option key={opt.value} value={opt.value} className="bg-surface-card text-zinc-200">
                     {opt.label}
                   </option>
                 ))}
             {!children && options.length === 0 && !placeholder && (
-              <option value="" disabled className="bg-[#121218] text-zinc-500">
+              <option value="" disabled className="bg-surface-card text-zinc-500">
                 No options available
               </option>
             )}
