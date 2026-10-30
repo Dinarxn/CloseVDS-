@@ -17,17 +17,24 @@ export interface ToastProps {
 
 export function Toast({ toast, onDismiss }: ToastProps) {
   const variantStyles: Record<ToastVariant, string> = {
-    default: "bg-[#121216] border-white/[0.08] text-white",
-    success: "bg-[#121216] border-emerald-500/30 text-white shadow-[0_4px_24px_rgba(16,185,129,0.08)]",
-    warning: "bg-[#121216] border-amber-500/30 text-white shadow-[0_4px_24px_rgba(245,158,11,0.08)]",
-    error: "bg-[#121216] border-rose-500/40 text-white shadow-[0_4px_24px_rgba(244,63,94,0.08)]",
+    default: "border-white/[0.10]",
+    success: "border-[#C6FF33]/30 shadow-[0_4px_24px_rgba(198,255,51,0.08)]",
+    warning: "border-amber-500/30 shadow-[0_4px_24px_rgba(245,158,11,0.08)]",
+    error: "border-rose-500/40 shadow-[0_4px_24px_rgba(244,63,94,0.08)]",
+  };
+
+  const badgeStyles: Record<ToastVariant, string | null> = {
+    default: null,
+    success: "text-[#C6FF33]",
+    warning: "text-amber-400",
+    error: "text-rose-400",
   };
 
   const renderIcon = (variant: ToastVariant) => {
     switch (variant) {
       case "success":
         return (
-          <svg className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-[#C6FF33] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
           </svg>
         );
@@ -65,7 +72,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
     <div
       role="status"
       aria-live="polite"
-      className={`w-80 sm:w-96 p-4 rounded-xl border shadow-2xl flex items-start justify-between space-x-3 transition-all duration-200 ease-in-out relative overflow-hidden ${
+      className={`w-80 sm:w-96 p-4 rounded-xl border bg-[#111116] text-white shadow-2xl flex items-start justify-between space-x-3 transition-all duration-200 ease-in-out relative overflow-hidden ${
         variantStyles[currentVariant]
       }`}
     >
@@ -76,7 +83,11 @@ export function Toast({ toast, onDismiss }: ToastProps) {
         {renderIcon(currentVariant)}
         <div className="space-y-1 text-left flex-1 min-w-0">
           {badgeLabels[currentVariant] && (
-            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-400 block">
+            <span
+              className={`text-[9px] font-mono font-bold uppercase tracking-wider block ${
+                badgeStyles[currentVariant] || "text-zinc-400"
+              }`}
+            >
               {badgeLabels[currentVariant]}
             </span>
           )}
@@ -94,7 +105,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       <button
         onClick={() => onDismiss(toast.id)}
         aria-label="Dismiss notification"
-        className="text-zinc-500 hover:text-white p-1 rounded-md transition-colors shrink-0"
+        className="text-zinc-500 hover:text-white p-1 rounded-md transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#7D39EB]"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />

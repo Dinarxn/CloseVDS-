@@ -47,8 +47,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             value={value}
             className={`w-full h-9 px-3 bg-surface-panel text-white text-xs rounded-lg border appearance-none pr-8 transition-all duration-150 ${
               error
-                ? "border-rose-500/80 focus:border-rose-500 focus-visible:ring-1 focus-visible:ring-rose-500/30"
-                : "border-white/[0.08] hover:border-white/[0.16] focus:border-white/[0.30] focus-visible:ring-1 focus-visible:ring-white/20"
+                ? "border-rose-500/80 focus:border-rose-500 focus-visible:ring-1 focus-visible:ring-rose-500/30 text-rose-400"
+                : "border-white/[0.08] hover:border-white/[0.16] focus:border-[#7D39EB] focus-visible:ring-1 focus-visible:ring-[#7D39EB]"
             } focus-visible:outline-none disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${className}`}
             {...props}
           >

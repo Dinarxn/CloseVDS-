@@ -99,7 +99,7 @@ export function Dialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop: deep obsidian with medium blur */}
       <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity duration-150 animate-in fade-in-0"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-150 animate-in fade-in-0"
         onClick={() => onOpenChange(false)}
         aria-hidden="true"
       />
@@ -134,7 +134,7 @@ export function Dialog({
           <button
             onClick={() => onOpenChange(false)}
             aria-label="Close dialog"
-            className="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 cursor-pointer shrink-0"
+            className="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7D39EB] cursor-pointer shrink-0"
           >
             <CloseIcon size={16} />
           </button>

@@ -64,7 +64,7 @@ export function DropdownTrigger({ children, asChild }: DropdownTriggerProps) {
       aria-expanded={open}
       aria-haspopup="menu"
       onClick={() => setOpen(!open)}
-      className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-1 focus-visible:ring-white rounded-lg"
+      className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7D39EB] rounded-lg"
     >
       {children}
     </button>
@@ -165,7 +165,7 @@ export function DropdownItem({
       className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg text-left transition-all duration-150 ${
         disabled
           ? "text-zinc-600 cursor-not-allowed"
-          : "text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white cursor-pointer"
+          : "text-zinc-300 hover:text-white hover:bg-[#7D39EB]/15 focus:bg-[#7D39EB]/15 focus:text-white cursor-pointer"
       } focus:outline-none ${className}`}
     >
       {children}

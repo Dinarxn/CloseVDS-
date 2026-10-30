@@ -144,9 +144,9 @@ export function Tab({
         tabIndex={isActive ? 0 : -1}
         disabled={disabled}
         onClick={() => !disabled && setActiveTab(value)}
-        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 whitespace-nowrap focus:outline-none focus-visible:text-white ${
+        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7D39EB] ${
           isActive
-            ? "bg-white/[0.08] text-white border border-white/[0.12] shadow-xs font-semibold"
+            ? "bg-[#7D39EB]/20 text-white border border-[#7D39EB]/40 font-semibold shadow-xs"
             : "border border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]"
         } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"} ${className}`}
       >
@@ -164,10 +164,10 @@ export function Tab({
       tabIndex={isActive ? 0 : -1}
       disabled={disabled}
       onClick={() => !disabled && setActiveTab(value)}
-      className={`px-3 py-2 text-xs font-medium border-b-2 -mb-px transition-colors duration-150 whitespace-nowrap focus:outline-none focus-visible:text-white ${
+      className={`px-3 py-2 text-xs font-medium border-b-2 -mb-px transition-colors duration-150 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7D39EB] ${
         isActive
-          ? "border-white text-white font-semibold"
-          : "border-transparent text-zinc-400 hover:text-zinc-200"
+          ? "border-[#7D39EB] text-white font-semibold"
+          : "border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]"
       } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"} ${className}`}
     >
       {children}
@@ -191,4 +191,3 @@ export function TabPanel({ value, children, className = "" }: TabPanelProps) {
     </div>
   );
 }
-

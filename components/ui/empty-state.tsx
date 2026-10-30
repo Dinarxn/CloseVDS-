@@ -17,7 +17,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 md:p-12 text-center bg-surface-card/60 border border-dashed border-white/[0.08] rounded-xl space-y-4 relative overflow-hidden ${className}`}
+      className={`flex flex-col items-center justify-center p-8 md:p-12 text-center bg-surface-card/60 border border-dashed border-white/[0.10] rounded-xl space-y-4 relative overflow-hidden ${className}`}
     >
       {/* Ambient background glow */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
@@ -27,7 +27,7 @@ export function EmptyState({
           {icon}
         </div>
       ) : (
-        <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-white/[0.08] flex items-center justify-center text-zinc-400">
+        <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-white/[0.08] flex items-center justify-center text-zinc-300">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
           </svg>

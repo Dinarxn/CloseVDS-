@@ -56,7 +56,7 @@ export function ConfirmDialog({
     >
       <div className="pt-2 space-y-4">
         {variant === "destructive" && (
-          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-950/20 border border-rose-500/20 text-rose-300 text-xs">
+          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-950/20 border border-rose-500/30 text-rose-200 text-xs">
             <WarningIcon size={16} className="text-rose-400 mt-0.5 shrink-0" />
             <span className="leading-relaxed">
               This action may affect active queues or operations. Please verify before proceeding.

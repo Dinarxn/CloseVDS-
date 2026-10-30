@@ -26,25 +26,28 @@ export function WorkspaceEmptyState({
 }: WorkspaceEmptyStateProps) {
   return (
     <div
-      className={`p-8 sm:p-12 text-center bg-[#171717] border border-[#404040] rounded-lg flex flex-col items-center justify-center space-y-4 ${className}`}
+      className={`p-8 sm:p-12 text-center bg-surface-card border border-subtle rounded-xl flex flex-col items-center justify-center space-y-4 relative overflow-hidden ${className}`}
     >
+      {/* Specular top hairline reflection */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+
       {icon ? (
-        <div className="p-3 bg-[#0a0a0a] border border-[#404040] rounded-full text-white">
+        <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-white/[0.08] flex items-center justify-center text-zinc-300 shadow-inner">
           {icon}
         </div>
       ) : (
-        <div className="w-10 h-10 rounded-full border border-dashed border-[#737373] flex items-center justify-center text-xs font-mono text-[#737373]">
+        <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-white/[0.08] flex items-center justify-center text-xs font-mono text-zinc-400">
           0
         </div>
       )}
 
-      <div className="space-y-1.5 max-w-md">
-        <h3 className="text-sm font-bold text-white tracking-tight">{title}</h3>
-        <p className="text-xs text-[#737373] leading-relaxed">{description}</p>
+      <div className="space-y-1.5 max-w-md relative z-10">
+        <h3 className="text-sm font-semibold text-white tracking-tight">{title}</h3>
+        <p className="text-xs text-zinc-400 leading-relaxed">{description}</p>
       </div>
 
       {(actionLabel || secondaryActionLabel) && (
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2 relative z-10">
           {actionLabel && onAction && (
             <Button variant="primary" size="sm" onClick={onAction}>
               {actionLabel}
@@ -59,7 +62,7 @@ export function WorkspaceEmptyState({
       )}
 
       {hint && (
-        <div className="pt-2 text-[11px] font-mono text-[#737373] border-t border-[#404040]/40 max-w-sm">
+        <div className="pt-2 text-[11px] font-mono text-zinc-400 border-t border-white/[0.08] max-w-sm relative z-10">
           {hint}
         </div>
       )}
