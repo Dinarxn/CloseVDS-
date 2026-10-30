@@ -71,13 +71,13 @@ export default function EditVoiceAgentPage({ params }: EditVoiceAgentPageProps) 
   };
 
   return (
-    <PageContainer>
+    <PageContainer maxWidth="xl">
       <div className="space-y-6 max-w-4xl">
         <PageHeader
           title={agent ? `Edit Agent: ${agent.name}` : "Edit Voice Agent"}
           description="Update conversational goals, script hooks, qualification questions, and prohibited claims."
           breadcrumbs={[
-            { label: "Home", href: "/dashboard" },
+            { label: "Workspace", href: "/dashboard" },
             { label: "AI Calling", href: "/calling" },
             { label: "Voice Agents", href: "/calling/agents" },
             { label: "Edit Agent" },
@@ -91,9 +91,9 @@ export default function EditVoiceAgentPage({ params }: EditVoiceAgentPageProps) 
         )}
 
         {isLoading ? (
-          <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-[#121216]">
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-xs text-zinc-400">Loading voice agent configuration...</p>
+          <div className="p-12 text-center border border-white/[0.08] rounded-xl bg-surface-card shadow-xs">
+            <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs text-zinc-400 font-mono">Loading voice agent configuration...</p>
           </div>
         ) : agent ? (
           <VoiceAgentForm
@@ -102,7 +102,7 @@ export default function EditVoiceAgentPage({ params }: EditVoiceAgentPageProps) 
             isSubmitting={isSubmitting}
           />
         ) : (
-          <div className="p-8 text-center text-xs text-zinc-400 border border-white/[0.08] rounded-xl bg-[#121216]">
+          <div className="p-8 text-center text-xs text-zinc-400 border border-white/[0.08] rounded-xl bg-surface-card font-mono">
             Voice agent configuration not found.
           </div>
         )}

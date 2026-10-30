@@ -169,9 +169,9 @@ export default function CallsPage() {
         title="Call Queue &amp; History"
         description="Supervise all queued, approved, in-progress, and completed AI voice outreach calls across the acquisition pipeline."
         breadcrumbs={[
-          { label: "closeVDS", href: "/dashboard" },
+          { label: "Workspace", href: "/dashboard" },
           { label: "AI Calling", href: "/calling" },
-          { label: "Call Queue" },
+          { label: "Call Queue & History" },
         ]}
         action={
           <div className="flex items-center gap-2">
@@ -179,11 +179,19 @@ export default function CallsPage() {
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-8 px-3 text-xs bg-[#101017] hover:bg-[#161622] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
+                className="h-8.5 px-3 text-xs bg-surface-card hover:bg-surface-elevated text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
               >
                 <span>AI Calling Hub</span>
               </Button>
             </Link>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setIsPrepModalOpen(true)}
+              className="h-8.5 px-3.5 text-xs bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs flex items-center gap-1.5"
+            >
+              <span>+ Prepare AI Call</span>
+            </Button>
           </div>
         }
       />
@@ -197,7 +205,7 @@ export default function CallsPage() {
             <span className="font-mono text-[11px] uppercase tracking-wider text-amber-300 font-medium block">
               Call Queue Notice
             </span>
-            <p className="text-amber-200/80 leading-relaxed">{errorMsg}</p>
+            <p className="text-amber-200/80 leading-relaxed font-sans">{errorMsg}</p>
           </div>
         </div>
       )}
@@ -238,10 +246,10 @@ export default function CallsPage() {
 
       {/* Pagination Bar */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-[#0a0a10] border border-white/[0.07] text-xs text-zinc-400 shadow-xs">
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-card border border-white/[0.08] text-xs text-zinc-400 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
           <span>
-            Showing <span className="font-mono text-white">{calls.length}</span> of{" "}
-            <span className="font-mono text-white">{totalCount}</span> total calls
+            Showing <span className="font-mono text-white font-semibold">{calls.length}</span> of{" "}
+            <span className="font-mono text-white font-semibold">{totalCount}</span> total calls
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -249,11 +257,11 @@ export default function CallsPage() {
               size="sm"
               disabled={page <= 1 || isLoading}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="h-7 px-2.5 text-xs bg-white/[0.04] border-white/[0.08]"
+              className="text-xs h-8 px-3 border-white/[0.08] hover:border-white/[0.2] hover:bg-surface-elevated"
             >
               Previous
             </Button>
-            <span className="font-mono text-white px-2">
+            <span className="font-mono text-zinc-400 px-2">
               Page {page} of {totalPages}
             </span>
             <Button
@@ -261,7 +269,7 @@ export default function CallsPage() {
               size="sm"
               disabled={page >= totalPages || isLoading}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="h-7 px-2.5 text-xs bg-white/[0.04] border-white/[0.08]"
+              className="text-xs h-8 px-3 border-white/[0.08] hover:border-white/[0.2] hover:bg-surface-elevated"
             >
               Next
             </Button>
@@ -269,37 +277,37 @@ export default function CallsPage() {
         </div>
       )}
 
-        {/* Modals */}
-        <CallPreparationModal
-          isOpen={isPrepModalOpen}
-          onClose={() => setIsPrepModalOpen(false)}
-          onCallCreated={() => {
-            fetchCalls();
-          }}
-        />
+      {/* Modals */}
+      <CallPreparationModal
+        isOpen={isPrepModalOpen}
+        onClose={() => setIsPrepModalOpen(false)}
+        onCallCreated={() => {
+          fetchCalls();
+        }}
+      />
 
-        <CallSafetyModal
-          isOpen={Boolean(safetyModalCallId)}
-          callId={safetyModalCallId || ""}
-          onClose={() => setSafetyModalCallId(null)}
-        />
+      <CallSafetyModal
+        isOpen={Boolean(safetyModalCallId)}
+        callId={safetyModalCallId || ""}
+        onClose={() => setSafetyModalCallId(null)}
+      />
 
-        <CallDispatchModal
-          isOpen={Boolean(dispatchModalCall)}
-          call={dispatchModalCall}
-          providerConfigured={providerConfigured}
-          onClose={() => setDispatchModalCall(null)}
-          onDispatched={() => {
-            fetchCalls();
-          }}
-        />
+      <CallDispatchModal
+        isOpen={Boolean(dispatchModalCall)}
+        call={dispatchModalCall}
+        providerConfigured={providerConfigured}
+        onClose={() => setDispatchModalCall(null)}
+        onDispatched={() => {
+          fetchCalls();
+        }}
+      />
 
-        <CallRejectModal
-          isOpen={Boolean(rejectingCall)}
-          leadName={rejectingCall?.lead?.businessName}
-          onClose={() => setRejectingCall(null)}
-          onConfirm={handleConfirmReject}
-        />
+      <CallRejectModal
+        isOpen={Boolean(rejectingCall)}
+        leadName={rejectingCall?.lead?.businessName}
+        onClose={() => setRejectingCall(null)}
+        onConfirm={handleConfirmReject}
+      />
     </PageContainer>
   );
 }

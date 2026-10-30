@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabList, Tab, TabPanel } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import {
@@ -162,7 +163,7 @@ export default function SettingsPage() {
 
       addToast({
         title: "Settings Saved",
-        description: "Workspace name and daily outreach limits saved to workspace settings.",
+        description: "Workspace configuration successfully updated.",
         variant: "success",
       });
     } catch (err: unknown) {
@@ -180,10 +181,10 @@ export default function SettingsPage() {
     <PageContainer>
       <div className="space-y-6">
         {/* Header & Primary Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-subtle pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
           <PageHeader
-            title="Settings"
-            description="Manage acquisition bounds, global kill switches, suppression rules, and AI providers."
+            title="Settings & Workspace Governance"
+            description="Manage acquisition bounds, global emergency kill switches, suppression rules, and AI providers."
             breadcrumbs={[
               { label: "closeVDS", href: "/dashboard" },
               { label: "Settings" },
@@ -194,10 +195,10 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={handleToggleKillSwitch}
-              className={`h-9 px-3.5 rounded-lg text-xs font-semibold inline-flex items-center gap-2 transition-all shadow-xs ${
+              className={`h-9 px-3.5 rounded-lg text-xs font-semibold inline-flex items-center gap-2 transition-all shadow-xs cursor-pointer ${
                 settings.safety.globalKillSwitchActive
-                  ? "border border-rose-500/40 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 shadow-rose-950/30"
-                  : "border border-rose-500/30 bg-rose-500/[0.05] text-rose-400 hover:bg-rose-500/15 hover:border-rose-500/50 hover:text-rose-300"
+                  ? "border border-rose-500/50 bg-rose-500/20 text-rose-200 hover:bg-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]"
+                  : "border border-rose-500/30 bg-rose-500/[0.06] text-rose-400 hover:bg-rose-500/15 hover:border-rose-500/50 hover:text-rose-300"
               }`}
             >
               <svg className="w-3.5 h-3.5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -207,20 +208,21 @@ export default function SettingsPage() {
               <span>{settings.safety.globalKillSwitchActive ? "Deactivate Kill Switch" : "Emergency Kill Switch"}</span>
             </button>
 
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="md"
               onClick={handleSaveAll}
               disabled={isSaving || isLoading}
-              className="h-9 px-4 rounded-lg text-xs font-semibold inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black shadow-xs shadow-emerald-950/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="h-9 px-4 text-xs font-semibold"
             >
               {isSaving ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
                     <polyline points="17 21 17 13 7 13 7 21" />
                     <polyline points="7 3 7 8 15 8" />
@@ -228,14 +230,14 @@ export default function SettingsPage() {
                   <span>Save Changes</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="relative overflow-hidden p-12 text-center border border-subtle rounded-xl bg-surface-card shadow-sm">
+          <div className="relative overflow-hidden p-12 text-center border border-white/[0.08] rounded-xl bg-surface-card shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
-            <div className="w-6 h-6 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-6 h-6 border-2 border-[#7D39EB] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="font-mono text-xs text-zinc-400">Loading workspace configuration from server...</p>
           </div>
         ) : (

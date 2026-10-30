@@ -11,19 +11,19 @@ export interface CallOutcomeBadgeProps {
 export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps) {
   if (!outcome) {
     return (
-      <span className="text-[#737373] text-xs">—</span>
+      <span className="text-zinc-500 font-mono text-xs">—</span>
     );
   }
 
-  const sizeClasses = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
+  const sizeClasses = size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
 
   switch (outcome) {
     case "MEETING_REQUESTED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-emerald-950/60 text-emerald-200 border border-emerald-500/80 shadow-sm ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-lime-500/15 text-[#C6FF33] border border-lime-500/40 shadow-xs font-mono ${sizeClasses}`}
         >
-          <span className="text-emerald-400 font-bold">★</span>
+          <span className="text-[#C6FF33] font-bold">★</span>
           Meeting Requested
         </span>
       );
@@ -31,9 +31,9 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "CALLBACK_REQUESTED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-cyan-950/50 text-cyan-200 border border-cyan-700/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/35 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
           Callback Requested
         </span>
       );
@@ -41,9 +41,9 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "INTERESTED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-blue-950/40 text-blue-300 border border-blue-700/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-violet-500/10 text-violet-200 border border-violet-500/25 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
           Interested
         </span>
       );
@@ -51,9 +51,9 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "QUALIFIED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-teal-950/40 text-teal-300 border border-teal-700/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-lime-500/10 text-[#C6FF33] border border-lime-500/25 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33]" />
           Qualified
         </span>
       );
@@ -61,9 +61,9 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "NOT_INTERESTED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-[#171717] text-[#a3a3a3] border border-[#404040] ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-surface-elevated text-zinc-400 border border-white/[0.08] font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#737373]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
           Not Interested
         </span>
       );
@@ -72,9 +72,9 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "DO_NOT_CALL":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-bold rounded-full bg-red-950/80 text-red-200 border border-red-500 shadow-sm ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-rose-500/20 text-rose-200 border border-rose-500/40 shadow-xs font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
           {outcome === "OPTED_OUT" ? "Opted Out" : "Do Not Call"}
         </span>
       );
@@ -82,9 +82,9 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "DISQUALIFIED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-stone-900 text-stone-400 border border-stone-700 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-surface-panel text-zinc-400 border border-white/[0.08] font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-stone-500" />
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
           Disqualified
         </span>
       );
@@ -92,7 +92,7 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "NO_ANSWER":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-orange-950/30 text-orange-300 border border-orange-800/60 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono ${sizeClasses}`}
         >
           No Answer
         </span>
@@ -101,7 +101,7 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "BUSY":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-orange-950/30 text-orange-300 border border-orange-800/60 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono ${sizeClasses}`}
         >
           Busy
         </span>
@@ -110,7 +110,7 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "VOICEMAIL":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-purple-950/30 text-purple-300 border border-purple-800/60 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/25 font-mono ${sizeClasses}`}
         >
           Voicemail
         </span>
@@ -120,7 +120,7 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     case "INVALID_NUMBER":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-red-950/40 text-red-300 border border-red-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-mono ${sizeClasses}`}
         >
           {outcome === "INVALID_NUMBER" ? "Invalid Number" : "Call Failed"}
         </span>
@@ -129,7 +129,7 @@ export function CallOutcomeBadge({ outcome, size = "md" }: CallOutcomeBadgeProps
     default:
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-[#171717] text-[#a3a3a3] border border-[#404040] ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-surface-elevated text-zinc-300 border border-white/[0.08] font-mono ${sizeClasses}`}
         >
           {outcome}
         </span>

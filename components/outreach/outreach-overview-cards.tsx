@@ -27,8 +27,8 @@ export function OutreachOverviewCards({ stats, isLoading = false }: OutreachOver
       subtext: "Ready for delivery window dispatch",
       badge: "Approved",
       badgeVariant: stats.approvedQueue > 0 ? ("solid" as const) : ("outline" as const),
-      accentBorder: stats.approvedQueue > 0 ? "border-white/[0.20]" : "border-white/[0.08]",
-      indicatorColor: "bg-white",
+      accentBorder: stats.approvedQueue > 0 ? "border-[#7D39EB]/40 shadow-[0_0_15px_rgba(125,57,235,0.15)]" : "border-white/[0.08]",
+      indicatorColor: "bg-[#7D39EB]",
     },
     {
       label: "Active Sequences",
@@ -36,8 +36,8 @@ export function OutreachOverviewCards({ stats, isLoading = false }: OutreachOver
       subtext: "Touchpoints dispatched & awaiting reply",
       badge: "Sent",
       badgeVariant: stats.sentActive > 0 ? ("success" as const) : ("outline" as const),
-      accentBorder: stats.sentActive > 0 ? "border-emerald-500/30" : "border-white/[0.08]",
-      indicatorColor: "bg-emerald-400",
+      accentBorder: stats.sentActive > 0 ? "border-[#C6FF33]/30" : "border-white/[0.08]",
+      indicatorColor: "bg-[#C6FF33]",
     },
     {
       label: "Suppression & Opt-Outs",

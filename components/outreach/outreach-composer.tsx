@@ -375,7 +375,7 @@ export function OutreachComposer({
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-white tracking-tight">{lead.companyName}</h3>
             {lead.qualification?.totalScore !== undefined && (
-              <Badge variant="solid" size="sm" className="font-mono text-[10px] tabular-nums">
+              <Badge variant="solid" size="sm" className="font-mono text-[10px] tabular-nums bg-[#C6FF33]/15 text-[#C6FF33] border border-[#C6FF33]/30">
                 {lead.qualification.totalScore} pts
               </Badge>
             )}
@@ -390,54 +390,21 @@ export function OutreachComposer({
 
         {/* Channel Selector Pills */}
         <div className="flex items-center gap-1 bg-surface-panel p-1 rounded-lg border border-white/[0.08] self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => handleChannelSwitch("email")}
-            disabled={isOptedOut}
-            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
-              activeChannel === "email"
-                ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                : "text-zinc-400 hover:text-white"
-            } disabled:opacity-30 disabled:cursor-not-allowed`}
-          >
-            Email
-          </button>
-          <button
-            type="button"
-            onClick={() => handleChannelSwitch("whatsapp")}
-            disabled={isOptedOut}
-            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
-              activeChannel === "whatsapp"
-                ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                : "text-zinc-400 hover:text-white"
-            } disabled:opacity-30 disabled:cursor-not-allowed`}
-          >
-            WhatsApp
-          </button>
-          <button
-            type="button"
-            onClick={() => handleChannelSwitch("phone")}
-            disabled={isOptedOut}
-            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
-              activeChannel === "phone"
-                ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                : "text-zinc-400 hover:text-white"
-            } disabled:opacity-30 disabled:cursor-not-allowed`}
-          >
-            Phone Call
-          </button>
-          <button
-            type="button"
-            onClick={() => handleChannelSwitch("manual")}
-            disabled={isOptedOut}
-            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
-              activeChannel === "manual"
-                ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                : "text-zinc-400 hover:text-white"
-            } disabled:opacity-30 disabled:cursor-not-allowed`}
-          >
-            Manual Note
-          </button>
+          {(["email", "whatsapp", "phone", "manual"] as OutreachChannel[]).map((ch) => (
+            <button
+              key={ch}
+              type="button"
+              onClick={() => handleChannelSwitch(ch)}
+              disabled={isOptedOut}
+              className={`px-3 py-1 text-xs rounded-md font-medium transition-all cursor-pointer ${
+                activeChannel === ch
+                  ? "bg-[#7D39EB] text-white font-semibold shadow-[0_0_12px_rgba(125,57,235,0.3)] border border-[#8F52F5]"
+                  : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+              } disabled:opacity-30 disabled:cursor-not-allowed`}
+            >
+              {ch === "email" ? "Email" : ch === "whatsapp" ? "WhatsApp" : ch === "phone" ? "Phone Call" : "Manual Note"}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -461,12 +428,12 @@ export function OutreachComposer({
 
         {/* Feedback Banners */}
         {successMessage && (
-          <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 text-xs flex items-center justify-between gap-2 shadow-xs">
+          <div className="p-3 rounded-lg bg-[#C6FF33]/10 border border-[#C6FF33]/30 text-[#C6FF33] text-xs flex items-center justify-between gap-2 shadow-xs">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />
               <span>{successMessage}</span>
             </div>
-            <button onClick={() => setSuccessMessage(null)} className="text-emerald-400 hover:text-white text-xs cursor-pointer">✕</button>
+            <button onClick={() => setSuccessMessage(null)} className="text-[#C6FF33] hover:text-white text-xs cursor-pointer">✕</button>
           </div>
         )}
 
@@ -491,7 +458,7 @@ export function OutreachComposer({
                 <select
                   value={selectedTemplateId}
                   onChange={(e) => handleTemplateChange(e.target.value)}
-                  className="w-full sm:w-auto text-xs px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/[0.10] text-zinc-200 focus:outline-none focus:border-white/30 cursor-pointer font-sans"
+                  className="w-full sm:w-auto text-xs px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/[0.10] text-zinc-200 focus:outline-none focus:border-[#7D39EB] cursor-pointer font-sans"
                   aria-label="Select outreach template"
                 >
                   {OUTREACH_TEMPLATES.filter((t) => t.channel === activeChannel).map((tmpl) => (
@@ -536,7 +503,7 @@ export function OutreachComposer({
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     placeholder="Subject line..."
-                    className="h-9 text-xs bg-white/[0.03] border-white/[0.10] text-white focus:border-white/30"
+                    className="h-9 text-xs bg-white/[0.03] border-white/[0.10] text-white focus:border-[#7D39EB]"
                   />
                 </div>
 
@@ -550,7 +517,7 @@ export function OutreachComposer({
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     rows={8}
-                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-white/30 font-sans"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-[#7D39EB] font-sans"
                     placeholder="Compose email draft..."
                   />
                 </div>
@@ -599,7 +566,7 @@ export function OutreachComposer({
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-zinc-400">Recipient Phone:</span>
                     {lead.phone && isValidPhone(lead.phone) && (
-                      <span className="text-emerald-400 text-[11px] font-mono">Valid phone</span>
+                      <span className="text-[#C6FF33] text-[11px] font-mono">Valid phone</span>
                     )}
                   </div>
                   <Input
@@ -626,7 +593,7 @@ export function OutreachComposer({
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     rows={6}
-                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-white/30 font-sans"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-[#7D39EB] font-sans"
                     placeholder="Type WhatsApp message..."
                   />
                 </div>
@@ -678,7 +645,7 @@ export function OutreachComposer({
                   {lead.phone && (
                     <a
                       href={`tel:${lead.phone.replace(/\s+/g, "")}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-200 transition-colors shrink-0 shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#7D39EB] hover:bg-[#6C2FD1] text-white transition-colors shrink-0 shadow-[0_0_12px_rgba(125,57,235,0.25)] border border-[#8F52F5]"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -695,7 +662,7 @@ export function OutreachComposer({
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     rows={6}
-                    className="text-xs bg-white/[0.03] border-white/[0.10] text-zinc-200 font-sans leading-relaxed"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-zinc-200 font-sans leading-relaxed focus:border-[#7D39EB]"
                   />
                 </div>
 
@@ -711,7 +678,7 @@ export function OutreachComposer({
                       <select
                         value={callOutcome}
                         onChange={(e) => setCallOutcome(e.target.value as CallLogOutcome)}
-                        className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-surface-elevated border border-white/[0.10] text-zinc-200 focus:outline-none focus:border-white/30 cursor-pointer font-sans"
+                        className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-surface-elevated border border-white/[0.10] text-zinc-200 focus:outline-none focus:border-[#7D39EB] cursor-pointer font-sans"
                       >
                         <option value="CONNECTED_INTERESTED">Connected · Interested Prospect</option>
                         <option value="CONNECTED_FOLLOWUP">Connected · Follow-up Requested</option>
@@ -729,7 +696,7 @@ export function OutreachComposer({
                         value={callNotes}
                         onChange={(e) => setCallNotes(e.target.value)}
                         placeholder="e.g. Spoke with Dr. Marcus, requested callback Friday 2pm"
-                        className="h-8.5 text-xs bg-white/[0.03] border-white/[0.10] text-white"
+                        className="h-8.5 text-xs bg-white/[0.03] border-white/[0.10] text-white focus:border-[#7D39EB]"
                       />
                     </div>
                   </div>
@@ -761,7 +728,7 @@ export function OutreachComposer({
                     onChange={(e) => setBody(e.target.value)}
                     rows={5}
                     placeholder="e.g. Met representative at local conference, shared portfolio card..."
-                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-white/30 font-sans"
+                    className="text-xs bg-white/[0.03] border-white/[0.10] text-white leading-relaxed focus:border-[#7D39EB] font-sans"
                   />
                 </div>
 

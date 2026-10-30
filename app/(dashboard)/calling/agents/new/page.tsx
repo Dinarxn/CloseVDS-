@@ -41,13 +41,13 @@ export default function CreateVoiceAgentPage() {
   };
 
   return (
-    <PageContainer>
+    <PageContainer maxWidth="xl">
       <div className="space-y-6 max-w-4xl">
         <PageHeader
           title="Create Voice Agent"
           description="Define conversation parameters, qualification criteria, approved talking points, and anti-hallucination guardrails."
           breadcrumbs={[
-            { label: "Home", href: "/dashboard" },
+            { label: "Workspace", href: "/dashboard" },
             { label: "AI Calling", href: "/calling" },
             { label: "Voice Agents", href: "/calling/agents" },
             { label: "New Agent" },

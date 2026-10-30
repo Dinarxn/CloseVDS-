@@ -16,7 +16,7 @@ export function OutreachIntroduction() {
             <h2 className="text-base font-semibold text-white tracking-tight">
               Permission-Gated Outreach Pipeline
             </h2>
-            <Badge variant="solid" size="sm">Human-in-the-Loop</Badge>
+            <Badge variant="solid" size="sm" className="bg-[#7D39EB] text-white">Human-in-the-Loop</Badge>
           </div>
           <p className="text-xs text-zinc-400 leading-relaxed max-w-3xl font-sans">
             closeVDS operates with strict permission gates. The AI researches leads, audits website gaps, and drafts hyper-personalized copy — but no outbound communication is ever sent without your explicit review and approval.
@@ -31,10 +31,10 @@ export function OutreachIntroduction() {
           <p className="text-[11px] text-zinc-400 leading-snug">Identifies verified business gaps from website audit.</p>
         </div>
 
-        <div className="p-3.5 bg-surface-elevated border border-white/[0.22] rounded-xl space-y-1 shadow-xs">
+        <div className="p-3.5 bg-surface-elevated border border-[#7D39EB]/40 rounded-xl space-y-1 shadow-[0_0_15px_rgba(125,57,235,0.12)]">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-white uppercase font-bold">Gate 2 &bull; Active</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+            <span className="text-[10px] font-mono text-[#C6FF33] uppercase font-bold">Gate 2 &bull; Active</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />
           </div>
           <p className="text-xs font-semibold text-white tracking-tight">Operator Review</p>
           <p className="text-[11px] text-zinc-300 leading-snug">You review subject, body, and CTA before any dispatch.</p>

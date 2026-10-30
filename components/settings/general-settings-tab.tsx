@@ -17,7 +17,7 @@ export function GeneralSettingsTab({
   return (
     <div className="space-y-5">
       {/* 1. Workspace Profile */}
-      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-5 space-y-4 shadow-sm">
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-5 space-y-4 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
 
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
@@ -54,7 +54,7 @@ export function GeneralSettingsTab({
       </div>
 
       {/* 2. Operator Alert Preferences */}
-      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-subtle p-5 space-y-4 shadow-sm">
+      <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-5 space-y-4 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" aria-hidden="true" />
 
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">

@@ -31,8 +31,8 @@ export function CallsTable({
 }: CallsTableProps) {
   if (isLoading) {
     return (
-      <div className="border border-white/[0.08] rounded-xl bg-[#0c0c12] p-12 text-center space-y-3 shadow-xs">
-        <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto" />
+      <div className="border border-white/[0.08] rounded-xl bg-surface-card p-12 text-center space-y-3 shadow-xs">
+        <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
         <p className="text-xs text-zinc-400 font-mono">Loading call queue from workspace...</p>
       </div>
     );
@@ -40,11 +40,11 @@ export function CallsTable({
 
   if (calls.length === 0) {
     return (
-      <div className="relative overflow-hidden border border-white/[0.08] rounded-xl bg-[#09090f]/90 p-8 sm:p-12 text-center space-y-3.5 shadow-xs">
+      <div className="relative overflow-hidden border border-white/[0.08] rounded-xl bg-surface-card p-8 sm:p-12 text-center space-y-3.5 shadow-xs">
         {/* Hairline reflection */}
         <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-white/[0.1] to-transparent pointer-events-none" />
 
-        <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
+        <div className="w-10 h-10 rounded-xl bg-surface-panel border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
           <svg className="w-4.5 h-4.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
           </svg>
@@ -57,7 +57,7 @@ export function CallsTable({
           <h4 className="text-sm sm:text-base font-semibold text-white tracking-tight">No calls found</h4>
         </div>
 
-        <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+        <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed font-sans">
           No calls match your active filter criteria or no calls have been prepared yet.
         </p>
 
@@ -78,19 +78,19 @@ export function CallsTable({
   }
 
   return (
-    <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-[#0c0c12] shadow-xs">
+    <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-surface-card shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-white/[0.07] bg-[#08080d] text-zinc-400 uppercase tracking-wider font-mono text-[10px]">
-              <th className="py-3 px-4">Prospect &amp; Company</th>
-              <th className="py-3 px-4">Contact Phone</th>
-              <th className="py-3 px-4">Voice Agent &amp; Objective</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Outcome</th>
-              <th className="py-3 px-4">Duration</th>
-              <th className="py-3 px-4">Created</th>
-              <th className="py-3 px-4 text-right">Actions</th>
+            <tr className="border-b border-white/[0.08] bg-surface-panel/90 text-zinc-400 uppercase tracking-wider font-mono text-[10px]">
+              <th className="py-3 px-4 font-semibold">Prospect &amp; Company</th>
+              <th className="py-3 px-4 font-semibold">Contact Phone</th>
+              <th className="py-3 px-4 font-semibold">Voice Agent &amp; Objective</th>
+              <th className="py-3 px-4 font-semibold">Status</th>
+              <th className="py-3 px-4 font-semibold">Outcome</th>
+              <th className="py-3 px-4 font-semibold">Duration</th>
+              <th className="py-3 px-4 font-semibold">Created</th>
+              <th className="py-3 px-4 text-right font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04] text-white">
@@ -101,16 +101,16 @@ export function CallsTable({
               return (
                 <tr
                   key={call.id}
-                  className="hover:bg-white/[0.02] transition-colors"
+                  className="hover:bg-violet-950/15 transition-colors group"
                 >
                   <td className="py-3 px-4 font-medium">
                     <Link
                       href={`/calling/calls/${call.id}`}
-                      className="hover:underline hover:text-white"
+                      className="hover:text-violet-400 transition-colors block"
                     >
-                      <div className="font-semibold text-white">{call.lead?.businessName || "Unnamed Lead"}</div>
+                      <div className="font-semibold text-white tracking-tight">{call.lead?.businessName || "Unnamed Lead"}</div>
                     </Link>
-                    <div className="text-[11px] text-zinc-400">
+                    <div className="text-[11px] text-zinc-400 font-sans">
                       {call.contact?.fullName || "Primary Contact"}
                     </div>
                   </td>
@@ -121,7 +121,7 @@ export function CallsTable({
 
                   <td className="py-3 px-4 text-zinc-300">
                     <div className="font-medium text-white">{call.agentConfig?.name || "AI Voice Agent"}</div>
-                    <div className="text-[11px] text-zinc-400 truncate max-w-[180px]">
+                    <div className="text-[11px] text-zinc-400 truncate max-w-[180px] font-sans">
                       {call.campaign?.targetOffer || "Client Acquisition"}
                     </div>
                   </td>
@@ -149,7 +149,7 @@ export function CallsTable({
                           <Button
                             variant="primary"
                             size="sm"
-                            className="text-[11px] h-7 px-2.5 bg-emerald-600/90 hover:bg-emerald-500 text-white font-medium shadow-none"
+                            className="text-[11px] h-7 px-2.5 bg-lime-500/10 hover:bg-lime-500/20 text-[#C6FF33] border border-lime-500/30 font-semibold shadow-none"
                             onClick={() => onApprove?.(call)}
                           >
                             Approve
@@ -170,7 +170,7 @@ export function CallsTable({
                           <Button
                             variant="primary"
                             size="sm"
-                            className="text-[11px] h-7 px-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
+                            className="text-[11px] h-7 px-2.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs"
                             onClick={() => onDispatch?.(call)}
                           >
                             Dispatch
@@ -179,7 +179,7 @@ export function CallsTable({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-[11px] h-7 px-2 text-zinc-400 hover:text-rose-400"
+                              className="text-[11px] h-7 px-2 text-zinc-400 hover:text-rose-400 hover:bg-rose-950/20"
                               onClick={() => onCancel(call)}
                               title="Cancel approved call before dialing"
                             >
@@ -194,13 +194,13 @@ export function CallsTable({
                         size="sm"
                         className="text-[11px] h-7 px-2 text-zinc-400 hover:text-white"
                         onClick={() => onCheckSafety?.(call)}
-                        title="Evaluate 18 server safety gates"
+                        title="Evaluate server safety gates"
                       >
                         Safety
                       </Button>
 
                       <Link href={`/calling/calls/${call.id}`}>
-                        <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 border-white/[0.08] hover:border-white/[0.2]">
+                        <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 border-white/[0.08] hover:border-white/[0.2] hover:bg-surface-elevated">
                           View
                         </Button>
                       </Link>

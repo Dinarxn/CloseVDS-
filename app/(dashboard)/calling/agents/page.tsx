@@ -38,7 +38,7 @@ export default function VoiceAgentsPage() {
   }, [fetchAgents]);
 
   return (
-    <PageContainer>
+    <PageContainer maxWidth="xl">
       <div className="space-y-6">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
@@ -46,7 +46,7 @@ export default function VoiceAgentsPage() {
             title="AI Voice Agents"
             description="Manage conversational personas, qualification criteria, approved talking points, and anti-hallucination rules."
             breadcrumbs={[
-              { label: "closeVDS", href: "/dashboard" },
+              { label: "Workspace", href: "/dashboard" },
               { label: "AI Calling", href: "/calling" },
               { label: "Voice Agents" },
             ]}
@@ -54,7 +54,11 @@ export default function VoiceAgentsPage() {
 
           <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
             <Link href="/calling/agents/new">
-              <Button variant="primary" size="sm" className="h-8.5 px-3.5 font-medium shadow-xs">
+              <Button
+                variant="primary"
+                size="sm"
+                className="h-8.5 px-3.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs"
+              >
                 <svg className="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -83,7 +87,7 @@ export default function VoiceAgentsPage() {
                   Factual Grounding Guardrails Enforced
                 </span>
               </div>
-              <p className="text-xs text-amber-200/75 leading-relaxed max-w-4xl">
+              <p className="text-xs text-amber-200/75 leading-relaxed max-w-4xl font-sans">
                 AI-generated content must remain grounded in verified lead data and approved acquisition intelligence. The calling agent will not invent facts, unverified capabilities, or unauthorized discounts.
               </p>
             </div>
@@ -98,24 +102,24 @@ export default function VoiceAgentsPage() {
             </svg>
             <div className="space-y-1">
               <h4 className="text-xs font-semibold text-rose-300">Service Communication Error</h4>
-              <p className="text-xs text-rose-200/80 leading-relaxed">{errorMsg}</p>
+              <p className="text-xs text-rose-200/80 leading-relaxed font-sans">{errorMsg}</p>
             </div>
           </div>
         )}
 
         {/* Workspace Body */}
         {isLoading ? (
-          <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-[#0c0c12]/90 shadow-xs overflow-hidden">
+          <div className="relative p-12 text-center border border-white/[0.08] rounded-xl bg-surface-card shadow-xs overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-            <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
               Loading voice agent configurations...
             </p>
           </div>
         ) : agents.length === 0 ? (
-          <div className="relative p-10 sm:p-14 text-center border border-white/[0.08] rounded-xl bg-[#09090f]/90 space-y-3.5 shadow-xs overflow-hidden">
+          <div className="relative p-10 sm:p-14 text-center border border-white/[0.08] rounded-xl bg-surface-card space-y-3.5 shadow-xs overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-            <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
+            <div className="w-10 h-10 rounded-xl bg-surface-panel border border-white/[0.08] flex items-center justify-center mx-auto text-zinc-400">
               <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
               </svg>
@@ -127,13 +131,13 @@ export default function VoiceAgentsPage() {
               <h4 className="text-sm sm:text-base font-semibold text-white tracking-tight">
                 No voice agents configured
               </h4>
-              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
+              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed font-sans">
                 Create your first AI voice agent persona with customized objectives, qualification questions, and prohibited claims.
               </p>
             </div>
             <div className="pt-2">
               <Link href="/calling/agents/new">
-                <Button variant="primary" size="sm" className="h-8.5 px-4 font-medium shadow-xs">
+                <Button variant="primary" size="sm" className="h-8.5 px-4 bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs">
                   <svg className="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>

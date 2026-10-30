@@ -55,9 +55,9 @@ export function OutreachActivityTimeline({
       case "EMAIL_SENT":
         return <Badge variant="secondary" size="sm" className="font-mono text-[10px]">Email Sent</Badge>;
       case "CALL_LOG":
-        return <Badge variant="solid" size="sm" className="font-mono text-[10px]">Phone Call</Badge>;
+        return <Badge variant="solid" size="sm" className="font-mono text-[10px] bg-[#7D39EB] text-white">Phone Call</Badge>;
       case "EMAIL_REPLIED":
-        return <Badge variant="success" size="sm" className="font-mono text-[10px]">Replied</Badge>;
+        return <Badge variant="success" size="sm" className="font-mono text-[10px] bg-[#C6FF33]/15 text-[#C6FF33] border border-[#C6FF33]/30">Replied</Badge>;
       case "STAGE_CHANGE":
         return <Badge variant="warning" size="sm" className="font-mono text-[10px]">Stage Shift</Badge>;
       case "NOTE":
@@ -76,7 +76,7 @@ export function OutreachActivityTimeline({
 
       <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />
           <h4 className="text-xs font-semibold uppercase tracking-wider text-white font-mono">
             Lead CRM Outreach Timeline
           </h4>

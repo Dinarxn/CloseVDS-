@@ -38,7 +38,7 @@ export function OutreachLeadSelector({
   onNextPage,
 }: OutreachLeadSelectorProps) {
   return (
-    <div className="relative flex flex-col h-full bg-surface-panel border border-white/[0.08] rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+    <div className="relative flex flex-col h-full bg-surface-card border border-white/[0.08] rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
       {/* Specular hairline top reflection */}
       <div
         className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
@@ -46,10 +46,10 @@ export function OutreachLeadSelector({
       />
 
       {/* Top Filter Bar */}
-      <div className="p-3.5 bg-surface-card border-b border-white/[0.07] space-y-2.5">
+      <div className="p-3.5 bg-surface-panel/90 border-b border-white/[0.08] space-y-2.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#7D39EB] shrink-0" />
             <h3 className="text-xs font-semibold uppercase tracking-wider text-white font-mono">
               Target Leads Directory
             </h3>
@@ -67,13 +67,13 @@ export function OutreachLeadSelector({
               placeholder="Search company, city, contact..."
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="h-8 text-xs bg-white/[0.03] border-white/[0.10] text-white placeholder:text-zinc-500 rounded-lg focus:border-white/30"
+              className="h-8.5 text-xs bg-surface-card border-white/[0.08] text-white placeholder:text-zinc-500 rounded-lg focus:border-violet-500/50"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
-                className="absolute right-2.5 top-2 text-zinc-400 hover:text-white text-xs cursor-pointer"
+                className="absolute right-2.5 top-2.5 text-zinc-400 hover:text-white text-xs cursor-pointer"
                 aria-label="Clear search"
               >
                 ✕
@@ -84,7 +84,7 @@ export function OutreachLeadSelector({
           <select
             value={statusFilter}
             onChange={(e) => onStatusFilterChange(e.target.value)}
-            className="h-8 px-2.5 text-xs bg-surface-elevated border border-white/[0.10] text-zinc-200 rounded-lg focus:outline-none focus:border-white/30 cursor-pointer font-sans"
+            className="h-8.5 px-2.5 text-xs bg-surface-elevated border border-white/[0.10] text-zinc-200 rounded-lg focus:outline-none focus:border-violet-500/50 cursor-pointer font-sans"
             aria-label="Filter leads by status"
           >
             <option value="">All Statuses</option>
@@ -102,13 +102,13 @@ export function OutreachLeadSelector({
       <div className="flex-1 overflow-y-auto divide-y divide-white/[0.04] min-h-[360px] max-h-[560px]">
         {isLoading ? (
           <div className="p-12 text-center space-y-3">
-            <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-xs text-zinc-400 font-mono">Loading leads from workspace...</p>
           </div>
         ) : leads.length === 0 ? (
-          <div className="p-8 text-center space-y-2">
+          <div className="p-8 text-center space-y-2 font-mono">
             <p className="text-xs font-medium text-zinc-300">No leads match your filter</p>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-zinc-500 font-sans">
               Try adjusting your search terms or clearing the status filter.
             </p>
           </div>
@@ -118,6 +118,7 @@ export function OutreachLeadSelector({
             const isOptedOut = lead.status === "opted_out";
             const hasEmail = Boolean(lead.email);
             const hasPhone = Boolean(lead.phone);
+            const score = lead.qualification?.totalScore;
 
             return (
               <button
@@ -126,7 +127,7 @@ export function OutreachLeadSelector({
                 onClick={() => onSelectLead(lead)}
                 className={`w-full text-left p-3.5 transition-all cursor-pointer flex flex-col gap-1.5 ${
                   isSelected
-                    ? "bg-surface-card-hover border-l-2 border-l-white"
+                    ? "bg-violet-950/20 border-l-2 border-l-[#7D39EB]"
                     : "hover:bg-white/[0.03]"
                 }`}
               >
@@ -135,7 +136,7 @@ export function OutreachLeadSelector({
                     <span className="text-xs font-semibold text-white truncate block tracking-tight">
                       {lead.companyName}
                     </span>
-                    <span className="text-[11px] text-zinc-400 truncate block mt-0.5">
+                    <span className="text-[11px] text-zinc-400 truncate block mt-0.5 font-sans">
                       {lead.contactName ? `${lead.contactName} · ` : ""}
                       {lead.city || "Area unlisted"}
                     </span>
@@ -155,9 +156,9 @@ export function OutreachLeadSelector({
                   ) : (
                     <>
                       <span
-                        className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
                           hasEmail
-                            ? "bg-emerald-950/30 text-emerald-300 border-emerald-500/25"
+                            ? "bg-lime-500/10 text-[#C6FF33] border-lime-500/25"
                             : "bg-surface-panel text-zinc-500 border-white/[0.05]"
                         }`}
                         title={hasEmail ? `Email: ${lead.email}` : "No email available"}
@@ -166,9 +167,9 @@ export function OutreachLeadSelector({
                       </span>
 
                       <span
-                        className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
                           hasPhone
-                            ? "bg-white/[0.06] text-zinc-200 border-white/[0.12]"
+                            ? "bg-violet-500/10 text-violet-300 border-violet-500/25"
                             : "bg-surface-panel text-zinc-500 border-white/[0.05]"
                         }`}
                         title={hasPhone ? `Phone: ${lead.phone}` : "No phone available"}
@@ -176,9 +177,13 @@ export function OutreachLeadSelector({
                         {hasPhone ? "Phone ✓" : "No Phone"}
                       </span>
 
-                      {lead.qualification?.totalScore !== undefined && (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 text-zinc-400 tabular-nums">
-                          {lead.qualification.totalScore} pts
+                      {score !== undefined && (
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border tabular-nums ${
+                          score >= 70
+                            ? "bg-lime-500/15 text-[#C6FF33] border-lime-500/35 font-bold"
+                            : "bg-surface-panel text-zinc-400 border-white/[0.06]"
+                        }`}>
+                          {score} pts
                         </span>
                       )}
                     </>
@@ -191,7 +196,7 @@ export function OutreachLeadSelector({
       </div>
 
       {/* Pagination Footer */}
-      <div className="p-3 bg-surface-card border-t border-white/[0.07] flex items-center justify-between text-xs">
+      <div className="p-3 bg-surface-panel/90 border-t border-white/[0.08] flex items-center justify-between text-xs">
         <span className="text-[11px] font-mono text-zinc-400 tabular-nums">
           Page {page} of {Math.max(1, totalPages)}
         </span>
@@ -200,7 +205,7 @@ export function OutreachLeadSelector({
             type="button"
             onClick={onPrevPage}
             disabled={page <= 1 || isLoading}
-            className="px-2.5 py-1 rounded text-[11px] font-medium border border-white/[0.10] text-zinc-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-white/[0.10] text-zinc-300 hover:text-white bg-surface-card hover:bg-surface-elevated disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
           >
             Prev
           </button>
@@ -208,7 +213,7 @@ export function OutreachLeadSelector({
             type="button"
             onClick={onNextPage}
             disabled={page >= totalPages || isLoading}
-            className="px-2.5 py-1 rounded text-[11px] font-medium border border-white/[0.10] text-zinc-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-white/[0.10] text-zinc-300 hover:text-white bg-surface-card hover:bg-surface-elevated disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
           >
             Next
           </button>

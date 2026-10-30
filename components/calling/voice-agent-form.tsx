@@ -191,10 +191,11 @@ export function VoiceAgentForm({
       )}
 
       {/* Language & Provider Context */}
-      <div className="p-4 rounded-xl bg-[#0c0c14] border border-white/[0.08] space-y-3">
+      <div className="p-4 rounded-xl bg-surface-card border border-white/[0.08] space-y-3 relative overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium block">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold block">
               Language &amp; Telephony Model
             </span>
             <h4 className="text-xs font-semibold text-white">Calling Language &amp; Script Presets</h4>
@@ -203,26 +204,26 @@ export function VoiceAgentForm({
             <button
               type="button"
               onClick={handleApplyEnglishPreset}
-              className="px-2.5 py-1 text-xs font-medium rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 border border-white/[0.08] transition-colors cursor-pointer"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-elevated hover:bg-surface-panel text-zinc-200 hover:text-white border border-white/[0.08] transition-colors cursor-pointer"
             >
               English Preset
             </button>
             <button
               type="button"
               onClick={handleApplyHindiPreset}
-              className="px-2.5 py-1 text-xs font-medium rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition-colors cursor-pointer"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-violet-500/15 hover:bg-violet-500/25 text-violet-300 border border-violet-500/35 transition-colors cursor-pointer"
             >
               Hindi Preset (हिन्दी)
             </button>
           </div>
         </div>
-        <p className="text-[11px] text-zinc-400 leading-relaxed">
+        <p className="text-[11px] text-zinc-400 leading-relaxed font-sans">
           The backend connects via the Twilio Voice Adapter. Text scripts configured here are synthesized via Twilio TTS and real-time audio streams. Hindi script templates are natively supported when text is entered in Hindi or Hinglish.
         </p>
       </div>
 
       {/* Core Profile */}
-      <Card variant="standard">
+      <Card variant="standard" className="bg-surface-card border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
         <CardHeader>
           <CardTitle>Voice Agent Identity &amp; Objective</CardTitle>
           <CardDescription>
@@ -280,7 +281,7 @@ export function VoiceAgentForm({
       </Card>
 
       {/* Qualification Questions */}
-      <Card variant="standard">
+      <Card variant="standard" className="bg-surface-card border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
         <CardHeader>
           <CardTitle>Qualification Questions</CardTitle>
           <CardDescription>
@@ -297,7 +298,7 @@ export function VoiceAgentForm({
               onChange={(e) => setNewQuestion(e.target.value)}
               className="flex-1"
             />
-            <Button type="button" variant="secondary" onClick={handleAddQuestion}>
+            <Button type="button" variant="secondary" onClick={handleAddQuestion} className="border-white/[0.08]">
               Add
             </Button>
           </div>
@@ -306,13 +307,13 @@ export function VoiceAgentForm({
             {qualificationQuestions.map((q, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-[#0d0d12] border border-white/[0.06] text-xs text-white"
+                className="flex items-center justify-between p-3 rounded-xl bg-surface-panel border border-white/[0.06] text-xs text-white"
               >
                 <span>{q}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveQuestion(idx)}
-                  className="text-zinc-500 hover:text-rose-400 p-1 transition-colors"
+                  className="text-zinc-500 hover:text-rose-400 p-1 transition-colors cursor-pointer"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -326,7 +327,7 @@ export function VoiceAgentForm({
 
       {/* Approved Talking Points & Prohibited Claims */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card variant="standard">
+        <Card variant="standard" className="bg-surface-card border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
           <CardHeader>
             <CardTitle>Approved Talking Points</CardTitle>
             <CardDescription>Verified value assertions.</CardDescription>
@@ -340,7 +341,7 @@ export function VoiceAgentForm({
                 onChange={(e) => setNewPoint(e.target.value)}
                 className="flex-1"
               />
-              <Button type="button" variant="secondary" onClick={handleAddPoint}>
+              <Button type="button" variant="secondary" onClick={handleAddPoint} className="border-white/[0.08]">
                 Add
               </Button>
             </div>
@@ -348,13 +349,16 @@ export function VoiceAgentForm({
               {approvedTalkingPoints.map((tp, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[#0d0d12] border border-white/[0.06] text-xs text-white"
+                  className="flex items-center justify-between p-3 rounded-xl bg-surface-panel border border-white/[0.06] text-xs text-white"
                 >
-                  <span>{tp}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />
+                    <span>{tp}</span>
+                  </span>
                   <button
                     type="button"
                     onClick={() => handleRemovePoint(idx)}
-                    className="text-zinc-500 hover:text-rose-400 p-1 transition-colors"
+                    className="text-zinc-500 hover:text-rose-400 p-1 transition-colors cursor-pointer"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -366,9 +370,9 @@ export function VoiceAgentForm({
           </CardContent>
         </Card>
 
-        <Card variant="standard" className="border-rose-950/40">
+        <Card variant="standard" className="bg-surface-card border-rose-500/25 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
           <CardHeader>
-            <CardTitle className="text-rose-400">Prohibited Claims</CardTitle>
+            <CardTitle className="text-rose-300">Prohibited Claims</CardTitle>
             <CardDescription>Strictly forbidden claims.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -380,7 +384,7 @@ export function VoiceAgentForm({
                 onChange={(e) => setNewProhibited(e.target.value)}
                 className="flex-1"
               />
-              <Button type="button" variant="secondary" onClick={handleAddProhibited}>
+              <Button type="button" variant="secondary" onClick={handleAddProhibited} className="border-white/[0.08]">
                 Add
               </Button>
             </div>
@@ -388,13 +392,16 @@ export function VoiceAgentForm({
               {prohibitedClaims.map((pc, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[#0d0d12] border border-rose-900/40 text-xs text-rose-200"
+                  className="flex items-center justify-between p-3 rounded-xl bg-surface-panel border border-rose-500/25 text-xs text-rose-200"
                 >
-                  <span>{pc}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
+                    <span>{pc}</span>
+                  </span>
                   <button
                     type="button"
                     onClick={() => handleRemoveProhibited(idx)}
-                    className="text-zinc-500 hover:text-rose-400 p-1 transition-colors"
+                    className="text-zinc-500 hover:text-rose-400 p-1 transition-colors cursor-pointer"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -408,9 +415,9 @@ export function VoiceAgentForm({
       </div>
 
       {/* Escalation Conditions */}
-      <Card variant="standard" className="border-amber-950/40">
+      <Card variant="standard" className="bg-surface-card border-amber-500/25 shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
         <CardHeader>
-          <CardTitle>Escalation &amp; Call Termination Rules</CardTitle>
+          <CardTitle className="text-amber-300">Escalation &amp; Call Termination Rules</CardTitle>
           <CardDescription>
             Conditions where the AI agent must immediately end call, offer human callback, or register an opt-out.
           </CardDescription>
@@ -424,7 +431,7 @@ export function VoiceAgentForm({
               onChange={(e) => setNewEscalation(e.target.value)}
               className="flex-1"
             />
-            <Button type="button" variant="secondary" onClick={handleAddEscalation}>
+            <Button type="button" variant="secondary" onClick={handleAddEscalation} className="border-white/[0.08]">
               Add
             </Button>
           </div>
@@ -432,13 +439,16 @@ export function VoiceAgentForm({
             {escalationConditions.map((ec, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-[#0d0d12] border border-amber-900/40 text-xs text-amber-200"
+                className="flex items-center justify-between p-3 rounded-xl bg-surface-panel border border-amber-500/25 text-xs text-amber-200"
               >
-                <span>{ec}</span>
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                  <span>{ec}</span>
+                </span>
                 <button
                   type="button"
                   onClick={() => handleRemoveEscalation(idx)}
-                  className="text-zinc-500 hover:text-rose-400 p-1 transition-colors"
+                  className="text-zinc-500 hover:text-rose-400 p-1 transition-colors cursor-pointer"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -452,7 +462,12 @@ export function VoiceAgentForm({
 
       {/* Form Submission */}
       <div className="flex justify-end gap-3 pt-2">
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={isSubmitting}
+          className="bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs px-5 h-9"
+        >
           {isSubmitting ? "Saving Configuration..." : initialData ? "Update Voice Agent" : "Create Voice Agent"}
         </Button>
       </div>

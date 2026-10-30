@@ -73,7 +73,7 @@ export function AcquisitionFunnelView({
                     </div>
                     <div className="text-right min-w-[75px]">
                       <span className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider block">Conversion</span>
-                      <span className={`font-mono text-xs tabular-nums ${stage.count > 0 ? "text-emerald-400 font-semibold" : "text-zinc-500"}`}>
+                      <span className={`font-mono text-xs tabular-nums ${stage.count > 0 ? "text-[#C6FF33] font-semibold" : "text-zinc-500"}`}>
                         {stage.count > 0 ? `${stage.conversionRateFromPrevious}%` : "—"}
                       </span>
                     </div>
@@ -83,7 +83,7 @@ export function AcquisitionFunnelView({
                 {/* Visual Proportional Funnel Bar */}
                 <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-zinc-400 to-zinc-100 rounded-full transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-[#7D39EB] to-[#C6FF33] rounded-full transition-all duration-300"
                     style={{ width: `${widthPct}%` }}
                   />
                 </div>

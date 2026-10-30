@@ -58,34 +58,42 @@ export function CallRejectModal({
           </Alert>
         )}
 
-        <Input
-          id="rejection-reason"
-          label="Rejection Reason (Optional)"
-          placeholder="e.g., Prospect requested removal, contact mismatch, unqualified niche..."
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          disabled={isSubmitting}
-          helperText="Reason will be logged in the call audit timeline."
-        />
+        <div className="space-y-2">
+          <label htmlFor="reject-reason" className="text-xs font-medium text-zinc-300 block">
+            Disqualification Reason (Optional)
+          </label>
+          <Input
+            id="reject-reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="e.g., Prospect requested removal, bad data, wrong persona..."
+            className="text-xs bg-surface-panel border-white/[0.08] focus:border-rose-500/50"
+            disabled={isSubmitting}
+          />
+          <p className="text-[11px] text-zinc-400 font-sans">
+            Recorded in the CRM audit trail to document why the outreach was halted.
+          </p>
+        </div>
 
-        <div className="flex items-center justify-end space-x-3 pt-3 border-t border-white/[0.08]">
+        <div className="flex justify-end gap-2 pt-2">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={onClose}
             disabled={isSubmitting}
+            className="border-white/[0.08]"
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            variant="primary"
+            variant="destructive"
             size="sm"
             disabled={isSubmitting}
-            className="bg-rose-700 hover:bg-rose-600 text-white font-semibold"
+            className="bg-rose-600 hover:bg-rose-500 font-semibold"
           >
-            {isSubmitting ? "Rejecting..." : "Confirm Rejection"}
+            {isSubmitting ? "Disqualifying..." : "Confirm Rejection"}
           </Button>
         </div>
       </form>

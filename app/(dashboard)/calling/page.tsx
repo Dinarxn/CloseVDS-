@@ -160,8 +160,8 @@ export default function CallingDashboardPage() {
         title="AI Calling Agent"
         description="Autonomous voice outreach supervision, human approval queue, and grounded context evaluation."
         breadcrumbs={[
-          { label: "closeVDS", href: "/dashboard" },
-          { label: "AI Calling" },
+          { label: "Workspace", href: "/dashboard" },
+          { label: "AI Calling Overview" },
         ]}
         action={
           <div className="flex items-center gap-2 flex-wrap">
@@ -169,19 +169,19 @@ export default function CallingDashboardPage() {
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-8 px-3 text-xs bg-[#101017] hover:bg-[#161622] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
+                className="h-8.5 px-3 text-xs bg-surface-card hover:bg-surface-elevated text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
               >
                 <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <span>Call Queue</span>
+                <span>Call Queue &amp; History</span>
               </Button>
             </Link>
             <Link href="/calling/agents">
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-8 px-3 text-xs bg-[#101017] hover:bg-[#161622] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
+                className="h-8.5 px-3 text-xs bg-surface-card hover:bg-surface-elevated text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-1.5"
               >
                 <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -193,8 +193,9 @@ export default function CallingDashboardPage() {
               variant="primary"
               size="sm"
               onClick={() => setIsPrepModalOpen(true)}
-              className="h-8 px-3.5 text-xs bg-white text-zinc-950 hover:bg-zinc-200 font-semibold shadow-xs flex items-center gap-1.5"
+              className="h-8.5 px-3.5 text-xs bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs flex items-center gap-1.5"
             >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] animate-pulse" />
               <span>+ Prepare AI Call</span>
             </Button>
           </div>
@@ -210,12 +211,12 @@ export default function CallingDashboardPage() {
             <span className="font-mono text-[11px] uppercase tracking-wider text-amber-300 font-medium block">
               Calling System Notice
             </span>
-            <p className="text-amber-200/80 leading-relaxed">{errorMsg}</p>
+            <p className="text-amber-200/80 leading-relaxed font-sans">{errorMsg}</p>
           </div>
         </div>
       )}
 
-      {/* 10 Operational Calling KPIs */}
+      {/* Operational Calling KPIs */}
       <CallingKpiGrid
         analytics={analytics}
         queuedCount={queuedCount}
@@ -253,14 +254,14 @@ export default function CallingDashboardPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33]" />
             <h3 className="text-sm font-semibold text-white tracking-tight">Recent Voice Outreach Calls</h3>
           </div>
           <Link
             href="/calling/calls"
-            className="text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+            className="text-xs text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1 font-mono"
           >
-            <span>View Full Call Queue</span>
+            <span>View Full Call Queue &amp; History</span>
             <span>&rarr;</span>
           </Link>
         </div>
@@ -277,37 +278,37 @@ export default function CallingDashboardPage() {
         />
       </div>
 
-        {/* Modals */}
-        <CallPreparationModal
-          isOpen={isPrepModalOpen}
-          onClose={() => setIsPrepModalOpen(false)}
-          onCallCreated={() => {
-            fetchData();
-          }}
-        />
+      {/* Modals */}
+      <CallPreparationModal
+        isOpen={isPrepModalOpen}
+        onClose={() => setIsPrepModalOpen(false)}
+        onCallCreated={() => {
+          fetchData();
+        }}
+      />
 
-        <CallSafetyModal
-          isOpen={Boolean(safetyModalCallId)}
-          callId={safetyModalCallId || ""}
-          onClose={() => setSafetyModalCallId(null)}
-        />
+      <CallSafetyModal
+        isOpen={Boolean(safetyModalCallId)}
+        callId={safetyModalCallId || ""}
+        onClose={() => setSafetyModalCallId(null)}
+      />
 
-        <CallDispatchModal
-          isOpen={Boolean(dispatchModalCall)}
-          call={dispatchModalCall}
-          providerConfigured={twilioConfigured}
-          onClose={() => setDispatchModalCall(null)}
-          onDispatched={() => {
-            fetchData();
-          }}
-        />
+      <CallDispatchModal
+        isOpen={Boolean(dispatchModalCall)}
+        call={dispatchModalCall}
+        providerConfigured={twilioConfigured}
+        onClose={() => setDispatchModalCall(null)}
+        onDispatched={() => {
+          fetchData();
+        }}
+      />
 
-        <CallRejectModal
-          isOpen={Boolean(rejectingCall)}
-          leadName={rejectingCall?.lead?.businessName}
-          onClose={() => setRejectingCall(null)}
-          onConfirm={handleConfirmReject}
-        />
+      <CallRejectModal
+        isOpen={Boolean(rejectingCall)}
+        leadName={rejectingCall?.lead?.businessName}
+        onClose={() => setRejectingCall(null)}
+        onConfirm={handleConfirmReject}
+      />
     </PageContainer>
   );
 }

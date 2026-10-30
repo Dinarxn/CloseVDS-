@@ -27,11 +27,17 @@ export function CrmImpactCard({ call }: CrmImpactCardProps) {
     call.status === "OPTED_OUT";
 
   return (
-    <Card variant="standard">
+    <Card variant="standard" className="bg-surface-card border-white/[0.08] relative overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+      {/* Top hairline reflection */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
+
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <CardTitle>CRM &amp; Pipeline Impact</CardTitle>
-          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#171717] text-[#a3a3a3] border border-[#404040]">
+          <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-surface-elevated text-zinc-300 border border-white/[0.08] font-medium">
             Backend Synchronized
           </span>
         </div>
@@ -42,17 +48,17 @@ export function CrmImpactCard({ call }: CrmImpactCardProps) {
 
       <CardContent className="space-y-3">
         {/* 1. CRM Activity Log */}
-        <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[#404040] flex items-start gap-3">
+        <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.06] flex items-start gap-3">
           <span
             className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-              isTerminal ? "bg-emerald-400" : "bg-[#737373]"
+              isTerminal ? "bg-[#C6FF33]" : "bg-zinc-600"
             }`}
           />
           <div className="space-y-0.5 flex-1 text-xs">
             <div className="font-semibold text-white">
-              CRM Activity Record: <span className="font-mono text-emerald-400">CALL_LOG</span>
+              CRM Activity Record: <span className="font-mono text-[#C6FF33]">CALL_LOG</span>
             </div>
-            <p className="text-[#a3a3a3]">
+            <p className="text-zinc-400 font-sans">
               {isTerminal
                 ? `Logged under Lead '${call.lead?.businessName || call.leadId}'. Outcome: ${call.outcome?.outcome || call.status}.`
                 : "Activity record will be generated automatically when call concludes."}
@@ -61,21 +67,21 @@ export function CrmImpactCard({ call }: CrmImpactCardProps) {
         </div>
 
         {/* 2. Lead Stage Update */}
-        <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[#404040] flex items-start gap-3">
+        <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.06] flex items-start gap-3">
           <span
             className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
               isOptedOut
-                ? "bg-red-400"
+                ? "bg-rose-400"
                 : isMeeting
-                ? "bg-emerald-400"
+                ? "bg-[#C6FF33]"
                 : hasOutcome
-                ? "bg-blue-400"
-                : "bg-[#737373]"
+                ? "bg-violet-400"
+                : "bg-zinc-600"
             }`}
           />
           <div className="space-y-0.5 flex-1 text-xs">
             <div className="font-semibold text-white">Pipeline Stage Disposition</div>
-            <p className="text-[#a3a3a3]">
+            <p className="text-zinc-400 font-sans">
               {isOptedOut
                 ? "Stage advanced to: OPT_OUT (Removed from active pipeline)"
                 : isMeeting
@@ -90,15 +96,15 @@ export function CrmImpactCard({ call }: CrmImpactCardProps) {
         </div>
 
         {/* 3. Follow-Up Task */}
-        <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[#404040] flex items-start gap-3">
+        <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.06] flex items-start gap-3">
           <span
             className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-              isMeeting || isCallback ? "bg-cyan-400" : "bg-[#737373]"
+              isMeeting || isCallback ? "bg-violet-400" : "bg-zinc-600"
             }`}
           />
           <div className="space-y-0.5 flex-1 text-xs">
             <div className="font-semibold text-white">Actionable Follow-Up Task</div>
-            <p className="text-[#a3a3a3]">
+            <p className="text-zinc-400 font-sans">
               {isMeeting
                 ? "Demo follow-up scheduled (+1 day SLA) assigned to human reviewer."
                 : isCallback
@@ -109,15 +115,15 @@ export function CrmImpactCard({ call }: CrmImpactCardProps) {
         </div>
 
         {/* 4. Suppression Enforcement */}
-        <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[#404040] flex items-start gap-3">
+        <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.06] flex items-start gap-3">
           <span
             className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-              isOptedOut ? "bg-red-500 animate-pulse" : "bg-emerald-400"
+              isOptedOut ? "bg-rose-500 animate-pulse" : "bg-[#C6FF33]"
             }`}
           />
           <div className="space-y-0.5 flex-1 text-xs">
             <div className="font-semibold text-white">Suppression &amp; Compliance Enclosure</div>
-            <p className="text-[#a3a3a3]">
+            <p className="text-zinc-400 font-sans">
               {isOptedOut
                 ? `Phone ${call.normalizedPhone} permanently registered in Do-Not-Call suppression table.`
                 : "Phone verified against workspace Do-Not-Call suppression registry."}

@@ -63,27 +63,27 @@ export function CallSafetyModal({ isOpen, onClose, callId }: CallSafetyModalProp
         )}
 
         {isLoading ? (
-          <div className="py-12 text-center text-xs text-[#737373]">
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            Executing 18-point safety check against database and suppression tables...
+          <div className="py-12 text-center text-xs text-zinc-400">
+            <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <span className="font-mono">Executing 18-point safety check against database and suppression tables...</span>
           </div>
         ) : safetyResult ? (
           <div className="space-y-4">
             {/* Status Summary Banner */}
             <div
-              className={`p-3 rounded-lg border flex items-center justify-between text-xs font-semibold ${
+              className={`p-3.5 rounded-xl border flex items-center justify-between text-xs font-semibold ${
                 safetyResult.passed
-                  ? "bg-emerald-950/40 text-emerald-300 border-emerald-800"
-                  : "bg-rose-950/40 text-rose-300 border-rose-800"
+                  ? "bg-lime-500/15 text-[#C6FF33] border-lime-500/35"
+                  : "bg-rose-950/40 text-rose-300 border-rose-500/35"
               }`}
             >
               <div className="flex items-center gap-2">
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    safetyResult.passed ? "bg-emerald-400" : "bg-rose-500"
+                    safetyResult.passed ? "bg-[#C6FF33]" : "bg-rose-500"
                   }`}
                 />
-                <span>
+                <span className="font-sans">
                   {safetyResult.passed
                     ? "Safe for Outbound Dispatch"
                     : "Call Blocked by Safety Enclosure"}
@@ -102,38 +102,42 @@ export function CallSafetyModal({ isOpen, onClose, callId }: CallSafetyModalProp
               </Alert>
             )}
 
-            {/* Gate by Gate Table */}
-            <div className="border border-[#404040] rounded-lg overflow-hidden bg-[#171717]">
-              <div className="max-h-80 overflow-y-auto divide-y divide-[#404040]/50 text-xs">
-                {safetyResult.evaluatedGates.map((gate, i) => (
+            {/* Gate breakdown list */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block font-medium">
+                18 Evaluated Compliance Rules
+              </span>
+
+              <div className="divide-y divide-white/[0.04] bg-surface-panel rounded-xl border border-white/[0.08] overflow-hidden text-xs">
+                {safetyResult.evaluatedGates.map((gate) => (
                   <div
-                    key={gate.gateNumber || i}
-                    className="p-3 flex items-start justify-between gap-3 hover:bg-[#404040]/20 transition-colors"
+                    key={gate.gateName || gate.gateNumber}
+                    className="p-3 flex items-start justify-between gap-3 hover:bg-surface-elevated/50 transition-colors"
                   >
-                    <div className="space-y-0.5 flex-1">
+                    <div className="space-y-0.5 min-w-0">
                       <div className="flex items-center gap-2">
                         <span
                           className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                            gate.passed ? "bg-emerald-400" : "bg-rose-500"
+                            gate.passed ? "bg-[#C6FF33]" : "bg-rose-500"
                           }`}
                         />
-                        <span className="font-semibold text-white font-mono text-[11px]">
-                          Gate #{gate.gateNumber}: {gate.gateName}
+                        <span className="font-semibold text-white font-mono text-[11px] truncate">
+                          {gate.gateName || `Gate ${gate.gateNumber}`}
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#a3a3a3] pl-3.5 leading-relaxed">
-                        {gate.reason || (gate.passed ? "Check passed" : "Check failed")}
+                      <p className="text-[11px] text-zinc-400 pl-3.5 leading-relaxed font-sans">
+                        {gate.reason}
                       </p>
                     </div>
 
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shrink-0 ${
+                      className={`text-[9px] font-mono px-2 py-0.5 rounded-full uppercase shrink-0 font-semibold ${
                         gate.passed
-                          ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/80"
-                          : "bg-rose-950/60 text-rose-400 border border-rose-800/80"
+                          ? "bg-lime-500/10 text-[#C6FF33] border border-lime-500/25"
+                          : "bg-rose-500/10 text-rose-300 border border-rose-500/25"
                       }`}
                     >
-                      {gate.passed ? "PASS" : "BLOCK"}
+                      {gate.passed ? "Passed" : "Failed"}
                     </span>
                   </div>
                 ))}
@@ -141,8 +145,8 @@ export function CallSafetyModal({ isOpen, onClose, callId }: CallSafetyModalProp
             </div>
 
             <div className="flex justify-end pt-2">
-              <Button variant="secondary" size="sm" onClick={onClose}>
-                Close Safety Report
+              <Button variant="secondary" size="sm" onClick={onClose} className="border-white/[0.08]">
+                Close Safety Review
               </Button>
             </div>
           </div>

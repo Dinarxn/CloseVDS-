@@ -26,18 +26,18 @@ export function ProviderStatusCard({
   const n8nConnected = n8nActiveKeysCount > 0;
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-[#0c0c12] border border-white/[0.08] hover:border-white/[0.12] p-5 shadow-xs transition-colors">
+    <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] hover:border-white/[0.14] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-colors">
       {/* Top hairline highlight */}
-      <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-white/[0.08] to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
 
       <div className="space-y-1.5 mb-4">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-sm font-semibold text-white tracking-tight">External Telephony &amp; AI Providers</h3>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
+          <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-surface-elevated text-zinc-300 border border-white/[0.08] font-medium">
             Infrastructure Status
           </span>
         </div>
-        <p className="text-xs text-zinc-400 leading-relaxed">
+        <p className="text-xs text-zinc-400 leading-relaxed font-sans">
           Real provider connection status reporting directly from the server. Outbound calling remains locked until providers are manually provisioned.
         </p>
       </div>
@@ -50,24 +50,24 @@ export function ProviderStatusCard({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             {/* Twilio Telephony Card */}
-            <div className="p-3.5 rounded-xl bg-[#08080d] border border-white/[0.06] flex flex-col justify-between space-y-2.5 hover:border-white/[0.12] transition-colors shadow-xs">
+            <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.06] flex flex-col justify-between space-y-2.5 hover:border-white/[0.12] transition-colors shadow-xs">
               <div className="flex items-start justify-between gap-2 min-w-0">
                 <span className="text-xs font-semibold text-white tracking-tight truncate">
                   Twilio Telephony
                 </span>
                 {twilioConfigured ? (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium inline-flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-lime-500/10 text-[#C6FF33] border border-lime-500/25 font-semibold inline-flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#C6FF33]" />
                     Configured
                   </span>
                 ) : (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium inline-flex items-center gap-1">
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-medium inline-flex items-center gap-1">
                     <span className="w-1 h-1 rounded-full bg-amber-400" />
                     Not Configured
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed min-h-[36px]">
+              <p className="text-[11px] text-zinc-400 leading-relaxed min-h-[36px] font-sans">
                 {twilioConfigured
                   ? "Twilio credentials verified for outbound SIP / PSTN trunking."
                   : "Twilio credentials are not configured. Outbound calls are safety-locked."}
@@ -78,24 +78,24 @@ export function ProviderStatusCard({
             </div>
 
             {/* Voice AI Provider Card */}
-            <div className="p-3.5 rounded-xl bg-[#08080d] border border-white/[0.06] flex flex-col justify-between space-y-2.5 hover:border-white/[0.12] transition-colors shadow-xs">
+            <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.06] flex flex-col justify-between space-y-2.5 hover:border-white/[0.12] transition-colors shadow-xs">
               <div className="flex items-start justify-between gap-2 min-w-0">
                 <span className="text-xs font-semibold text-white tracking-tight truncate">
                   Voice AI Engine
                 </span>
                 {voiceAiConfigured ? (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium inline-flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-lime-500/10 text-[#C6FF33] border border-lime-500/25 font-semibold inline-flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#C6FF33]" />
                     Configured
                   </span>
                 ) : (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium inline-flex items-center gap-1">
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-medium inline-flex items-center gap-1">
                     <span className="w-1 h-1 rounded-full bg-amber-400" />
                     Not Configured
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed min-h-[36px]">
+              <p className="text-[11px] text-zinc-400 leading-relaxed min-h-[36px] font-sans">
                 {voiceAiConfigured
                   ? "LLM reasoning and conversation turn engine connected."
                   : "Voice AI provider credentials not configured. Synthetic mock calls prohibited."}
@@ -106,23 +106,23 @@ export function ProviderStatusCard({
             </div>
 
             {/* n8n Automation Gateway Card */}
-            <div className="p-3.5 rounded-xl bg-[#08080d] border border-white/[0.06] flex flex-col justify-between space-y-2.5 hover:border-white/[0.12] transition-colors shadow-xs">
+            <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.06] flex flex-col justify-between space-y-2.5 hover:border-white/[0.12] transition-colors shadow-xs">
               <div className="flex items-start justify-between gap-2 min-w-0">
                 <span className="text-xs font-semibold text-white tracking-tight truncate">
                   n8n Gateway
                 </span>
                 {n8nConnected ? (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium inline-flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-lime-500/10 text-[#C6FF33] border border-lime-500/25 font-semibold inline-flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#C6FF33]" />
                     {n8nActiveKeysCount} {n8nActiveKeysCount === 1 ? "Key" : "Keys"}
                   </span>
                 ) : (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.06] font-medium">
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-surface-elevated text-zinc-400 border border-white/[0.08] font-medium">
                     Not Connected
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed min-h-[36px]">
+              <p className="text-[11px] text-zinc-400 leading-relaxed min-h-[36px] font-sans">
                 {n8nConnected
                   ? "Workspace integration active. Zero-bypass approval gate enforced on all inbound requests."
                   : "No active n8n integration keys generated for this workspace."}

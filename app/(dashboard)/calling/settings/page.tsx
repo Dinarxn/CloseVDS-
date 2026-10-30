@@ -68,15 +68,15 @@ export default function CallingSettingsPage() {
   }, [fetchData]);
 
   return (
-    <PageContainer>
+    <PageContainer maxWidth="xl">
       <div className="space-y-6 max-w-5xl">
         <PageHeader
-          title="Telephony & n8n Gateway Settings"
+          title="Telephony &amp; n8n Gateway Settings"
           description="External voice providers status reporting, scoped n8n workflow credentials, and signed webhook deliveries audit."
           breadcrumbs={[
-            { label: "closeVDS", href: "/dashboard" },
+            { label: "Workspace", href: "/dashboard" },
             { label: "AI Calling", href: "/calling" },
-            { label: "Settings & Gateway" },
+            { label: "Telephony & Gateway Settings" },
           ]}
         />
 
@@ -87,7 +87,7 @@ export default function CallingSettingsPage() {
             </svg>
             <div className="space-y-1">
               <h4 className="text-xs font-semibold text-rose-300">Service Communication Error</h4>
-              <p className="text-xs text-rose-200/80 leading-relaxed">{errorMsg}</p>
+              <p className="text-xs text-rose-200/80 leading-relaxed font-sans">{errorMsg}</p>
             </div>
           </div>
         )}
@@ -104,7 +104,7 @@ export default function CallingSettingsPage() {
         {/* 2. Telephony and AI Provider Status */}
         <section className="space-y-2.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
               Infrastructure Telemetry
             </span>
             <span className="text-zinc-600 font-mono text-[10px]">•</span>
@@ -117,7 +117,7 @@ export default function CallingSettingsPage() {
           />
         </section>
 
-        {/* 2. n8n Integration Credentials Manager */}
+        {/* 3. n8n Integration Credentials Manager */}
         <section>
           <N8nKeysManager
             keys={n8nKeys}
@@ -127,7 +127,7 @@ export default function CallingSettingsPage() {
           />
         </section>
 
-        {/* 3. Outbound Webhook Deliveries Table */}
+        {/* 4. Outbound Webhook Deliveries Table */}
         <section>
           <N8nDeliveriesTable deliveries={deliveries} isLoading={isLoading} />
         </section>

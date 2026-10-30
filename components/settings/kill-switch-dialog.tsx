@@ -34,13 +34,13 @@ export function KillSwitchDialog({
         <div
           className={`p-3.5 rounded-xl border space-y-1 ${
             isActive
-              ? "bg-surface-card border-subtle text-zinc-300 shadow-sm"
+              ? "bg-surface-card border-white/[0.08] text-zinc-300 shadow-sm"
               : "bg-rose-950/20 border-rose-500/35 text-rose-200 shadow-sm"
           }`}
         >
           <div className="flex items-center gap-2">
             <svg
-              className={`w-3.5 h-3.5 ${isActive ? "text-emerald-400" : "text-rose-400"}`}
+              className={`w-3.5 h-3.5 ${isActive ? "text-[#C6FF33]" : "text-rose-400"}`}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -53,7 +53,7 @@ export function KillSwitchDialog({
               Global Outreach Impact
             </h5>
           </div>
-          <p className="text-xs opacity-90 leading-relaxed pl-5.5">
+          <p className="text-xs opacity-90 leading-relaxed pl-5.5 font-sans">
             {isActive
               ? "Normal velocity rules and Gate 2 explicit approval requirements will resume."
               : "All outbound message transmission will be blocked immediately across every channel."}
@@ -61,11 +61,11 @@ export function KillSwitchDialog({
         </div>
 
         {/* Safety Checklist */}
-        <div className="p-3.5 bg-surface-panel border border-subtle rounded-xl space-y-2 shadow-sm">
+        <div className="p-3.5 bg-surface-panel border border-white/[0.08] rounded-xl space-y-2 shadow-sm">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
             Safety Checklist:
           </p>
-          <ul className="space-y-1.5 text-xs text-zinc-400">
+          <ul className="space-y-1.5 text-xs text-zinc-400 font-sans">
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
               <span>Active outbound queues will be paused immediately</span>
@@ -82,11 +82,11 @@ export function KillSwitchDialog({
         </div>
 
         {/* Modal Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-subtle">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.07]">
           <button
             type="button"
             onClick={onClose}
-            className="h-9 px-4 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white border border-subtle hover:bg-white/[0.04] transition-all"
+            className="h-9 px-4 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white border border-white/[0.08] hover:bg-white/[0.04] transition-all cursor-pointer"
           >
             Cancel
           </button>
@@ -96,10 +96,10 @@ export function KillSwitchDialog({
               onConfirmToggle();
               onClose();
             }}
-            className={`h-9 px-4 rounded-lg text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-2 ${
+            className={`h-9 px-4 rounded-lg text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer ${
               isActive
-                ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-950/30"
-                : "bg-rose-600 hover:bg-rose-500 text-white border border-rose-500/50 shadow-rose-950/40"
+                ? "bg-[#C6FF33] hover:bg-[#B5ED28] text-black shadow-[0_0_15px_rgba(198,255,51,0.2)]"
+                : "bg-rose-600 hover:bg-rose-500 text-white border border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
             }`}
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

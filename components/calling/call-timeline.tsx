@@ -14,14 +14,14 @@ function getEventColor(eventType: CallEventType): string {
     case "CALL_ANSWERED":
     case "CALL_STARTED":
     case "CALL_MEDIA_CONNECTED":
-      return "bg-emerald-400 border-emerald-600";
+      return "bg-[#C6FF33] border-lime-500/80 shadow-[0_0_8px_rgba(198,255,51,0.3)]";
     case "CALL_INITIATED":
     case "CALL_RINGING":
     case "CALL_TRANSFERRED":
-      return "bg-blue-400 border-blue-600";
+      return "bg-violet-400 border-violet-600 shadow-[0_0_8px_rgba(125,57,235,0.3)]";
     case "CALL_FAILED":
     case "CALL_OPT_OUT":
-      return "bg-red-500 border-red-700";
+      return "bg-rose-500 border-rose-700 shadow-[0_0_8px_rgba(244,63,94,0.3)]";
     case "CALL_BUSY":
     case "CALL_NO_ANSWER":
     case "CALL_VOICEMAIL":
@@ -29,7 +29,7 @@ function getEventColor(eventType: CallEventType): string {
     case "CALL_CREATED":
     case "CALL_CANCELLED":
     default:
-      return "bg-[#737373] border-[#525252]";
+      return "bg-zinc-500 border-zinc-700";
   }
 }
 
@@ -71,7 +71,7 @@ function formatEventTitle(eventType: CallEventType): string {
 export function CallTimeline({ events = [] }: CallTimelineProps) {
   if (events.length === 0) {
     return (
-      <div className="p-6 text-center text-xs text-[#737373] border border-[#404040]/60 rounded-lg bg-[#0a0a0a]">
+      <div className="p-8 text-center text-xs text-zinc-400 border border-white/[0.08] rounded-xl bg-surface-card font-mono">
         No timeline events recorded yet for this call.
       </div>
     );
@@ -83,7 +83,7 @@ export function CallTimeline({ events = [] }: CallTimelineProps) {
   );
 
   return (
-    <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#404040]">
+    <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/[0.08]">
       {sorted.map((ev, index) => {
         const dotColor = getEventColor(ev.eventType);
         return (
@@ -93,22 +93,22 @@ export function CallTimeline({ events = [] }: CallTimelineProps) {
               className={`absolute -left-6 top-1 w-3 h-3 rounded-full border-2 ${dotColor}`}
             />
 
-            <div className="bg-[#0a0a0a] p-3 rounded-lg border border-[#404040]/70 hover:border-[#525252] transition-colors">
+            <div className="bg-surface-card p-4 rounded-xl border border-white/[0.08] hover:border-white/[0.16] transition-colors shadow-xs">
               <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="text-xs font-semibold text-white">
+                <span className="text-xs font-semibold text-white tracking-tight">
                   {formatEventTitle(ev.eventType)}
                 </span>
-                <span className="text-[10px] font-mono text-[#737373]">
+                <span className="text-[10px] font-mono text-zinc-400">
                   {formatCallDateTime(ev.occurredAt)}
                 </span>
               </div>
 
-              <div className="text-[11px] font-mono text-[#525252] mb-1">
+              <div className="text-[11px] font-mono text-zinc-500 mb-1">
                 {ev.eventType}
               </div>
 
               {ev.eventPayload && Object.keys(ev.eventPayload).length > 0 && (
-                <div className="mt-2 p-2 bg-[#171717] rounded border border-[#404040]/40 text-[11px] text-[#a3a3a3] font-mono overflow-x-auto">
+                <div className="mt-2.5 p-2.5 bg-surface-panel rounded-lg border border-white/[0.06] text-[11px] text-zinc-300 font-mono overflow-x-auto">
                   {JSON.stringify(ev.eventPayload, null, 2)}
                 </div>
               )}

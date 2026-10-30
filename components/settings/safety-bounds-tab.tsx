@@ -24,7 +24,7 @@ export function SafetyBoundsTab({
       <div
         className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-200 ${
           isKillSwitchActive
-            ? "bg-rose-950/25 border-rose-500/40 shadow-[0_0_24px_rgba(244,63,94,0.08)]"
+            ? "bg-rose-950/25 border-rose-500/40 shadow-[0_0_24px_rgba(244,63,94,0.15)]"
             : "bg-surface-card border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
         }`}
       >
@@ -57,12 +57,12 @@ export function SafetyBoundsTab({
                 className={`font-mono text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 border ${
                   isKillSwitchActive
                     ? "bg-rose-500/10 text-rose-300 border-rose-500/30"
-                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                    : "bg-[#C6FF33]/15 text-[#C6FF33] border-[#C6FF33]/30"
                 }`}
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
-                    isKillSwitchActive ? "bg-rose-400 animate-pulse" : "bg-emerald-400"
+                    isKillSwitchActive ? "bg-rose-400 animate-pulse" : "bg-[#C6FF33]"
                   }`}
                 />
                 {isKillSwitchActive ? "ACTIVE — SENDING HALTED" : "INACTIVE — NORMAL"}

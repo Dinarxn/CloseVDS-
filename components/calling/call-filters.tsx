@@ -50,7 +50,13 @@ export function CallFilters({
   const hasActiveFilters = Boolean(search.trim() || status || campaignId);
 
   return (
-    <div className="p-3.5 bg-[#0c0c12] border border-white/[0.08] rounded-xl shadow-xs">
+    <div className="p-4 bg-surface-card border border-white/[0.08] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.5)] relative overflow-hidden">
+      {/* Top specular hairline */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
+
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <Input
@@ -58,7 +64,7 @@ export function CallFilters({
             placeholder="Search company, contact, or phone..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="h-8 text-xs bg-[#08080d] border-white/[0.08] focus:border-white/[0.2]"
+            className="h-8.5 text-xs bg-surface-panel border-white/[0.08] focus:border-violet-500/50"
           />
 
           <Select
@@ -66,7 +72,7 @@ export function CallFilters({
             value={status}
             onChange={(e) => onStatusChange(e.target.value)}
             options={CALL_STATUS_OPTIONS}
-            className="h-8 text-xs bg-[#08080d] border-white/[0.08]"
+            className="h-8.5 text-xs bg-surface-panel border-white/[0.08]"
           />
 
           <Select
@@ -77,29 +83,30 @@ export function CallFilters({
               { value: "", label: "All Objectives" },
               ...campaigns.map((c) => ({ value: c.id, label: c.name })),
             ]}
-            className="h-8 text-xs bg-[#08080d] border-white/[0.08]"
+            className="h-8.5 text-xs bg-surface-panel border-white/[0.08]"
           />
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
           {hasActiveFilters && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onReset}
-              className="h-8 px-2.5 text-xs text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+              className="text-xs h-8.5 px-3 text-zinc-400 hover:text-white hover:bg-surface-elevated font-mono"
             >
               Reset Filters
             </Button>
           )}
+
           {onPrepareClick && (
             <Button
               variant="primary"
               size="sm"
               onClick={onPrepareClick}
-              className="h-8 px-3.5 text-xs bg-white text-zinc-950 hover:bg-zinc-200 font-semibold shadow-xs flex items-center gap-1.5"
+              className="text-xs h-8.5 px-3.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs"
             >
-              <span>+ Prepare AI Call</span>
+              + Prepare AI Call
             </Button>
           )}
         </div>

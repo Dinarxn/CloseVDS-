@@ -9,13 +9,13 @@ export interface CallStatusBadgeProps {
 }
 
 export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
-  const sizeClasses = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
+  const sizeClasses = size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
 
   switch (status) {
     case "APPROVAL_REQUIRED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-amber-950/40 text-amber-300 border border-amber-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono ${sizeClasses}`}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
           Approval Required
@@ -25,9 +25,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "APPROVED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-emerald-950/40 text-emerald-300 border border-emerald-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-lime-500/15 text-[#C6FF33] border border-lime-500/30 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33]" />
           Approved
         </span>
       );
@@ -35,9 +35,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "QUEUED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-[#171717] text-[#a3a3a3] border border-[#404040] ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-surface-elevated text-zinc-300 border border-white/[0.08] font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#737373]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
           Queued
         </span>
       );
@@ -45,9 +45,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "SAFETY_CHECKING":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-sky-950/40 text-sky-300 border border-sky-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-spin" />
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-spin" />
           Safety Checking
         </span>
       );
@@ -55,9 +55,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "INITIATING":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-blue-950/40 text-blue-300 border border-blue-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
           Initiating
         </span>
       );
@@ -65,9 +65,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "RINGING":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-blue-950/40 text-blue-300 border border-blue-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
           Ringing
         </span>
       );
@@ -75,9 +75,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "IN_PROGRESS":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-indigo-950/40 text-indigo-300 border border-indigo-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-violet-500/20 text-white border border-violet-500/50 shadow-[0_0_12px_rgba(125,57,235,0.25)] font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] animate-ping" />
           In Progress
         </span>
       );
@@ -85,9 +85,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "COMPLETED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-emerald-950/30 text-emerald-300 border border-emerald-800/60 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-lime-500/10 text-[#C6FF33] border border-lime-500/30 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33]" />
           Completed
         </span>
       );
@@ -95,7 +95,7 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "BLOCKED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-rose-950/40 text-rose-300 border border-rose-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-mono ${sizeClasses}`}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
           Safety Blocked
@@ -105,9 +105,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "FAILED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-red-950/40 text-red-300 border border-red-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
           Failed
         </span>
       );
@@ -115,9 +115,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "CANCELLED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-[#171717] text-[#737373] border border-[#404040] ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-surface-elevated text-zinc-400 border border-white/[0.08] font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#737373]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
           Cancelled
         </span>
       );
@@ -125,9 +125,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "NO_ANSWER":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-orange-950/40 text-orange-300 border border-orange-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
           No Answer
         </span>
       );
@@ -135,9 +135,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "BUSY":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-orange-950/40 text-orange-300 border border-orange-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
           Busy
         </span>
       );
@@ -145,9 +145,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "VOICEMAIL":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-purple-950/40 text-purple-300 border border-purple-800/80 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/25 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
           Voicemail
         </span>
       );
@@ -155,9 +155,9 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     case "OPTED_OUT":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-red-900/60 text-red-100 border border-red-600 ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-semibold rounded-full bg-rose-500/20 text-rose-200 border border-rose-500/40 font-mono ${sizeClasses}`}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
           Opted Out (Suppressed)
         </span>
       );
@@ -165,7 +165,7 @@ export function CallStatusBadge({ status, size = "md" }: CallStatusBadgeProps) {
     default:
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-[#171717] text-[#a3a3a3] border border-[#404040] ${sizeClasses}`}
+          className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-surface-elevated text-zinc-300 border border-white/[0.08] font-mono ${sizeClasses}`}
         >
           {status}
         </span>
