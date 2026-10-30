@@ -17,23 +17,23 @@ export function LeadStatusBadge({ status }: LeadStatusBadgeProps) {
     LeadStatus,
     { label: string; dotColor?: string; textColor: string; bgClass: string; dot: boolean }
   > = {
-    discovered: { label: "Discovered", dotColor: "bg-zinc-400", textColor: "text-zinc-300", bgClass: "bg-white/[0.04] border-white/[0.08]", dot: true },
+    discovered: { label: "Discovered", dotColor: "bg-zinc-400", textColor: "text-[#CBCBD6]", bgClass: "bg-white/[0.04] border-white/[0.08]", dot: true },
     analyzing: { label: "Auditing", dotColor: "bg-amber-400", textColor: "text-amber-300", bgClass: "bg-amber-500/[0.08] border-amber-500/20", dot: true },
-    qualified: { label: "Qualified", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
-    disqualified: { label: "Disqualified", textColor: "text-zinc-500", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
-    outreach_ready: { label: "Call Ready", dotColor: "bg-sky-400", textColor: "text-sky-300", bgClass: "bg-sky-500/[0.08] border-sky-500/20", dot: true },
-    contacted: { label: "Contacted", dotColor: "bg-indigo-400", textColor: "text-indigo-300", bgClass: "bg-indigo-500/[0.08] border-indigo-500/20", dot: true },
+    qualified: { label: "Qualified", dotColor: "bg-[#C6FF33]", textColor: "text-[#C6FF33]", bgClass: "bg-[#C6FF33]/10 border-[#C6FF33]/30", dot: true },
+    disqualified: { label: "Disqualified", textColor: "text-[#8E8E9F]", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
+    outreach_ready: { label: "Call Ready", dotColor: "bg-[#7D39EB]", textColor: "text-[#B78AF7]", bgClass: "bg-[#7D39EB]/15 border-[#7D39EB]/35", dot: true },
+    contacted: { label: "Contacted", dotColor: "bg-[#7D39EB]", textColor: "text-[#CBCBD6]", bgClass: "bg-white/[0.06] border-white/[0.12]", dot: true },
     in_followup: { label: "In Follow-up", dotColor: "bg-amber-400", textColor: "text-amber-300", bgClass: "bg-amber-500/[0.08] border-amber-500/20", dot: true },
-    replied: { label: "Replied", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
-    meeting_booked: { label: "Meeting Booked", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
+    replied: { label: "Replied", dotColor: "bg-[#C6FF33]", textColor: "text-[#C6FF33]", bgClass: "bg-[#C6FF33]/10 border-[#C6FF33]/30", dot: true },
+    meeting_booked: { label: "Meeting Booked", dotColor: "bg-[#C6FF33]", textColor: "text-[#C6FF33]", bgClass: "bg-[#C6FF33]/12 border-[#C6FF33]/35", dot: true },
     opted_out: { label: "Opted Out", dotColor: "bg-rose-400", textColor: "text-rose-400", bgClass: "bg-rose-500/[0.08] border-rose-500/20", dot: false },
-    closed_won: { label: "Closed Won", dotColor: "bg-emerald-400", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true },
-    closed_lost: { label: "Closed Lost", textColor: "text-zinc-500", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
+    closed_won: { label: "Closed Won", dotColor: "bg-[#C6FF33]", textColor: "text-[#C6FF33]", bgClass: "bg-[#C6FF33]/15 border-[#C6FF33]/40", dot: true },
+    closed_lost: { label: "Closed Lost", textColor: "text-[#8E8E9F]", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
   };
 
   const config = statusLabels[status] || {
     label: status,
-    textColor: "text-zinc-400",
+    textColor: "text-[#CBCBD6]",
     bgClass: "bg-white/[0.04] border-white/[0.08]",
     dot: false,
   };
@@ -43,7 +43,7 @@ export function LeadStatusBadge({ status }: LeadStatusBadgeProps) {
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-mono tracking-tight font-medium ${config.bgClass} ${config.textColor}`}
     >
       {config.dot && (
-        <span className={`w-1 h-1 rounded-full shrink-0 ${config.dotColor || "bg-current"}`} />
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${config.dotColor || "bg-current"}`} />
       )}
       <span>{config.label}</span>
     </span>
@@ -57,27 +57,26 @@ export interface QualificationBadgeProps {
 
 export function QualificationBadge({ qualification, score }: QualificationBadgeProps) {
   if (score !== undefined) {
-    const isHigh = score >= 80;
-    const isQualified = score >= 70;
+    const isHighOrQualified = score >= 70;
     const isModerate = score >= 50;
 
-    const colorClasses = isHigh || isQualified
-      ? "text-emerald-300 bg-emerald-500/[0.08] border-emerald-500/20"
+    const colorClasses = isHighOrQualified
+      ? "text-[#C6FF33] bg-[#C6FF33]/10 border-[#C6FF33]/30 shadow-[0_0_12px_rgba(198,255,51,0.15)]"
       : isModerate
       ? "text-amber-300 bg-amber-500/[0.08] border-amber-500/20"
-      : "text-zinc-400 bg-white/[0.03] border-white/[0.07]";
+      : "text-[#8E8E9F] bg-white/[0.03] border-white/[0.07]";
 
-    const dotColor = isHigh || isQualified
-      ? "bg-emerald-400"
+    const dotColor = isHighOrQualified
+      ? "bg-[#C6FF33] shadow-[0_0_6px_#C6FF33]"
       : isModerate
       ? "bg-amber-400"
-      : "bg-zinc-500";
+      : "bg-[#8E8E9F]";
 
     return (
       <span
         className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-mono tabular-nums font-medium ${colorClasses}`}
       >
-        <span className={`w-1 h-1 rounded-full shrink-0 ${dotColor}`} />
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
         <span>Score <span className="tabular-nums font-semibold">{score}</span>/100</span>
       </span>
     );
@@ -87,22 +86,22 @@ export function QualificationBadge({ qualification, score }: QualificationBadgeP
     QualificationStatus,
     { label: string; textColor: string; bgClass: string; dot?: boolean; dotColor?: string }
   > = {
-    unqualified: { label: "Unqualified", textColor: "text-zinc-500", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
+    unqualified: { label: "Unqualified", textColor: "text-[#8E8E9F]", bgClass: "bg-white/[0.02] border-white/[0.05]", dot: false },
     needs_review: { label: "Needs Review", textColor: "text-amber-300", bgClass: "bg-amber-500/[0.08] border-amber-500/20", dot: true, dotColor: "bg-amber-400" },
-    qualified: { label: "Qualified", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.08] border-emerald-500/20", dot: true, dotColor: "bg-emerald-400" },
-    high_priority: { label: "High Priority", textColor: "text-emerald-300", bgClass: "bg-emerald-500/[0.12] border-emerald-500/25", dot: true, dotColor: "bg-emerald-400" },
+    qualified: { label: "Qualified", textColor: "text-[#C6FF33]", bgClass: "bg-[#C6FF33]/10 border-[#C6FF33]/30", dot: true, dotColor: "bg-[#C6FF33]" },
+    high_priority: { label: "High Priority", textColor: "text-[#C6FF33]", bgClass: "bg-[#C6FF33]/15 border-[#C6FF33]/40 shadow-[0_0_12px_rgba(198,255,51,0.18)]", dot: true, dotColor: "bg-[#C6FF33]" },
   };
 
   const config = qualification
     ? qualLabels[qualification]
-    : { label: "Unscored", textColor: "text-zinc-400", bgClass: "bg-white/[0.03] border-white/[0.07]", dot: false };
+    : { label: "Unscored", textColor: "text-[#8E8E9F]", bgClass: "bg-white/[0.03] border-white/[0.07]", dot: false };
 
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-mono tracking-tight font-medium ${config.bgClass} ${config.textColor}`}
     >
       {config.dot && (
-        <span className={`w-1 h-1 rounded-full shrink-0 ${config.dotColor || "bg-current"}`} />
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${config.dotColor || "bg-current"}`} />
       )}
       <span>{config.label}</span>
     </span>
@@ -120,7 +119,7 @@ export function ServiceRecommendationBadge({
 }: ServiceRecommendationBadgeProps) {
   if (!recommendation) {
     return (
-      <span className="inline-flex items-center px-1.5 py-0.2 rounded border text-[9px] font-mono text-zinc-500 bg-white/[0.02] border-white/[0.05]">
+      <span className="inline-flex items-center px-1.5 py-0.5 rounded border text-[9px] font-mono text-[#8E8E9F] bg-white/[0.02] border-white/[0.05]">
         Not evaluated
       </span>
     );
@@ -133,12 +132,12 @@ export function ServiceRecommendationBadge({
     <div className={`flex flex-col ${compact ? "gap-0.5" : "gap-1"}`}>
       <div className="flex items-center gap-1.5">
         {hasOpp ? (
-          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-emerald-500/[0.08] text-emerald-400 border border-emerald-500/20">
-            <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />
+          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-[#C6FF33]/10 text-[#C6FF33] border border-[#C6FF33]/30 shadow-[0_0_8px_rgba(198,255,51,0.15)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />
             OPP: YES
           </span>
         ) : (
-          <span className="inline-flex items-center text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-white/[0.03] text-zinc-500 border border-white/[0.06]">
+          <span className="inline-flex items-center text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-white/[0.03] text-[#8E8E9F] border border-white/[0.06]">
             OPP: NONE
           </span>
         )}
@@ -146,10 +145,10 @@ export function ServiceRecommendationBadge({
       <div
         className={`leading-tight truncate max-w-[190px] ${
           isNoneService
-            ? "text-zinc-500 font-mono text-[11px]"
+            ? "text-[#8E8E9F] font-mono text-[11px]"
             : hasOpp
-            ? "text-zinc-200 font-medium text-xs"
-            : "text-zinc-400 text-xs font-normal"
+            ? "text-white font-medium text-xs"
+            : "text-[#CBCBD6] text-xs font-normal"
         }`}
         title={recommendation.recommendedService}
       >
@@ -171,16 +170,16 @@ export function DataQualityBadge({ quality }: DataQualityBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded border text-[9px] font-mono uppercase tracking-wider font-medium ${
+      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-mono uppercase tracking-wider font-medium ${
         isGood
-          ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
+          ? "bg-[#C6FF33]/10 border-[#C6FF33]/30 text-[#C6FF33]"
           : isPartial
-          ? "bg-amber-500/[0.08] border-amber-500/20 text-amber-400"
-          : "bg-white/[0.03] border-white/[0.06] text-zinc-500"
+          ? "bg-amber-500/[0.08] border-amber-500/20 text-amber-300"
+          : "bg-white/[0.03] border-white/[0.06] text-[#8E8E9F]"
       }`}
       title={`Data Quality: ${quality}`}
     >
-      <span className={`w-1 h-1 rounded-full shrink-0 ${isGood ? "bg-emerald-400" : isPartial ? "bg-amber-400" : "bg-zinc-500"}`} />
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isGood ? "bg-[#C6FF33]" : isPartial ? "bg-amber-400" : "bg-zinc-500"}`} />
       <span>{quality}</span>
     </span>
   );
@@ -197,14 +196,14 @@ export function MapsMatchStatusBadge({ status }: MapsMatchStatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded border text-[9px] font-mono uppercase font-medium ${
+      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-mono uppercase font-medium ${
         isTargeted
-          ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
-          : "bg-white/[0.03] border-white/[0.06] text-zinc-500"
+          ? "bg-[#C6FF33]/10 border-[#C6FF33]/30 text-[#C6FF33]"
+          : "bg-white/[0.03] border-white/[0.06] text-[#8E8E9F]"
       }`}
       title={`Maps Match Status: ${status}`}
     >
-      {isTargeted && <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />}
+      {isTargeted && <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />}
       <span>Maps: {status}</span>
     </span>
   );
@@ -228,12 +227,12 @@ export function ActionabilityBadge({
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <span
-        className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded border text-[9px] font-mono uppercase tracking-wider font-medium ${
+        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-mono uppercase tracking-wider font-medium ${
           isReady
-            ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
+            ? "bg-[#C6FF33]/10 border-[#C6FF33]/30 text-[#C6FF33]"
             : isEnrichment
-            ? "bg-amber-500/[0.08] border-amber-500/20 text-amber-400"
-            : "bg-white/[0.03] border-white/[0.06] text-zinc-500"
+            ? "bg-amber-500/[0.08] border-amber-500/20 text-amber-300"
+            : "bg-white/[0.03] border-white/[0.06] text-[#8E8E9F]"
         }`}
         title={
           actionability.reasons && actionability.reasons.length > 0
@@ -242,7 +241,7 @@ export function ActionabilityBadge({
         }
       >
         {actionability.isActionable && (
-          <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />
         )}
         <span>{tierLabel}</span>
       </span>
@@ -254,7 +253,7 @@ export function ActionabilityBadge({
             {actionability.eligibleChannels.map((channel) => (
               <span
                 key={channel}
-                className="text-[9px] font-mono px-1 py-0.2 rounded bg-white/[0.03] text-zinc-400 border border-white/[0.05]"
+                className="text-[9px] font-mono px-1 py-0.5 rounded bg-white/[0.03] text-[#CBCBD6] border border-white/[0.06]"
                 title={`Eligible channel: ${channel}`}
               >
                 {channel === "WEBSITE_AUDIT" ? "AUDIT" : channel}

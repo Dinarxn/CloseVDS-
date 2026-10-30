@@ -202,13 +202,37 @@ export default function LeadsPage() {
 
   return (
     <PageContainer maxWidth="xl" className="space-y-3.5 sm:space-y-4">
+      {/* 1. Leads Page Header */}
       <PageHeader
-        title="Leads"
-        description="Prospect discovery, website gap intelligence, and qualification workspace."
+        title="Leads & Import"
+        description="Import, enrich, qualify, and action prospect accounts."
         breadcrumbs={[
           { label: "closeVDS", href: "/dashboard" },
-          { label: "Leads" },
+          { label: "Leads & Import" },
         ]}
+        action={
+          <div className="flex items-center gap-2">
+            <button
+              onClick={importModal.onOpen}
+              className="h-9 px-3.5 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold font-sans tracking-tight transition-all flex items-center gap-1.5 shadow-[0_0_20px_-4px_rgba(125,57,235,0.4)] active:scale-[0.98] cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span>Import Leads</span>
+              <span className="text-xs">→</span>
+            </button>
+            <button
+              onClick={discoveryModal.onOpen}
+              className="h-9 px-3 rounded-lg bg-[#111116] hover:bg-[#171720] text-[#CBCBD6] hover:text-white border border-white/[0.08] hover:border-white/20 text-xs font-medium font-sans tracking-tight transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <svg className="w-3.5 h-3.5 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span>Find Leads</span>
+            </button>
+          </div>
+        }
       />
 
       {/* Gate 1 Supporting Sequence Indicator */}
@@ -232,7 +256,7 @@ export default function LeadsPage() {
         </div>
       )}
 
-      {/* Lead Workspace Control Surface (The Hero) */}
+      {/* 2. Lead Workspace Control Surface */}
       <LeadsToolbar
         search={search}
         onSearchChange={handleSearchChange}
@@ -257,12 +281,12 @@ export default function LeadsPage() {
         />
       )}
 
-      {/* Main Content Area: Table vs Cards with Loading State */}
+      {/* 3. Main Content Area: Table vs Cards vs Pipeline */}
       {isLoading ? (
-        <div className="relative p-8 text-center border border-white/[0.08] rounded-xl bg-[#0d0d12] shadow-xs backdrop-blur-sm space-y-2">
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
-          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-          <p className="text-xs font-mono text-zinc-400">Loading prospects from workspace...</p>
+        <div className="relative p-8 text-center border border-white/[0.08] rounded-xl bg-[#111116] shadow-xs backdrop-blur-sm space-y-2">
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent pointer-events-none" />
+          <div className="w-5 h-5 border-2 border-[#7D39EB] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+          <p className="text-xs font-mono text-[#8E8E9F]">Loading prospects from workspace...</p>
         </div>
       ) : viewMode === "table" ? (
         <LeadsTable
@@ -274,6 +298,7 @@ export default function LeadsPage() {
           onSelectLead={(lead) => setSelectedLeadId(lead.id)}
           onPrepareCall={(lead) => setSelectedLeadForCall(lead)}
           onLeadStatusChanged={handleLeadStatusChange}
+          onLeadDeleted={fetchLeads}
         />
       ) : viewMode === "cards" ? (
         <LeadsCardGrid
@@ -301,27 +326,27 @@ export default function LeadsPage() {
 
       {/* Pagination Surface for Table/Cards Views */}
       {!isLoading && viewMode !== "pipeline" && leads.length > 0 && (
-        <div className="relative p-2.5 sm:p-3 bg-[#0d0d12] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-2.5">
+        <div className="relative p-2.5 sm:p-3 bg-[#0A0A0E] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-2.5">
           {/* Top specular hairline highlight */}
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent pointer-events-none" />
 
-          <div className="text-[11px] font-mono text-zinc-400">
-            Showing <span className="text-zinc-100 font-medium tabular-nums">{startItem}</span>–<span className="text-zinc-100 font-medium tabular-nums">{endItem}</span> of{" "}
-            <span className="text-zinc-100 font-medium tabular-nums">{totalCount}</span> leads
+          <div className="text-[11px] font-mono text-[#8E8E9F]">
+            Showing <span className="text-white font-medium tabular-nums">{startItem}</span>–<span className="text-white font-medium tabular-nums">{endItem}</span> of{" "}
+            <span className="text-white font-medium tabular-nums">{totalCount}</span> leads
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || isLoading}
-              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08] disabled:hover:bg-white/[0.03] disabled:hover:text-zinc-300"
+              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-[#7D39EB]/20 text-[#CBCBD6] hover:text-white border-white/[0.08] hover:border-[#7D39EB]/40 disabled:hover:bg-white/[0.03] disabled:hover:text-[#CBCBD6]"
               aria-label="Previous page"
             >
               <span>←</span>
               <span>Previous</span>
             </button>
 
-            <div className="h-8 px-3 rounded-lg border border-white/[0.08] bg-[#09090b] flex items-center text-xs font-mono text-zinc-400">
+            <div className="h-8 px-3 rounded-lg border border-white/[0.08] bg-[#111116] flex items-center text-xs font-mono text-[#8E8E9F]">
               <span>Page</span>
               <span className="text-white font-semibold mx-1.5 tabular-nums">{page}</span>
               <span>of</span>
@@ -331,7 +356,7 @@ export default function LeadsPage() {
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || isLoading}
-              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08] disabled:hover:bg-white/[0.03] disabled:hover:text-zinc-300"
+              className="h-8 px-3 rounded-lg border text-xs font-medium font-sans flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-[#7D39EB]/20 text-[#CBCBD6] hover:text-white border-white/[0.08] hover:border-[#7D39EB]/40 disabled:hover:bg-white/[0.03] disabled:hover:text-[#CBCBD6]"
               aria-label="Next page"
             >
               <span>Next</span>
@@ -350,7 +375,7 @@ export default function LeadsPage() {
         }}
       />
 
-      {/* Lead Import Modal (V2 Import-First Foundation) */}
+      {/* Lead Import Modal */}
       <LeadImportModal
         isOpen={importModal.isOpen}
         onClose={importModal.onClose}
@@ -365,6 +390,7 @@ export default function LeadsPage() {
         onClose={() => setSelectedLeadId(null)}
         onLeadUpdated={fetchLeads}
         onLeadDeleted={fetchLeads}
+        onPrepareCall={(lead) => setSelectedLeadForCall(lead)}
       />
 
       {/* Call Preparation Modal */}
@@ -376,4 +402,3 @@ export default function LeadsPage() {
     </PageContainer>
   );
 }
-

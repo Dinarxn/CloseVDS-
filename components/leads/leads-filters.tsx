@@ -14,13 +14,13 @@ export interface LeadsFiltersProps {
 
 export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFiltersProps) {
   return (
-    <div className="relative p-3.5 sm:p-4 bg-[#0d0d12] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm space-y-3.5">
+    <div className="relative p-3.5 sm:p-4 bg-[#0A0A0E] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm space-y-3.5">
       {/* Top specular hairline highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent pointer-events-none" />
 
       <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
         <div>
-          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-medium block">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-[#8E8E9F] font-medium block">
             Workspace Segmentation
           </span>
           <h3 className="text-xs font-semibold text-white tracking-tight">
@@ -30,13 +30,13 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
         <div className="flex items-center space-x-2">
           <button
             onClick={onReset}
-            className="text-xs font-sans font-medium text-zinc-400 hover:text-white px-2 py-1 rounded transition-colors cursor-pointer"
+            className="text-xs font-sans font-medium text-[#8E8E9F] hover:text-[#C6FF33] px-2 py-1 rounded transition-colors cursor-pointer"
           >
             Reset all
           </button>
           <button
             onClick={onClose}
-            className="text-xs font-sans font-medium text-zinc-300 hover:text-white px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-colors cursor-pointer"
+            className="text-xs font-sans font-medium text-[#CBCBD6] hover:text-white px-2.5 py-1 rounded-md bg-[#111116] hover:bg-[#171720] border border-white/[0.08] hover:border-white/[0.16] transition-colors cursor-pointer"
           >
             Close
           </button>
@@ -50,7 +50,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
           placeholder="e.g., London, Austin, CA"
           value={filters.location}
           onChange={(e) => onChange("location", e.target.value)}
-          className="h-9 text-xs"
+          className="h-9 text-xs bg-[#111116] border-white/[0.08] text-white focus:border-[#7D39EB]/60 focus:ring-[#7D39EB]"
         />
 
         <Select
@@ -66,7 +66,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "technology", label: "Technology & Software" },
             { value: "ecommerce", label: "E-Commerce & Retail" },
           ]}
-          className="h-9 text-xs"
+          className="h-9 text-xs bg-[#111116] border-white/[0.08] text-[#CBCBD6]"
         />
 
         <Select
@@ -81,7 +81,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "51-200", label: "51-200 Employees" },
             { value: "201+", label: "201+ Employees" },
           ]}
-          className="h-9 text-xs"
+          className="h-9 text-xs bg-[#111116] border-white/[0.08] text-[#CBCBD6]"
         />
 
         <Select
@@ -98,7 +98,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "replied", label: "Replied" },
             { value: "opted_out", label: "Opted Out" },
           ]}
-          className="h-9 text-xs"
+          className="h-9 text-xs bg-[#111116] border-white/[0.08] text-[#CBCBD6]"
         />
       </div>
 
@@ -115,7 +115,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "directory", label: "B2B Directory" },
             { value: "inbound", label: "Inbound Capture" },
           ]}
-          className="h-9 text-xs"
+          className="h-9 text-xs bg-[#111116] border-white/[0.08] text-[#CBCBD6]"
         />
 
         <Select
@@ -129,7 +129,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "70", label: "Score >= 70 (Qualified)" },
             { value: "85", label: "Score >= 85 (High Priority)" },
           ]}
-          className="h-9 text-xs"
+          className="h-9 text-xs bg-[#111116] border-white/[0.08] text-[#CBCBD6]"
         />
 
         <Select
@@ -142,7 +142,7 @@ export function LeadsFilters({ filters, onChange, onReset, onClose }: LeadsFilte
             { value: "ready", label: "Call Ready (Qualified)" },
             { value: "new", label: "Needs Research / Discovery" },
           ]}
-          className="h-9 text-xs"
+          className="h-9 text-xs bg-[#111116] border-white/[0.08] text-[#CBCBD6]"
         />
       </div>
     </div>

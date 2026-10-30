@@ -8,14 +8,17 @@ import { TrashIcon } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { LeadStatusSelect } from "./lead-status-select";
+import { normalizeWhatsAppNumber } from "./lead-contact-actions";
+import { DataQualityBadge } from "./lead-status-badge";
 import { api, ApiClientError } from "@/lib/api-client";
 import {
   type BackendLead,
   type BackendContact,
   mapBackendStatusToLeadStatus,
   mapLeadStatusToBackendStatus,
+  mapBackendLeadToFrontend,
 } from "@/lib/mappers";
-import type { LeadAiWorkflowResult } from "@/types/leads";
+import type { Lead, LeadAiWorkflowResult } from "@/types/leads";
 import type { CRMActivity } from "@/types/crm";
 
 export interface LeadDetailModalProps {
@@ -24,6 +27,7 @@ export interface LeadDetailModalProps {
   onClose: () => void;
   onLeadUpdated?: () => void;
   onLeadDeleted?: () => void;
+  onPrepareCall?: (lead: Lead) => void;
 }
 
 function getSafeWebsiteUrl(raw: string): string {
@@ -38,6 +42,7 @@ export function LeadDetailModal({
   onClose,
   onLeadUpdated,
   onLeadDeleted,
+  onPrepareCall,
 }: LeadDetailModalProps) {
   const [lead, setLead] = useState<BackendLead | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -335,6 +340,8 @@ export function LeadDetailModal({
     !isRejected &&
     !isDisqualifiedOrSkipped;
 
+  const waNumber = normalizeWhatsAppNumber(lead?.phone);
+
   return (
     <>
     <Dialog
@@ -346,14 +353,14 @@ export function LeadDetailModal({
       }}
       title={lead?.businessName || "Lead Intelligence Dossier"}
       description="Prospect operational records, website gap audits, and LangGraph AI analysis."
-      className="!max-w-4xl max-h-[90vh] overflow-y-auto !bg-[#0d0d12] !border-white/[0.10] !rounded-xl !p-6 shadow-[0_24px_64px_rgba(0,0,0,0.85)]"
+      className="!max-w-4xl max-h-[90vh] overflow-y-auto !bg-[#0A0A0E] !border-white/[0.12] !rounded-2xl !p-6 shadow-[0_24px_64px_rgba(0,0,0,0.95)]"
     >
       <div className="space-y-6 pt-2">
         {/* Loading State */}
         {isLoading && (
-          <div className="py-16 text-center border border-white/[0.08] rounded-xl bg-[#121218]">
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-xs text-zinc-400">Loading lead intelligence...</p>
+          <div className="py-16 text-center border border-white/[0.08] rounded-xl bg-[#111116]">
+            <div className="w-6 h-6 border-2 border-[#7D39EB] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs text-[#8E8E9F]">Loading lead intelligence...</p>
           </div>
         )}
 
@@ -395,32 +402,32 @@ export function LeadDetailModal({
         {lead && !isLoading && (
           <>
             {/* Lead Header Overview */}
-            <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
+            <div className="p-4 rounded-xl bg-[#111116] border border-white/[0.08] space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
                 <div>
-                  <h3 className="text-base font-semibold text-white">
+                  <h3 className="text-lg font-semibold text-white tracking-tight">
                     {lead.businessName}
                   </h3>
-                  <p className="text-[11px] text-zinc-400 font-mono mt-0.5">
-                    Lead ID: {lead.id}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-[11px] text-[#8E8E9F] font-mono">
+                      Lead ID: {lead.id}
+                    </p>
+                    {lead.domain && (
+                      <a
+                        href={getSafeWebsiteUrl(lead.domain)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-mono text-[#7D39EB] hover:text-[#B78AF7] hover:underline"
+                      >
+                        {lead.domain} ↗
+                      </a>
+                    )}
+                  </div>
                 </div>
+
                 <div className="flex items-center gap-2">
                   {lead.dataQuality && (
-                    <Badge
-                      size="sm"
-                      variant={
-                        lead.dataQuality === "COMPLETE" || lead.dataQuality === "GOOD"
-                          ? "success"
-                          : lead.dataQuality === "PARTIAL"
-                          ? "warning"
-                          : "secondary"
-                      }
-                      dot
-                      className="font-mono text-[10px] tracking-wide uppercase"
-                    >
-                      Quality: {lead.dataQuality}
-                    </Badge>
+                    <DataQualityBadge quality={lead.dataQuality} />
                   )}
                   <LeadStatusSelect
                     leadId={lead.id}
@@ -443,10 +450,127 @@ export function LeadDetailModal({
                 </div>
               </div>
 
+              {/* Direct Contact Actions Cluster (WhatsApp, Email, Call, AI Voice Call) */}
+              <div className="p-3 rounded-lg bg-[#0A0A0E] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#8E8E9F] font-semibold block">
+                    Direct Contact Actions
+                  </span>
+                  <span className="text-xs text-[#CBCBD6]">
+                    Immediate prospect touchpoints and AI outreach execution.
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* 1. WHATSAPP */}
+                  {waNumber ? (
+                    <a
+                      href={`https://wa.me/${waNumber}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Chat with ${lead.businessName} on WhatsApp (${lead.phone})`}
+                      title={`WhatsApp: ${lead.phone}`}
+                      className="h-8 px-3 rounded-lg border border-white/[0.08] bg-[#111116] hover:bg-[#7D39EB]/15 hover:border-[#7D39EB]/40 hover:text-white text-[#CBCBD6] text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                    >
+                      <svg className="w-3.5 h-3.5 text-[#25D366]" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                      <span>WhatsApp</span>
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      aria-label="No valid phone number for WhatsApp"
+                      title="No valid phone number for WhatsApp"
+                      className="h-8 px-3 rounded-lg border border-white/[0.04] bg-white/[0.02] text-[#8E8E9F] text-xs font-medium flex items-center gap-1.5 opacity-30 cursor-not-allowed"
+                    >
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                      <span>WhatsApp</span>
+                    </button>
+                  )}
+
+                  {/* 2. EMAIL */}
+                  {lead.email ? (
+                    <a
+                      href={`mailto:${lead.email}`}
+                      aria-label={`Send email to ${lead.email}`}
+                      title={`Email: ${lead.email}`}
+                      className="h-8 px-3 rounded-lg border border-white/[0.08] bg-[#111116] hover:bg-[#7D39EB]/15 hover:border-[#7D39EB]/40 hover:text-white text-[#CBCBD6] text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                    >
+                      <svg className="w-3.5 h-3.5 text-[#CBCBD6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span>Email</span>
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      aria-label="No email address provided"
+                      title="No email address provided"
+                      className="h-8 px-3 rounded-lg border border-white/[0.04] bg-white/[0.02] text-[#8E8E9F] text-xs font-medium flex items-center gap-1.5 opacity-30 cursor-not-allowed"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span>Email</span>
+                    </button>
+                  )}
+
+                  {/* 3. DIRECT DIAL CALL */}
+                  {lead.phone ? (
+                    <a
+                      href={`tel:${lead.phone.replace(/\s+/g, "")}`}
+                      aria-label={`Direct dial ${lead.phone}`}
+                      title={`Direct Dial: ${lead.phone}`}
+                      className="h-8 px-3 rounded-lg border border-white/[0.08] bg-[#111116] hover:bg-[#7D39EB]/15 hover:border-[#7D39EB]/40 hover:text-white text-[#CBCBD6] text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                    >
+                      <svg className="w-3.5 h-3.5 text-[#C6FF33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span>Direct Dial</span>
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      aria-label="No phone number provided"
+                      title="No phone number provided"
+                      className="h-8 px-3 rounded-lg border border-white/[0.04] bg-white/[0.02] text-[#8E8E9F] text-xs font-medium flex items-center gap-1.5 opacity-30 cursor-not-allowed"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span>Direct Dial</span>
+                    </button>
+                  )}
+
+                  {/* 4. AI VOICE CALL ACTION */}
+                  {onPrepareCall && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const mapped = mapBackendLeadToFrontend(lead);
+                        onPrepareCall(mapped);
+                      }}
+                      className="h-8 px-3 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_16px_rgba(125,57,235,0.4)] active:scale-[0.98] cursor-pointer"
+                      title="Launch AI Voice Call Assistant"
+                    >
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span>AI Voice Call</span>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Dossier Navigation Tabs */}
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#09090b] border border-white/[0.08] overflow-x-auto">
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0A0A0E] border border-white/[0.08] overflow-x-auto">
               {[
                 { id: "all", label: "All Dossier" },
                 { id: "overview", label: "Overview & Contacts" },
@@ -460,8 +584,8 @@ export function LeadDetailModal({
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono whitespace-nowrap transition-all cursor-pointer ${
                     activeTab === tab.id
-                      ? "bg-white/[0.12] text-white shadow-sm font-semibold border border-white/[0.12]"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent"
+                      ? "bg-[#7D39EB]/20 text-white font-semibold border border-[#7D39EB]/40 shadow-[0_0_12px_rgba(125,57,235,0.25)]"
+                      : "text-[#8E8E9F] hover:text-white hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
                   {tab.label}
@@ -471,19 +595,19 @@ export function LeadDetailModal({
 
             {/* Core Attributes Grid */}
             {(activeTab === "all" || activeTab === "overview") && (
-              <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-3">
+              <div className="p-4 rounded-xl bg-[#111116] border border-white/[0.08] space-y-3">
                 <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                   Prospect Attributes
                 </h4>
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
                 {/* Website / Domain (6 cols) */}
-                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors flex flex-col justify-between gap-2.5">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex items-center gap-1.5 text-[#8E8E9F]">
+                      <svg className="w-3.5 h-3.5 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                       </svg>
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] whitespace-nowrap">
                         Website / Domain
                       </span>
                     </div>
@@ -516,7 +640,7 @@ export function LeadDetailModal({
                           </span>
                         </a>
                       ) : (
-                        <span className="text-zinc-500 italic text-xs">Not available</span>
+                        <span className="text-[#8E8E9F] italic text-xs">Not available</span>
                       )}
                     </div>
 
@@ -527,18 +651,18 @@ export function LeadDetailModal({
                           onClick={() => handleCopy(lead.domain || "", "domain")}
                           aria-label="Copy website domain"
                           title="Copy domain"
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#8E8E9F] hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer"
                         >
                           {copiedField === "domain" ? (
                             <>
-                              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className="w-3 h-3 text-[#C6FF33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                               </svg>
-                              <span className="text-emerald-400">Copied</span>
+                              <span className="text-[#C6FF33]">Copied</span>
                             </>
                           ) : (
                             <>
-                              <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className="w-3 h-3 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                               </svg>
                               <span>Copy</span>
@@ -552,10 +676,10 @@ export function LeadDetailModal({
                           rel="noopener noreferrer"
                           aria-label={`Open website: ${lead.domain}`}
                           title="Open website in new tab"
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#CBCBD6] hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
                         >
                           <span>Visit</span>
-                          <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
                         </a>
@@ -565,7 +689,7 @@ export function LeadDetailModal({
 
                   {extraWebsites.length > 0 && (
                     <div className="pt-2 border-t border-white/[0.04] space-y-1">
-                      <span className="text-[10px] text-zinc-500 font-mono uppercase block">Additional Websites</span>
+                      <span className="text-[10px] text-[#8E8E9F] font-mono uppercase block">Additional Websites</span>
                       <div className="flex flex-wrap gap-2">
                         {extraWebsites.map((w, idx) => (
                           <a
@@ -573,7 +697,7 @@ export function LeadDetailModal({
                             href={getSafeWebsiteUrl(w)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.02] hover:bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.04] transition-colors"
+                            className="text-[11px] font-mono text-[#CBCBD6] hover:text-white bg-white/[0.02] hover:bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.04] transition-colors"
                           >
                             {w}
                           </a>
@@ -584,12 +708,12 @@ export function LeadDetailModal({
                 </div>
 
                 {/* Phone Number (6 cols) */}
-                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 text-zinc-400">
-                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-[#8E8E9F]">
+                    <svg className="w-3.5 h-3.5 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] whitespace-nowrap">
                       Phone Number
                     </span>
                   </div>
@@ -608,7 +732,7 @@ export function LeadDetailModal({
                           </span>
                         </a>
                       ) : (
-                        <span className="text-zinc-500 italic text-xs">Not available</span>
+                        <span className="text-[#8E8E9F] italic text-xs">Not available</span>
                       )}
                     </div>
 
@@ -619,18 +743,18 @@ export function LeadDetailModal({
                           onClick={() => handleCopy(lead.phone || "", "phone")}
                           aria-label="Copy phone number"
                           title="Copy phone number"
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#8E8E9F] hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer"
                         >
                           {copiedField === "phone" ? (
                             <>
-                              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className="w-3 h-3 text-[#C6FF33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                               </svg>
-                              <span className="text-emerald-400">Copied</span>
+                              <span className="text-[#C6FF33]">Copied</span>
                             </>
                           ) : (
                             <>
-                              <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className="w-3 h-3 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                               </svg>
                               <span>Copy</span>
@@ -642,9 +766,9 @@ export function LeadDetailModal({
                           href={`tel:${lead.phone.replace(/\s+/g, "")}`}
                           aria-label={`Call ${lead.phone}`}
                           title={`Call ${lead.phone}`}
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-emerald-300 hover:text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#C6FF33] hover:text-white bg-[#C6FF33]/10 hover:bg-[#C6FF33]/20 border border-[#C6FF33]/30 transition-colors"
                         >
-                          <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-[#C6FF33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
                           <span>Call</span>
@@ -655,16 +779,16 @@ export function LeadDetailModal({
 
                   {extraPhones.length > 0 && (
                     <div className="pt-2 border-t border-white/[0.04] space-y-1">
-                      <span className="text-[10px] text-zinc-500 font-mono uppercase block">Additional Phones</span>
+                      <span className="text-[10px] text-[#8E8E9F] font-mono uppercase block">Additional Phones</span>
                       <div className="flex flex-wrap gap-2">
                         {extraPhones.map((p, idx) => (
-                          <div key={idx} className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-300 bg-white/[0.02] px-2 py-0.5 rounded border border-white/[0.04]">
+                          <div key={idx} className="flex items-center gap-1.5 text-[11px] font-mono text-[#CBCBD6] bg-white/[0.02] px-2 py-0.5 rounded border border-white/[0.04]">
                             <span>{p}</span>
                             <a
                               href={`tel:${p.replace(/\s+/g, "")}`}
                               aria-label={`Call ${p}`}
                               title={`Call ${p}`}
-                              className="text-emerald-400 hover:text-emerald-300"
+                              className="text-[#C6FF33] hover:text-white"
                             >
                               <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -677,14 +801,14 @@ export function LeadDetailModal({
                   )}
                 </div>
 
-                {/* Public Business Email (6 cols, only when email data present) */}
+                {/* Public Business Email (6 cols) */}
                 {hasEmail && (
-                  <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors flex flex-col justify-between gap-2.5">
+                    <div className="flex items-center gap-1.5 text-[#8E8E9F]">
+                      <svg className="w-3.5 h-3.5 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] whitespace-nowrap">
                         Business Email
                       </span>
                     </div>
@@ -703,7 +827,7 @@ export function LeadDetailModal({
                             </span>
                           </a>
                         ) : (
-                          <span className="text-zinc-500 italic text-xs">Primary not set</span>
+                          <span className="text-[#8E8E9F] italic text-xs">Primary not set</span>
                         )}
                       </div>
 
@@ -714,18 +838,18 @@ export function LeadDetailModal({
                             onClick={() => handleCopy(primaryEmail, "email")}
                             aria-label="Copy email address"
                             title="Copy email address"
-                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#8E8E9F] hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer"
                           >
                             {copiedField === "email" ? (
                               <>
-                                <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-3 h-3 text-[#C6FF33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="text-emerald-400">Copied</span>
+                                <span className="text-[#C6FF33]">Copied</span>
                               </>
                             ) : (
                               <>
-                                <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-3 h-3 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                 </svg>
                                 <span>Copy</span>
@@ -737,9 +861,9 @@ export function LeadDetailModal({
                             href={`mailto:${primaryEmail}`}
                             aria-label={`Send email to ${primaryEmail}`}
                             title={`Send email to ${primaryEmail}`}
-                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-cyan-300 hover:text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition-colors"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#7D39EB] hover:text-white bg-[#7D39EB]/15 hover:bg-[#7D39EB]/30 border border-[#7D39EB]/35 transition-colors"
                           >
-                            <svg className="w-3 h-3 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-[#B78AF7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             <span>Email</span>
@@ -750,13 +874,13 @@ export function LeadDetailModal({
 
                     {extraEmails.length > 0 && (
                       <div className="pt-2 border-t border-white/[0.04] space-y-1">
-                        <span className="text-[10px] text-zinc-500 font-mono uppercase block">Additional Emails</span>
+                        <span className="text-[10px] text-[#8E8E9F] font-mono uppercase block">Additional Emails</span>
                         <div className="flex flex-wrap gap-2">
                           {extraEmails.map((em, idx) => (
                             <a
                               key={idx}
                               href={`mailto:${em}`}
-                              className="text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.02] hover:bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.04] transition-colors"
+                              className="text-[11px] font-mono text-[#CBCBD6] hover:text-white bg-white/[0.02] hover:bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.04] transition-colors"
                             >
                               {em}
                             </a>
@@ -768,12 +892,12 @@ export function LeadDetailModal({
                 )}
 
                 {/* Discovered Date */}
-                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 text-zinc-400">
-                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-[#8E8E9F]">
+                    <svg className="w-3.5 h-3.5 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] whitespace-nowrap">
                       Discovered / Ingested Date
                     </span>
                   </div>
@@ -790,12 +914,12 @@ export function LeadDetailModal({
                 </div>
 
                 {/* Lead Source & Campaign */}
-                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 text-zinc-400">
-                    <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-[#8E8E9F]">
+                    <svg className="w-3.5 h-3.5 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] whitespace-nowrap">
                       Source &amp; Campaign
                     </span>
                   </div>
@@ -804,19 +928,19 @@ export function LeadDetailModal({
                     <div className="text-zinc-200 font-medium text-sm capitalize">
                       {lead.campaign?.name || "Discovery / Organic Intake"}
                     </div>
-                    <div className="text-[11px] text-zinc-400 font-mono">
-                      Channel: <span className="text-zinc-300">Lead Source Discovery</span>
+                    <div className="text-[11px] text-[#8E8E9F] font-mono">
+                      Channel: <span className="text-white">Lead Source Discovery</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Google Places Rating & Reviews */}
-                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 text-zinc-400">
+                {/* Rating & Reviews */}
+                <div className="sm:col-span-6 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors flex flex-col justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 text-[#8E8E9F]">
                     <svg className="w-3.5 h-3.5 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                     </svg>
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] whitespace-nowrap">
                       Rating &amp; Reviews
                     </span>
                   </div>
@@ -827,30 +951,30 @@ export function LeadDetailModal({
                         <span className="text-amber-400 font-mono font-semibold text-sm">
                           ★ {(lead.rating ?? (lead.metadata as Record<string, unknown> | undefined)?.rating) as number}
                         </span>
-                        <span className="text-zinc-400 text-xs">
+                        <span className="text-[#8E8E9F] text-xs">
                           / 5.0
                           {((lead.userRatingsTotal !== undefined) || (lead.metadata as Record<string, unknown> | undefined)?.userRatingsTotal !== undefined) && (
-                            <span className="ml-1 text-zinc-500 font-mono">
+                            <span className="ml-1 text-[#565668] font-mono">
                               ({(lead.userRatingsTotal ?? (lead.metadata as Record<string, unknown> | undefined)?.userRatingsTotal) as number} reviews)
                             </span>
                           )}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-zinc-500 italic text-xs">Not available</span>
+                      <span className="text-[#8E8E9F] italic text-xs">Not available</span>
                     )}
                   </div>
                 </div>
 
                 {/* Location / Address */}
-                <div className={`${hasEmail ? "sm:col-span-12" : "sm:col-span-8"} p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.09] transition-colors flex flex-col justify-between gap-2.5`}>
+                <div className={`${hasEmail ? "sm:col-span-12" : "sm:col-span-8"} p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors flex flex-col justify-between gap-2.5`}>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex items-center gap-1.5 text-[#8E8E9F]">
+                      <svg className="w-3.5 h-3.5 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 whitespace-nowrap">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] whitespace-nowrap">
                         Location / Address
                       </span>
                     </div>
@@ -889,7 +1013,7 @@ export function LeadDetailModal({
                           </p>
                         )
                       ) : (
-                        <span className="text-zinc-500 italic text-xs">Not available</span>
+                        <span className="text-[#8E8E9F] italic text-xs">Not available</span>
                       )}
                     </div>
 
@@ -900,18 +1024,18 @@ export function LeadDetailModal({
                           onClick={() => handleCopy(lead.address || "", "address")}
                           aria-label="Copy address"
                           title="Copy address"
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#8E8E9F] hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer"
                         >
                           {copiedField === "address" ? (
                             <>
-                              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className="w-3 h-3 text-[#C6FF33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                               </svg>
-                              <span className="text-emerald-400">Copied</span>
+                              <span className="text-[#C6FF33]">Copied</span>
                             </>
                           ) : (
                             <>
-                              <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className="w-3 h-3 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                               </svg>
                               <span>Copy</span>
@@ -926,47 +1050,30 @@ export function LeadDetailModal({
                             rel="noopener noreferrer"
                             aria-label={`Open address in maps: ${lead.address}`}
                             title="Open address in maps"
-                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-zinc-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-[#CBCBD6] hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] transition-colors"
                           >
                             <span>Maps</span>
-                            <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                           </a>
-                        ) : (
-                          <span className="text-zinc-600 text-[11px] font-mono px-1.5 py-0.5">Maps link not available</span>
-                        )}
+                        ) : null}
                       </div>
                     )}
                   </div>
 
                   {((lead.latitude !== undefined && lead.longitude !== undefined) || lead.placeId) && (
-                    <div className="pt-2 border-t border-white/[0.04] flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-mono text-zinc-400">
+                    <div className="pt-2 border-t border-white/[0.04] flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-mono text-[#8E8E9F]">
                       {lead.latitude !== undefined && lead.longitude !== undefined && (
                         <div className="flex items-center gap-1.5">
-                          <span className="text-zinc-500 text-[10px] uppercase">Coords:</span>
+                          <span className="text-[#565668] text-[10px] uppercase">Coords:</span>
                           <span className="text-zinc-300">{lead.latitude.toFixed(6)}, {lead.longitude.toFixed(6)}</span>
                         </div>
                       )}
                       {lead.placeId && (
                         <div className="flex items-center gap-1.5">
-                          <span className="text-zinc-500 text-[10px] uppercase">Provider Place ID:</span>
+                          <span className="text-[#565668] text-[10px] uppercase">Provider Place ID:</span>
                           <span className="text-zinc-300 truncate max-w-[200px]" title={lead.placeId}>{lead.placeId}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(lead.placeId || "", "placeId")}
-                            aria-label="Copy Provider Place ID"
-                            title="Copy Provider Place ID"
-                            className="text-zinc-500 hover:text-zinc-300"
-                          >
-                            {copiedField === "placeId" ? (
-                              <span className="text-[10px] text-emerald-400">Copied</span>
-                            ) : (
-                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                              </svg>
-                            )}
-                          </button>
                         </div>
                       )}
                     </div>
@@ -978,7 +1085,7 @@ export function LeadDetailModal({
 
             {/* Contacts Roster */}
             {(activeTab === "all" || activeTab === "overview") && (
-              <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-3">
+              <div className="p-4 rounded-xl bg-[#111116] border border-white/[0.08] space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                   Associated Contacts ({lead.contacts?.length || 0})
@@ -998,16 +1105,16 @@ export function LeadDetailModal({
                             {contact.fullName}
                           </span>
                           {contact.isPrimary && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 font-mono">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#7D39EB]/20 text-[#B78AF7] border border-[#7D39EB]/30 font-mono">
                               PRIMARY
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-zinc-400">
+                        <p className="text-[11px] text-[#8E8E9F]">
                           {contact.title || "No title recorded"}
                         </p>
                       </div>
-                      <div className="text-right space-y-0.5 text-zinc-400 text-[11px]">
+                      <div className="text-right space-y-0.5 text-[#8E8E9F] text-[11px]">
                         <div>{contact.email || "No email"}</div>
                         <div>{contact.phone || "No direct phone"}</div>
                       </div>
@@ -1015,31 +1122,31 @@ export function LeadDetailModal({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-zinc-500 py-2">
+                <p className="text-xs text-[#8E8E9F] py-2">
                   No individual contacts recorded for this lead yet.
                 </p>
               )}
             </div>
             )}
 
-            {/* CRM Notes & Activity Timeline (Phase 2.3 & 2.4 Server Grounded) */}
+            {/* CRM Notes & Activity Timeline */}
             {(activeTab === "all" || activeTab === "crm") && (
-              <div className="p-4 sm:p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
+              <div className="p-4 sm:p-5 rounded-xl bg-[#111116] border border-white/[0.08] space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
                 <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-[#7D39EB] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                     CRM Activity &amp; Notes Timeline ({activities.length})
                   </h4>
                 </div>
-                <span className="text-[11px] font-mono text-zinc-500">Real Database Log</span>
+                <span className="text-[11px] font-mono text-[#8E8E9F]">Database Timeline</span>
               </div>
 
               {/* Add Note Input Form */}
               <form onSubmit={handleCreateNote} className="space-y-2">
-                <label htmlFor="crm-note-field" className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 block font-semibold">
+                <label htmlFor="crm-note-field" className="text-[10px] uppercase font-mono tracking-wider text-[#8E8E9F] block font-semibold">
                   Record Operator Note
                 </label>
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -1050,14 +1157,12 @@ export function LeadDetailModal({
                     onChange={(e) => setNewNote(e.target.value)}
                     placeholder="Enter call notes, client objection, or follow-up reason..."
                     disabled={isSavingNote}
-                    className="flex-1 bg-[#09090b] border border-white/[0.10] rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors font-sans"
+                    className="flex-1 bg-[#0A0A0E] border border-white/[0.10] rounded-lg px-3 py-2 text-xs text-white placeholder:text-[#565668] focus:outline-none focus:border-[#7D39EB]/60 focus:ring-1 focus:ring-[#7D39EB] transition-colors font-sans"
                   />
-                  <Button
+                  <button
                     type="submit"
-                    variant="primary"
-                    size="sm"
                     disabled={isSavingNote || !newNote.trim()}
-                    className="text-xs shrink-0 flex items-center gap-1.5"
+                    className="h-8.5 px-3.5 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-all shadow-[0_0_16px_rgba(125,57,235,0.3)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isSavingNote ? (
                       <>
@@ -1070,7 +1175,7 @@ export function LeadDetailModal({
                         <span>+</span>
                       </>
                     )}
-                  </Button>
+                  </button>
                 </div>
                 {noteError && (
                   <p className="text-xs text-rose-400 font-mono mt-1">{noteError}</p>
@@ -1086,7 +1191,7 @@ export function LeadDetailModal({
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase font-medium ${
                             act.type === "STAGE_CHANGE"
-                              ? "bg-purple-500/10 text-purple-300 border-purple-500/20"
+                              ? "bg-[#7D39EB]/15 text-[#B78AF7] border-[#7D39EB]/30"
                               : act.type === "NOTE"
                               ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/20"
                               : act.type === "CALL_LOG"
@@ -1095,7 +1200,7 @@ export function LeadDetailModal({
                           }`}>
                             {act.type.replace(/_/g, " ")}
                           </span>
-                          <span className="text-[10px] text-zinc-500 font-mono">
+                          <span className="text-[10px] text-[#8E8E9F] font-mono">
                             {new Date(act.createdAt).toLocaleString("en-US", {
                               month: "short",
                               day: "numeric",
@@ -1113,33 +1218,35 @@ export function LeadDetailModal({
                 </div>
               ) : (
                 <div className="py-6 text-center border border-dashed border-white/[0.06] rounded-lg bg-white/[0.01] space-y-1">
-                  <p className="text-xs text-zinc-400">No CRM notes or activity history recorded yet.</p>
-                  <p className="text-[11px] text-zinc-500 font-mono">Stage changes and operator notes will appear here automatically.</p>
+                  <p className="text-xs text-[#8E8E9F]">No CRM notes or activity history recorded yet.</p>
+                  <p className="text-[11px] text-[#565668] font-mono">Stage changes and operator notes will appear here automatically.</p>
                 </div>
               )}
             </div>
             )}
 
-            {/* Stored Intelligence: Audit & Scoring (if available in lead data) */}
+            {/* Stored Intelligence: Audit & Scoring */}
             {(activeTab === "all" || activeTab === "audit") && (audit || score) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {score && (
-                  <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-2 text-xs">
+                  <div className="p-4 rounded-xl bg-[#111116] border border-white/[0.08] space-y-2 text-xs">
                     <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                       Lead Scoring
                     </h4>
                     <div className="flex items-baseline gap-3 pt-1">
-                      <span className="text-2xl font-bold text-white font-mono">
+                      <span className={`text-2xl font-bold font-mono ${
+                        score.totalScore >= 70 ? "text-[#C6FF33]" : "text-white"
+                      }`}>
                         {score.totalScore}
                       </span>
-                      <span className="text-zinc-400 text-[11px]">/ 100 overall</span>
+                      <span className="text-[#8E8E9F] text-[11px]">/ 100 overall</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-400 pt-1">
+                    <div className="grid grid-cols-2 gap-2 text-[11px] text-[#8E8E9F] pt-1">
                       <div>Relevance: {score.relevanceScore}/100</div>
                       <div>Opportunity: {score.opportunityScore}/100</div>
                     </div>
                     {score.reasoningRationale && (
-                      <p className="text-[11px] text-zinc-400 pt-1 border-t border-white/[0.04]">
+                      <p className="text-[11px] text-[#CBCBD6] pt-1 border-t border-white/[0.04]">
                         {score.reasoningRationale}
                       </p>
                     )}
@@ -1147,26 +1254,26 @@ export function LeadDetailModal({
                 )}
 
                 {audit && (
-                  <div className="p-4 rounded-xl bg-[#121218] border border-white/[0.08] space-y-2 text-xs">
+                  <div className="p-4 rounded-xl bg-[#111116] border border-white/[0.08] space-y-2 text-xs">
                     <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                       Website Audit
                     </h4>
                     <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-300 pt-1">
                       <div>
                         Mobile Ready:{" "}
-                        <span className={audit.mobileOptimized ? "text-emerald-400" : "text-zinc-500"}>
+                        <span className={audit.mobileOptimized ? "text-[#C6FF33] font-semibold" : "text-[#8E8E9F]"}>
                           {audit.mobileOptimized ? "Yes" : "No"}
                         </span>
                       </div>
                       <div>
                         Booking CTA:{" "}
-                        <span className={audit.bookingCtaVisible ? "text-emerald-400" : "text-zinc-500"}>
+                        <span className={audit.bookingCtaVisible ? "text-[#C6FF33] font-semibold" : "text-[#8E8E9F]"}>
                           {audit.bookingCtaVisible ? "Yes" : "No"}
                         </span>
                       </div>
                     </div>
                     {audit.summary && (
-                      <p className="text-[11px] text-zinc-400 pt-1 border-t border-white/[0.04]">
+                      <p className="text-[11px] text-[#CBCBD6] pt-1 border-t border-white/[0.04]">
                         {audit.summary}
                       </p>
                     )}
@@ -1177,10 +1284,10 @@ export function LeadDetailModal({
 
             {/* B4 Lead Actionability Section */}
             {(activeTab === "all" || activeTab === "audit" || activeTab === "overview") && lead.actionability && (
-              <div className="p-4 sm:p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
+              <div className="p-4 sm:p-5 rounded-xl bg-[#111116] border border-white/[0.08] space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
                   <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-[#7D39EB] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
@@ -1202,20 +1309,13 @@ export function LeadDetailModal({
                     >
                       {lead.actionability.tier.replace(/_/g, " ")}
                     </Badge>
-                    <Badge
-                      size="sm"
-                      variant={lead.actionability.isActionable ? "success" : "secondary"}
-                      className="font-mono text-[10px] tracking-wide uppercase"
-                    >
-                      {lead.actionability.isActionable ? "Actionable" : "Not Actionable"}
-                    </Badge>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   {/* Eligible Channels */}
                   <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1.5">
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] block">
                       Eligible Outbound Channels
                     </span>
                     <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -1223,20 +1323,20 @@ export function LeadDetailModal({
                         lead.actionability.eligibleChannels.map((channel) => (
                           <span
                             key={channel}
-                            className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                            className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#C6FF33]/10 text-[#C6FF33] border border-[#C6FF33]/30"
                           >
                             {channel}
                           </span>
                         ))
                       ) : (
-                        <span className="text-zinc-500 italic text-[11px]">None eligible</span>
+                        <span className="text-[#8E8E9F] italic text-[11px]">None eligible</span>
                       )}
                     </div>
                   </div>
 
                   {/* Missing Fields */}
                   <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1.5">
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] block">
                       Missing Required Fields
                     </span>
                     <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -1250,7 +1350,7 @@ export function LeadDetailModal({
                           </span>
                         ))
                       ) : (
-                        <span className="text-emerald-400/80 text-[11px] font-mono">None (Complete)</span>
+                        <span className="text-[#C6FF33] text-[11px] font-mono font-medium">None (Complete)</span>
                       )}
                     </div>
                   </div>
@@ -1259,13 +1359,13 @@ export function LeadDetailModal({
                 {/* Actionability Reasons */}
                 {lead.actionability.reasons && lead.actionability.reasons.length > 0 && (
                   <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1.5">
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] block">
                       Evaluation Reasons
                     </span>
                     <ul className="space-y-1 text-zinc-300 text-xs">
                       {lead.actionability.reasons.map((reason, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <span className="text-cyan-400 mt-0.5">•</span>
+                          <span className="text-[#7D39EB] mt-0.5">•</span>
                           <span className="leading-relaxed">{reason}</span>
                         </li>
                       ))}
@@ -1277,10 +1377,10 @@ export function LeadDetailModal({
 
             {/* Service Opportunity & Recommendation Section */}
             {(activeTab === "all" || activeTab === "audit" || activeTab === "overview") && (
-              <div className="p-4 sm:p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-4">
+              <div className="p-4 sm:p-5 rounded-xl bg-[#111116] border border-white/[0.08] space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
                 <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-[#C6FF33] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                   </svg>
                   <h4 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
@@ -1288,40 +1388,39 @@ export function LeadDetailModal({
                   </h4>
                 </div>
                 {lead.serviceRecommendation ? (
-                  <Badge
-                    size="sm"
-                    variant={lead.serviceRecommendation.serviceOpportunity === "YES" ? "success" : "secondary"}
-                    dot={lead.serviceRecommendation.serviceOpportunity === "YES"}
-                    className="font-mono text-[10px] tracking-wide uppercase"
-                  >
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded border uppercase font-medium ${
+                    lead.serviceRecommendation.serviceOpportunity === "YES"
+                      ? "bg-[#C6FF33]/10 text-[#C6FF33] border-[#C6FF33]/30"
+                      : "bg-white/[0.04] text-[#8E8E9F] border-white/[0.08]"
+                  }`}>
+                    {lead.serviceRecommendation.serviceOpportunity === "YES" && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33]" />
+                    )}
                     Opportunity: {lead.serviceRecommendation.serviceOpportunity}
-                  </Badge>
+                  </span>
                 ) : (
-                  <Badge size="sm" variant="outline" className="font-mono text-[10px] text-zinc-500">
-                    Not evaluated
-                  </Badge>
+                  <span className="text-[10px] font-mono text-[#8E8E9F]">Not evaluated</span>
                 )}
               </div>
 
               {lead.serviceRecommendation ? (
                 <div className="space-y-3 text-xs">
-                  {/* Service Opportunity & Recommended Service Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] block">
                         Service Opportunity
                       </span>
                       <div className="flex items-center gap-2 pt-0.5">
                         <span
                           className={`text-sm font-semibold font-mono ${
                             lead.serviceRecommendation.serviceOpportunity === "YES"
-                              ? "text-emerald-400"
-                              : "text-zinc-400"
+                              ? "text-[#C6FF33]"
+                              : "text-[#8E8E9F]"
                           }`}
                         >
                           {lead.serviceRecommendation.serviceOpportunity}
                         </span>
-                        <span className="text-[11px] text-zinc-500">
+                        <span className="text-[11px] text-[#8E8E9F]">
                           {lead.serviceRecommendation.serviceOpportunity === "YES"
                             ? "(Actionable client opportunity)"
                             : "(No opportunity identified)"}
@@ -1330,7 +1429,7 @@ export function LeadDetailModal({
                     </div>
 
                     <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] block">
                         Recommended Service
                       </span>
                       <div className="text-sm font-semibold text-white tracking-tight pt-0.5">
@@ -1341,7 +1440,7 @@ export function LeadDetailModal({
 
                   {/* Why / Reason */}
                   <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] block">
                       Why
                     </span>
                     <p className="text-zinc-200 text-xs leading-relaxed break-words whitespace-pre-wrap">
@@ -1351,21 +1450,18 @@ export function LeadDetailModal({
 
                   {/* Evidence */}
                   <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] space-y-1">
-                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-400 block">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-[#8E8E9F] block">
                       Evidence
                     </span>
-                    <p className="text-zinc-300 text-xs leading-relaxed font-mono bg-black/30 p-2.5 rounded border border-white/[0.04] break-words whitespace-pre-wrap">
+                    <p className="text-zinc-300 text-xs leading-relaxed font-mono bg-black/40 p-2.5 rounded border border-white/[0.04] break-words whitespace-pre-wrap">
                       {lead.serviceRecommendation.evidence || "Not specified."}
                     </p>
                   </div>
                 </div>
               ) : (
                 <div className="py-5 text-center rounded-lg bg-white/[0.01] border border-dashed border-white/[0.06] space-y-1">
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-[#8E8E9F]">
                     Service opportunity has not been evaluated for this prospect.
-                  </p>
-                  <p className="text-[11px] text-zinc-600 font-mono">
-                    State: Not evaluated
                   </p>
                 </div>
               )}
@@ -1374,12 +1470,12 @@ export function LeadDetailModal({
 
             {/* AI Results & Execution Section */}
             {(activeTab === "all" || activeTab === "ai") && (
-              <div className="p-5 rounded-xl bg-[#121218] border border-white/[0.08] space-y-5">
+              <div className="p-5 rounded-xl bg-[#111116] border border-white/[0.08] space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
                 <div>
                   <h4 className="text-sm font-semibold text-white flex items-center gap-2">
                     <svg
-                      className="w-4 h-4 text-zinc-300"
+                      className="w-4 h-4 text-[#7D39EB]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -1393,27 +1489,25 @@ export function LeadDetailModal({
                     </svg>
                     AI Intelligence &amp; Analysis
                   </h4>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">
+                  <p className="text-[11px] text-[#8E8E9F] mt-0.5">
                     LangGraph multi-step evaluation: research synthesis, qualification, and draft generation.
                   </p>
                 </div>
 
-                <Button
-                  variant="primary"
-                  size="sm"
+                <button
                   onClick={handleRunAiAnalysis}
                   disabled={isExecutingAi}
-                  className="flex items-center gap-2 text-xs font-medium"
+                  className="h-8.5 px-3.5 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold shadow-[0_0_20px_-4px_rgba(125,57,235,0.4)] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isExecutingAi ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>Executing AI Workflow...</span>
                     </>
                   ) : (
                     <>
                       <svg
-                        className="w-3.5 h-3.5"
+                        className="w-3.5 h-3.5 text-white"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -1434,7 +1528,7 @@ export function LeadDetailModal({
                       <span>Run AI Analysis</span>
                     </>
                   )}
-                </Button>
+                </button>
               </div>
 
               {/* AI Error Alert */}
@@ -1463,11 +1557,11 @@ export function LeadDetailModal({
               {/* Running Loading Placeholder */}
               {isExecutingAi && (
                 <div className="py-8 text-center border border-dashed border-white/10 rounded-xl bg-white/[0.01]">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <div className="w-5 h-5 border-2 border-[#7D39EB] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                   <p className="text-xs text-white font-medium">
                     Orchestrating LangGraph Agent Graph...
                   </p>
-                  <p className="text-[11px] text-zinc-500 mt-0.5">
+                  <p className="text-[11px] text-[#8E8E9F] mt-0.5">
                     Running research synthesis, qualification scoring, and message crafting.
                   </p>
                 </div>
@@ -1479,18 +1573,18 @@ export function LeadDetailModal({
                   {/* Workflow Execution Meta */}
                   <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.05] text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="text-zinc-400">Workflow Status:</span>
-                      <span className="px-2 py-0.5 rounded text-[11px] font-mono uppercase bg-white/10 text-white font-medium">
+                      <span className="text-[#8E8E9F]">Workflow Status:</span>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-mono uppercase bg-[#7D39EB]/15 text-[#B78AF7] border border-[#7D39EB]/30 font-medium">
                         {aiResult.status}
                       </span>
                     </div>
-                    <div className="text-zinc-500 text-[11px] font-mono">
+                    <div className="text-[#8E8E9F] text-[11px] font-mono">
                       Step: {aiResult.currentStep}
                     </div>
                   </div>
 
                   {/* 1. RESEARCH / AI INSIGHTS */}
-                  <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
+                  <div className="p-4 rounded-xl bg-[#0A0A0E] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         1. RESEARCH / AI INSIGHTS
@@ -1504,7 +1598,7 @@ export function LeadDetailModal({
 
                     <div className="space-y-2 text-xs">
                       <div>
-                        <span className="text-[11px] text-zinc-500 block mb-0.5">
+                        <span className="text-[11px] text-[#8E8E9F] block mb-0.5">
                           Prospect Summary:
                         </span>
                         <p className="text-zinc-200 leading-relaxed bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
@@ -1513,7 +1607,7 @@ export function LeadDetailModal({
                       </div>
 
                       <div className="flex items-center gap-2 pt-1">
-                        <span className="text-[11px] text-zinc-500">Detected Intent:</span>
+                        <span className="text-[11px] text-[#8E8E9F]">Detected Intent:</span>
                         <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-white/10 text-zinc-200">
                           {aiResult.aiResult?.intent || "—"}
                         </span>
@@ -1522,7 +1616,7 @@ export function LeadDetailModal({
                   </div>
 
                   {/* 2. AI QUALIFICATION */}
-                  <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
+                  <div className="p-4 rounded-xl bg-[#0A0A0E] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         2. AI QUALIFICATION
@@ -1532,7 +1626,7 @@ export function LeadDetailModal({
                           <span
                             className={`text-[11px] font-mono px-2 py-0.5 rounded font-semibold ${
                               aiResult.qualification.qualified
-                                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                ? "bg-[#C6FF33]/15 text-[#C6FF33] border border-[#C6FF33]/30"
                                 : "bg-zinc-800 text-zinc-300 border border-zinc-700"
                             }`}
                           >
@@ -1540,7 +1634,7 @@ export function LeadDetailModal({
                           </span>
                         )}
                         {aiResult.qualification?.score !== undefined && (
-                          <span className="text-[11px] font-mono text-zinc-400">
+                          <span className="text-[11px] font-mono text-[#8E8E9F]">
                             Score: {aiResult.qualification.score}/100
                           </span>
                         )}
@@ -1548,7 +1642,7 @@ export function LeadDetailModal({
                     </div>
 
                     <div className="text-xs">
-                      <span className="text-[11px] text-zinc-500 block mb-0.5">
+                      <span className="text-[11px] text-[#8E8E9F] block mb-0.5">
                         Qualification Rationale:
                       </span>
                       <p className="text-zinc-200 leading-relaxed bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
@@ -1558,7 +1652,7 @@ export function LeadDetailModal({
                   </div>
 
                   {/* 3. PERSONALIZED OUTREACH DRAFT */}
-                  <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
+                  <div className="p-4 rounded-xl bg-[#0A0A0E] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         3. PERSONALIZED OUTREACH DRAFT
@@ -1571,7 +1665,7 @@ export function LeadDetailModal({
                     <div className="space-y-2 text-xs">
                       {aiResult.personalizedMessage?.subject && (
                         <div>
-                          <span className="text-[11px] text-zinc-500 block mb-0.5">
+                          <span className="text-[11px] text-[#8E8E9F] block mb-0.5">
                             Subject:
                           </span>
                           <div className="text-white font-medium bg-white/[0.02] px-3 py-2 rounded-lg border border-white/[0.04]">
@@ -1581,7 +1675,7 @@ export function LeadDetailModal({
                       )}
 
                       <div>
-                        <span className="text-[11px] text-zinc-500 block mb-0.5">
+                        <span className="text-[11px] text-[#8E8E9F] block mb-0.5">
                           Draft Body:
                         </span>
                         <div className="text-zinc-200 whitespace-pre-wrap bg-white/[0.02] p-3 rounded-lg border border-white/[0.04] leading-relaxed font-sans text-xs">
@@ -1589,7 +1683,7 @@ export function LeadDetailModal({
                         </div>
                       </div>
 
-                      <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04] text-[10px] text-zinc-500 flex items-center gap-1.5 mt-2">
+                      <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04] text-[10px] text-[#8E8E9F] flex items-center gap-1.5 mt-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                         <span>Operator review draft only. Outbound dispatch is disabled.</span>
                       </div>
@@ -1597,14 +1691,14 @@ export function LeadDetailModal({
                   </div>
 
                   {/* 4. QUALITY CHECK */}
-                  <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
+                  <div className="p-4 rounded-xl bg-[#0A0A0E] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         4. QUALITY CHECK
                       </h5>
                       <div className="flex items-center gap-2">
                         {aiResult.qualityCheck?.passed === true && (
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-[#C6FF33]/15 text-[#C6FF33] border border-[#C6FF33]/30">
                             PASSED
                           </span>
                         )}
@@ -1613,52 +1707,26 @@ export function LeadDetailModal({
                             FLAGGED
                           </span>
                         )}
-                        {aiResult.qualityCheck && aiResult.qualityCheck.passed === undefined && (
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700">
-                            NOT ASSESSED
-                          </span>
-                        )}
-                        {!aiResult.qualityCheck && (
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700">
-                            SKIPPED
-                          </span>
-                        )}
-                        {aiResult.qualityCheck?.score !== undefined && (
-                          <span className="text-[11px] font-mono text-zinc-400">
-                            QC Score: {aiResult.qualityCheck.score}/100
-                          </span>
-                        )}
                       </div>
                     </div>
 
                     <div className="text-xs">
-                      <span className="text-[11px] text-zinc-500 block mb-1">
-                        Detected Issues:
-                      </span>
                       {aiResult.qualityCheck?.issues && aiResult.qualityCheck.issues.length > 0 ? (
                         <ul className="list-disc list-inside space-y-1 text-amber-300/90 text-xs bg-amber-950/20 p-2.5 rounded-lg border border-amber-800/30">
                           {aiResult.qualityCheck.issues.map((issue, idx) => (
                             <li key={idx}>{issue}</li>
                           ))}
                         </ul>
-                      ) : aiResult.qualityCheck?.passed === false ? (
-                        <p className="text-amber-300/80 text-[11px] italic bg-amber-950/20 p-2 rounded border border-amber-800/30">
-                          Quality check did not pass.
-                        </p>
-                      ) : aiResult.qualityCheck?.passed === true ? (
-                        <p className="text-zinc-400 text-[11px] italic">
-                          No quality or compliance issues detected.
-                        </p>
                       ) : (
-                        <p className="text-zinc-400 text-[11px] italic">
-                          Quality check was not executed for this lead.
+                        <p className="text-[#8E8E9F] text-[11px] italic">
+                          No quality or compliance issues detected.
                         </p>
                       )}
                     </div>
                   </div>
 
                   {/* 5. APPROVAL */}
-                  <div className="p-4 rounded-xl bg-[#0e0e12] border border-white/[0.06] space-y-3">
+                  <div className="p-4 rounded-xl bg-[#0A0A0E] border border-white/[0.06] space-y-3">
                     <div className="flex items-center justify-between">
                       <h5 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                         5. APPROVAL
@@ -1666,7 +1734,7 @@ export function LeadDetailModal({
                       <span
                         className={`text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold uppercase ${
                           isApproved
-                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            ? "bg-[#C6FF33]/15 text-[#C6FF33] border border-[#C6FF33]/30"
                             : isRejected
                             ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
                             : isDisqualifiedOrSkipped
@@ -1684,20 +1752,20 @@ export function LeadDetailModal({
                       </span>
                     </div>
 
-                    {/* Case A: Already Decided (Approved or Rejected) */}
+                    {/* Case A: Already Decided */}
                     {(isApproved || isRejected) && (
                       <div className="space-y-2">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-zinc-400 pt-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#8E8E9F] pt-1">
                           <div>
-                            <span className="text-zinc-500 block">
+                            <span className="text-[#565668] block">
                               {isApproved ? "Approved By:" : "Rejected By:"}
                             </span>
-                            <span className="text-zinc-200 font-medium">
+                            <span className="text-white font-medium">
                               {aiResult.approval?.approvedBy || "Operator"}
                             </span>
                           </div>
                           <div>
-                            <span className="text-zinc-500 block">Decision Timestamp:</span>
+                            <span className="text-[#565668] block">Decision Timestamp:</span>
                             <span className="text-zinc-200">
                               {aiResult.approval?.approvedAt
                                 ? new Date(aiResult.approval.approvedAt).toLocaleString()
@@ -1708,51 +1776,34 @@ export function LeadDetailModal({
 
                         {aiResult.approval?.reason && (
                           <p className="text-[11px] text-zinc-300 pt-1 border-t border-white/[0.04] bg-white/[0.01] p-2 rounded">
-                            <span className="text-zinc-500 font-mono uppercase text-[10px] block">Operator Notes:</span>
+                            <span className="text-[#8E8E9F] font-mono uppercase text-[10px] block">Operator Notes:</span>
                             {aiResult.approval.reason}
                           </p>
                         )}
-
-                        <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] text-[11px] text-zinc-400 flex items-center gap-2">
-                          <span className={`w-1.5 h-1.5 rounded-full ${isApproved ? "bg-emerald-400" : "bg-rose-400"}`} />
-                          <span>
-                            {isApproved
-                              ? "Lead status transitioned to CALL_READY. Eligible for Call Queue."
-                              : "Lead status transitioned to DISQUALIFIED. Excluded from outbound queue."}
-                          </span>
-                        </div>
                       </div>
                     )}
 
-                    {/* Case B: Disqualified / Approval Skipped */}
+                    {/* Case B: Disqualified */}
                     {isDisqualifiedOrSkipped && (
                       <div className="space-y-2 pt-1">
-                        <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] text-xs text-zinc-400 space-y-2">
-                          <div className="flex items-center gap-2 text-zinc-300">
-                            <svg className="w-4 h-4 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span className="font-medium">
-                              This lead was disqualified and did not enter the human approval queue.
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-zinc-500 pl-6 leading-relaxed">
-                            Human approval is not required when a lead does not meet qualification criteria. No outbound calling or outreach will be scheduled.
+                        <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] text-xs text-[#8E8E9F] space-y-2">
+                          <p className="text-[11px] text-[#8E8E9F] leading-relaxed">
+                            This lead was disqualified and did not enter the human approval queue.
                           </p>
                         </div>
                       </div>
                     )}
 
-                    {/* Case C: Qualified + Pending Review (Interactive Operator Console) */}
+                    {/* Case C: Pending Review */}
                     {isPendingReview && (
                       <div className="space-y-3 pt-1">
-                        <p className="text-xs text-zinc-400 leading-relaxed">
+                        <p className="text-xs text-[#8E8E9F] leading-relaxed">
                           Review the AI intelligence summary, qualification score, and drafted message above.
-                          Authorizing moves the lead to <span className="text-white font-mono font-semibold">CALL_READY</span> status for the operations queue.
+                          Authorizing moves the lead to <span className="text-white font-mono font-semibold">CALL_READY</span> status.
                         </p>
 
                         <div className="space-y-1.5">
-                          <label className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 block">
+                          <label className="text-[10px] uppercase font-mono tracking-wider text-[#8E8E9F] block">
                             Operator Notes / Reason (Optional)
                           </label>
                           <textarea
@@ -1761,7 +1812,7 @@ export function LeadDetailModal({
                             placeholder="Enter review feedback, target instructions, or rejection reason..."
                             rows={2}
                             disabled={isSubmittingApproval || isExecutingAi}
-                            className="w-full bg-[#09090b] border border-white/[0.10] rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/30 resize-none transition-colors"
+                            className="w-full bg-[#0A0A0E] border border-white/[0.10] rounded-lg px-3 py-2 text-xs text-white placeholder:text-[#565668] focus:outline-none focus:border-[#7D39EB]/60 focus:ring-1 focus:ring-[#7D39EB] resize-none transition-colors"
                           />
                         </div>
 
@@ -1772,12 +1823,11 @@ export function LeadDetailModal({
                         )}
 
                         <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                          <Button
-                            variant="primary"
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={handleApprove}
                             disabled={isSubmittingApproval || isExecutingAi}
-                            className="text-xs flex items-center gap-1.5"
+                            className="h-8.5 px-3.5 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold shadow-[0_0_16px_rgba(125,57,235,0.4)] active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
                           >
                             {isSubmittingApproval ? (
                               <>
@@ -1786,35 +1836,25 @@ export function LeadDetailModal({
                               </>
                             ) : (
                               <>
-                                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-3.5 h-3.5 text-[#C6FF33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span>Approve &amp; Queue for Calling</span>
                               </>
                             )}
-                          </Button>
+                          </button>
 
-                          <Button
-                            variant="destructive"
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={handleReject}
                             disabled={isSubmittingApproval || isExecutingAi}
-                            className="text-xs flex items-center gap-1.5"
+                            className="h-8.5 px-3.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:text-white text-xs font-medium transition-colors cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
                           >
                             <svg className="w-3.5 h-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             <span>Reject Lead</span>
-                          </Button>
-                        </div>
-
-                        <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04] text-[10px] text-zinc-500 flex items-center gap-2">
-                          <svg className="w-3 h-3 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                          </svg>
-                          <span>
-                            Stage 4 Safety Boundary: Operator authorization transitions lead to CALL_READY. Zero autonomous calls are placed.
-                          </span>
+                          </button>
                         </div>
                       </div>
                     )}
@@ -1825,10 +1865,10 @@ export function LeadDetailModal({
               {/* Pre-Analysis State */}
               {!aiResult && !isExecutingAi && (
                 <div className="py-6 text-center border border-dashed border-white/10 rounded-xl bg-white/[0.01]">
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-[#8E8E9F]">
                     AI analysis has not been executed for this lead yet.
                   </p>
-                  <p className="text-[11px] text-zinc-500 mt-1">
+                  <p className="text-[11px] text-[#565668] mt-1">
                     Click &ldquo;Run AI Analysis&rdquo; to execute the LangGraph intelligence pipeline.
                   </p>
                 </div>
@@ -1838,25 +1878,25 @@ export function LeadDetailModal({
           </>
         )}
 
-        {/* Modal Footer */}
-        <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
+        {/* Modal Footer with Permanent Delete */}
+        <div className="flex items-center justify-between pt-3 border-t border-white/[0.08]">
           <Button
             type="button"
             variant="destructive"
             size="sm"
             onClick={() => setDeleteConfirmOpen(true)}
             disabled={isExecutingAi || isDeleting || !leadId}
-            className="text-xs flex items-center gap-1.5"
+            className="text-xs flex items-center gap-1.5 cursor-pointer"
           >
             <TrashIcon size={13} />
-            <span>{isDeleting ? "Deleting..." : "Delete Lead"}</span>
+            <span>{isDeleting ? "Deleting..." : "Permanently Delete Lead"}</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={onClose}
             disabled={isExecutingAi}
-            className="text-xs"
+            className="text-xs bg-[#111116] hover:bg-[#171720] border-white/[0.08] text-[#CBCBD6] hover:text-white cursor-pointer"
           >
             Close Dossier
           </Button>

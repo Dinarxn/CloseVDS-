@@ -366,7 +366,7 @@ export function LeadImportModal({
       }}
       title="Import Leads"
       description="Upload and validate your prospect list (.csv) with column mapping and deduplication."
-      className="sm:max-w-3xl !bg-[#0d0d12] !border-white/[0.10] !rounded-xl !p-5 shadow-[0_24px_64px_rgba(0,0,0,0.85)]"
+      className="sm:max-w-3xl !bg-[#0A0A0E] !border-white/[0.12] !rounded-2xl !p-6 shadow-[0_24px_64px_rgba(0,0,0,0.95)]"
     >
       <div className="relative space-y-4">
         {/* Step Indicator Header */}
@@ -374,14 +374,14 @@ export function LeadImportModal({
           <div className="flex items-center gap-3">
             <span
               className={`flex items-center gap-1.5 ${
-                step === "upload" ? "text-white font-semibold" : "text-zinc-500"
+                step === "upload" ? "text-white font-semibold" : "text-[#8E8E9F]"
               }`}
             >
               <span
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] ${
                   step === "upload"
-                    ? "bg-white text-black font-bold"
-                    : "bg-white/[0.06] text-zinc-400"
+                    ? "bg-[#7D39EB] text-white font-bold shadow-[0_0_10px_rgba(125,57,235,0.5)]"
+                    : "bg-white/[0.06] text-[#8E8E9F]"
                 }`}
               >
                 1
@@ -389,18 +389,18 @@ export function LeadImportModal({
               <span>Upload CSV</span>
             </span>
 
-            <span className="text-zinc-700">→</span>
+            <span className="text-[#565668]">→</span>
 
             <span
               className={`flex items-center gap-1.5 ${
-                step === "configure" ? "text-white font-semibold" : "text-zinc-500"
+                step === "configure" ? "text-white font-semibold" : "text-[#8E8E9F]"
               }`}
             >
               <span
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] ${
                   step === "configure"
-                    ? "bg-white text-black font-bold"
-                    : "bg-white/[0.06] text-zinc-400"
+                    ? "bg-[#7D39EB] text-white font-bold shadow-[0_0_10px_rgba(125,57,235,0.5)]"
+                    : "bg-white/[0.06] text-[#8E8E9F]"
                 }`}
               >
                 2
@@ -408,20 +408,22 @@ export function LeadImportModal({
               <span>Map &amp; Validate</span>
             </span>
 
-            <span className="text-zinc-700">→</span>
+            <span className="text-[#565668]">→</span>
 
             <span
               className={`flex items-center gap-1.5 ${
                 step === "importing" || step === "result"
                   ? "text-white font-semibold"
-                  : "text-zinc-500"
+                  : "text-[#8E8E9F]"
               }`}
             >
               <span
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] ${
-                  step === "importing" || step === "result"
-                    ? "bg-white text-black font-bold"
-                    : "bg-white/[0.06] text-zinc-400"
+                  step === "result"
+                    ? "bg-[#C6FF33] text-black font-bold shadow-[0_0_10px_#C6FF33]"
+                    : step === "importing"
+                    ? "bg-[#7D39EB] text-white font-bold animate-pulse"
+                    : "bg-white/[0.06] text-[#8E8E9F]"
                 }`}
               >
                 3
@@ -433,10 +435,10 @@ export function LeadImportModal({
           <button
             type="button"
             onClick={handleDownloadSample}
-            className="text-[11px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-sans bg-white/[0.03] hover:bg-white/[0.07] px-2.5 py-1 rounded-md border border-white/[0.08]"
+            className="text-[11px] text-[#CBCBD6] hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-sans bg-[#111116] hover:bg-[#171720] px-2.5 py-1 rounded-md border border-white/[0.08] hover:border-[#7D39EB]/40"
             title="Download example CSV structure"
           >
-            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3.5 h-3.5 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             <span>Sample CSV</span>
@@ -459,8 +461,8 @@ export function LeadImportModal({
               onClick={() => fileInputRef.current?.click()}
               className={`relative p-8 sm:p-10 border-2 border-dashed rounded-xl text-center cursor-pointer transition-all ${
                 isDragging
-                  ? "border-white bg-white/[0.06] scale-[0.99]"
-                  : "border-white/[0.14] hover:border-white/[0.28] bg-[#09090b]/80 hover:bg-[#09090b]"
+                  ? "border-[#7D39EB] bg-[#7D39EB]/10 scale-[0.99] shadow-[0_0_24px_rgba(125,57,235,0.25)]"
+                  : "border-white/[0.12] hover:border-[#7D39EB]/50 bg-[#111116]/80 hover:bg-[#111116]"
               }`}
             >
               <input
@@ -471,7 +473,7 @@ export function LeadImportModal({
                 className="hidden"
               />
 
-              <div className="w-12 h-12 mx-auto rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-zinc-300 mb-3">
+              <div className="w-12 h-12 mx-auto rounded-xl bg-[#7D39EB]/10 border border-[#7D39EB]/25 flex items-center justify-center text-[#7D39EB] mb-3 shadow-[0_0_16px_rgba(125,57,235,0.2)]">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
@@ -480,11 +482,11 @@ export function LeadImportModal({
               <h4 className="text-sm font-semibold text-white tracking-tight mb-1">
                 Drop your CSV file here, or browse
               </h4>
-              <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+              <p className="text-xs text-[#8E8E9F] max-w-sm mx-auto leading-relaxed">
                 Supports standard comma-separated lead lists exported from Apollo, Google Maps, ZoomInfo, or custom spreadsheets.
               </p>
 
-              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] font-mono text-zinc-500">
+              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] font-mono text-[#565668]">
                 <span>Maximum 1,000 rows per batch</span>
                 <span>•</span>
                 <span>UTF-8 encoded</span>
@@ -493,28 +495,28 @@ export function LeadImportModal({
 
             {/* Quick Helper Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-1">
-                <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
+              <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08] space-y-1">
+                <div className="text-[10px] font-mono text-[#8E8E9F] uppercase tracking-wider font-semibold">
                   Required Fields
                 </div>
-                <p className="text-[11px] text-zinc-300 font-medium">Business Name</p>
-                <p className="text-[10px] text-zinc-500">Company title is required for record creation.</p>
+                <p className="text-[11px] text-white font-medium">Business Name</p>
+                <p className="text-[10px] text-[#8E8E9F]">Company title is required for record creation.</p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-1">
-                <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
+              <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08] space-y-1">
+                <div className="text-[10px] font-mono text-[#8E8E9F] uppercase tracking-wider font-semibold">
                   Contact Details
                 </div>
-                <p className="text-[11px] text-zinc-300 font-medium">Phone &amp; Email</p>
-                <p className="text-[10px] text-zinc-500">Normalized for AI outreach and call preparation.</p>
+                <p className="text-[11px] text-white font-medium">Phone &amp; Email</p>
+                <p className="text-[10px] text-[#8E8E9F]">Normalized for direct contact actions and calling.</p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-1">
-                <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
+              <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08] space-y-1">
+                <div className="text-[10px] font-mono text-[#8E8E9F] uppercase tracking-wider font-semibold">
                   Deduplication
                 </div>
-                <p className="text-[11px] text-zinc-300 font-medium">Domain &amp; Phone</p>
-                <p className="text-[10px] text-zinc-500">Automatically detects duplicates before saving.</p>
+                <p className="text-[11px] text-white font-medium">Domain &amp; Phone</p>
+                <p className="text-[10px] text-[#8E8E9F]">Automatically detects duplicates before saving.</p>
               </div>
             </div>
           </div>
@@ -524,7 +526,7 @@ export function LeadImportModal({
         {step === "configure" && (
           <div className="space-y-4 max-h-[68vh] overflow-y-auto pr-1">
             {/* File Info Bar */}
-            <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08] flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-[#111116] border border-white/[0.08] flex items-center justify-between">
               <div className="flex items-center gap-2 truncate">
                 <div className="w-6 h-6 rounded bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-zinc-300 shrink-0">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -532,7 +534,7 @@ export function LeadImportModal({
                   </svg>
                 </div>
                 <span className="text-xs font-semibold text-white truncate">{fileName}</span>
-                <span className="text-[11px] font-mono text-zinc-500 shrink-0">({fileSize})</span>
+                <span className="text-[11px] font-mono text-[#8E8E9F] shrink-0">({fileSize})</span>
                 <Badge variant="outline" className="text-[10px] font-mono tabular-nums">
                   {rawRows.length} rows detected
                 </Badge>
@@ -541,7 +543,7 @@ export function LeadImportModal({
               <button
                 type="button"
                 onClick={() => setStep("upload")}
-                className="text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer shrink-0 ml-2"
+                className="text-[11px] text-[#8E8E9F] hover:text-white transition-colors cursor-pointer shrink-0 ml-2"
               >
                 Change File
               </button>
@@ -549,16 +551,16 @@ export function LeadImportModal({
 
             {/* Validation & Deduplication Health Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="p-2.5 rounded-lg bg-[#09090b] border border-white/[0.08]">
-                <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Total Rows</div>
+              <div className="p-2.5 rounded-lg bg-[#111116] border border-white/[0.08]">
+                <div className="text-[10px] font-mono text-[#8E8E9F] uppercase tracking-wider">Total Rows</div>
                 <div className="text-lg font-bold text-white font-mono mt-0.5 tabular-nums">{summary.totalRows}</div>
-                <div className="text-[10px] text-zinc-500">In uploaded CSV</div>
+                <div className="text-[10px] text-[#8E8E9F]">In uploaded CSV</div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/25">
-                <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider">Valid Rows</div>
-                <div className="text-lg font-bold text-emerald-300 font-mono mt-0.5 tabular-nums">{summary.validCount}</div>
-                <div className="text-[10px] text-emerald-400/70">Ready for import</div>
+              <div className="p-2.5 rounded-lg bg-[#C6FF33]/10 border border-[#C6FF33]/30">
+                <div className="text-[10px] font-mono text-[#C6FF33] uppercase tracking-wider font-semibold">Valid Rows</div>
+                <div className="text-lg font-bold text-[#C6FF33] font-mono mt-0.5 tabular-nums">{summary.validCount}</div>
+                <div className="text-[10px] text-[#C6FF33]/80">Ready for import</div>
               </div>
 
               <div className="p-2.5 rounded-lg bg-amber-950/20 border border-amber-500/25">
@@ -577,20 +579,20 @@ export function LeadImportModal({
             </div>
 
             {/* Deduplication & Exclusion Policy Toggles */}
-            <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08] space-y-2">
+            <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08] space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                <div className="text-xs font-semibold text-zinc-200">Import &amp; Deduplication Policy</div>
-                <span className="text-[10px] font-mono text-zinc-500">
+                <div className="text-xs font-semibold text-white">Import &amp; Deduplication Policy</div>
+                <span className="text-[10px] font-mono text-[#8E8E9F]">
                   Workspace cross-check scans {existingLeads.length} loaded records; backend deduplicates across DB.
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs text-zinc-300">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs text-[#CBCBD6]">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={skipInFileDuplicates}
                     onChange={(e) => setSkipInFileDuplicates(e.target.checked)}
-                    className="rounded border-zinc-700 bg-zinc-900 text-white focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                    className="rounded border-zinc-700 bg-black text-[#7D39EB] focus:ring-[#7D39EB] cursor-pointer"
                   />
                   <span>Skip in-file duplicates</span>
                 </label>
@@ -600,7 +602,7 @@ export function LeadImportModal({
                     type="checkbox"
                     checked={skipWorkspaceDuplicates}
                     onChange={(e) => setSkipWorkspaceDuplicates(e.target.checked)}
-                    className="rounded border-zinc-700 bg-zinc-900 text-white focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                    className="rounded border-zinc-700 bg-black text-[#7D39EB] focus:ring-[#7D39EB] cursor-pointer"
                   />
                   <span>Skip workspace matches</span>
                 </label>
@@ -610,7 +612,7 @@ export function LeadImportModal({
                     type="checkbox"
                     checked={excludeInvalidRows}
                     onChange={(e) => setExcludeInvalidRows(e.target.checked)}
-                    className="rounded border-zinc-700 bg-zinc-900 text-white focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                    className="rounded border-zinc-700 bg-black text-[#7D39EB] focus:ring-[#7D39EB] cursor-pointer"
                   />
                   <span>Exclude invalid rows</span>
                 </label>
@@ -621,19 +623,19 @@ export function LeadImportModal({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h5 className="text-xs font-semibold text-white tracking-tight">Column Mapping</h5>
-                <span className="text-[11px] font-mono text-zinc-400">Map CSV headers to lead fields</span>
+                <span className="text-[11px] font-mono text-[#8E8E9F]">Map CSV headers to lead fields</span>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08] grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08] grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {TARGET_FIELDS.map((field) => {
                   const currentValue = columnMapping[field.key] || "";
                   return (
                     <div key={field.key} className="space-y-1">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-medium text-zinc-300">
+                        <span className="font-medium text-[#CBCBD6]">
                           {field.label} {field.required && <span className="text-rose-400">*</span>}
                         </span>
-                        <span className="text-[10px] font-mono text-zinc-500 truncate max-w-[140px]">
+                        <span className="text-[10px] font-mono text-[#8E8E9F] truncate max-w-[140px]">
                           {field.description}
                         </span>
                       </div>
@@ -642,7 +644,7 @@ export function LeadImportModal({
                         id={`map-${field.key}`}
                         value={currentValue}
                         onChange={(e) => handleMappingChange(field.key, e.target.value)}
-                        className="h-8 text-xs bg-[#0d0d12] border-white/[0.08]"
+                        className="h-8 text-xs bg-[#0A0A0E] border-white/[0.08] text-[#CBCBD6]"
                       >
                         <option value="">(Not Mapped)</option>
                         {csvHeaders.map((header) => (
@@ -661,13 +663,13 @@ export function LeadImportModal({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h5 className="text-xs font-semibold text-white tracking-tight">Preview Mapped Records</h5>
-                <span className="text-[11px] font-mono text-zinc-400">Showing first 5 records with validation status</span>
+                <span className="text-[11px] font-mono text-[#8E8E9F]">Showing first 5 records with validation status</span>
               </div>
 
-              <div className="border border-white/[0.08] rounded-lg overflow-x-auto bg-[#09090b]">
+              <div className="border border-white/[0.08] rounded-lg overflow-x-auto bg-[#111116]">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-white/[0.08] bg-white/[0.02] text-zinc-400 text-[10px] font-mono uppercase tracking-wider">
+                    <tr className="border-b border-white/[0.08] bg-[#0A0A0E] text-[#8E8E9F] text-[10px] font-mono uppercase tracking-wider">
                       <th className="py-2 px-3">Row</th>
                       <th className="py-2 px-3">Status</th>
                       <th className="py-2 px-3">Company Name</th>
@@ -680,10 +682,10 @@ export function LeadImportModal({
                   <tbody className="divide-y divide-white/[0.04]">
                     {processedRows.slice(0, 5).map((row) => (
                       <tr key={row.rowNumber} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-2 px-3 font-mono text-zinc-500 text-[11px]">#{row.rowNumber}</td>
+                        <td className="py-2 px-3 font-mono text-[#8E8E9F] text-[11px]">#{row.rowNumber}</td>
                         <td className="py-2 px-3 whitespace-nowrap">
                           {row.status === "valid" ? (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 font-medium">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#C6FF33]/10 border border-[#C6FF33]/30 text-[#C6FF33] font-medium">
                               Valid
                             </span>
                           ) : row.status === "duplicate" ? (
@@ -699,16 +701,16 @@ export function LeadImportModal({
                         <td className="py-2 px-3 font-medium text-white max-w-[160px] truncate">
                           {row.mapped.businessName || <span className="text-rose-400 italic">Missing</span>}
                         </td>
-                        <td className="py-2 px-3 text-zinc-300 font-mono text-[11px] whitespace-nowrap">
+                        <td className="py-2 px-3 text-[#CBCBD6] font-mono text-[11px] whitespace-nowrap">
                           {row.mapped.phone || "—"}
                         </td>
-                        <td className="py-2 px-3 text-zinc-300 max-w-[140px] truncate text-[11px]">
+                        <td className="py-2 px-3 text-[#CBCBD6] max-w-[140px] truncate text-[11px]">
                           {row.mapped.email || "—"}
                         </td>
-                        <td className="py-2 px-3 text-zinc-300 font-mono text-[11px] max-w-[140px] truncate">
+                        <td className="py-2 px-3 text-[#CBCBD6] font-mono text-[11px] max-w-[140px] truncate">
                           {row.mapped.domain || "—"}
                         </td>
-                        <td className="py-2 px-3 text-zinc-400 text-[11px] max-w-[260px]">
+                        <td className="py-2 px-3 text-[#8E8E9F] text-[11px] max-w-[260px]">
                           {row.issues.length > 0 ? (
                             <div className="space-y-1">
                               {row.issues.map((iss, iIdx) => (
@@ -726,7 +728,7 @@ export function LeadImportModal({
                               ))}
                             </div>
                           ) : (
-                            <span className="text-zinc-600 font-mono">Clean</span>
+                            <span className="text-[#565668] font-mono">Clean</span>
                           )}
                         </td>
                       </tr>
@@ -739,10 +741,10 @@ export function LeadImportModal({
             {/* Explicit Import Confirmation Banner */}
             <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
               <div>
-                <span className="text-zinc-300">Ready to persist: </span>
-                <span className="text-white font-bold font-mono text-sm">{readyCandidates.length}</span>
-                <span className="text-zinc-400"> leads into your authenticated workspace.</span>
-                <span className="text-[11px] font-mono text-zinc-500 ml-1.5">
+                <span className="text-[#CBCBD6]">Ready to persist: </span>
+                <span className="text-[#C6FF33] font-bold font-mono text-sm">{readyCandidates.length}</span>
+                <span className="text-[#8E8E9F]"> leads into your authenticated workspace.</span>
+                <span className="text-[11px] font-mono text-[#565668] ml-1.5">
                   ({Math.ceil(readyCandidates.length / 100)} batch{Math.ceil(readyCandidates.length / 100) === 1 ? '' : 'es'})
                 </span>
                 {!columnMapping.businessName && (
@@ -752,7 +754,7 @@ export function LeadImportModal({
                 )}
               </div>
 
-              <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400 shrink-0">
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#8E8E9F] shrink-0">
                 {summary.duplicateCount > 0 && (skipInFileDuplicates || skipWorkspaceDuplicates) && (
                   <span className="text-amber-400">
                     {summary.duplicateCount} duplicate(s) excluded
@@ -771,18 +773,18 @@ export function LeadImportModal({
         {/* STEP 3: PERSISTING IN PROGRESS */}
         {step === "importing" && (
           <div className="py-12 px-6 text-center space-y-4">
-            <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <div className="w-10 h-10 border-2 border-[#7D39EB] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <h4 className="text-sm font-semibold text-white tracking-tight">Persisting Leads to Workspace</h4>
-            <p className="text-xs font-mono text-zinc-400">{progressText}</p>
+            <p className="text-xs font-mono text-[#CBCBD6]">{progressText}</p>
 
             <div className="w-full max-w-md mx-auto bg-white/[0.06] rounded-full h-1.5 overflow-hidden mt-3">
               <div
-                className="bg-white h-full transition-all duration-300 ease-out"
+                className="bg-[#7D39EB] h-full transition-all duration-300 ease-out shadow-[0_0_12px_#7D39EB]"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
 
-            <p className="text-[11px] text-zinc-500 pt-2">
+            <p className="text-[11px] text-[#8E8E9F] pt-2">
               Writing directly to PostgreSQL via backend API with deduplication checks. Please do not close this window.
             </p>
           </div>
@@ -793,14 +795,14 @@ export function LeadImportModal({
           <div className="space-y-4 py-2">
             {/* Status Header Banner */}
             {importResult.failedCount === 0 ? (
-              <div className="p-4 rounded-xl border bg-emerald-950/20 border-emerald-500/30 text-emerald-300">
+              <div className="p-4 rounded-xl border bg-[#C6FF33]/10 border-[#C6FF33]/30 text-[#C6FF33]">
                 <div className="flex items-center gap-2.5 font-semibold text-sm text-white mb-1">
-                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-black flex items-center justify-center text-xs font-bold">
+                  <span className="w-5 h-5 rounded-full bg-[#C6FF33] text-black flex items-center justify-center text-xs font-bold">
                     ✓
                   </span>
                   <span>Import Completed Successfully</span>
                 </div>
-                <p className="text-xs text-zinc-300">
+                <p className="text-xs text-[#CBCBD6]">
                   {totalFileRowsCount > 0
                     ? `Processed ${totalFileRowsCount} records from file: ${importResult.importedCount} created, ${totalSkippedDuplicatesCount} duplicates skipped${clientExcludedInvalidCount > 0 ? `, ${clientExcludedInvalidCount} invalid excluded` : ""}.`
                     : `Successfully processed all ${importResult.totalRequested} requested records against the backend database.`}
@@ -814,7 +816,7 @@ export function LeadImportModal({
                   </span>
                   <span>Partial Import: Completed with Batch Failures</span>
                 </div>
-                <p className="text-xs text-zinc-300">
+                <p className="text-xs text-[#CBCBD6]">
                   {importResult.importedCount + importResult.updatedCount} leads persisted from earlier batches. {importResult.failedCount} leads failed due to API errors.
                 </p>
               </div>
@@ -826,36 +828,36 @@ export function LeadImportModal({
                   </span>
                   <span>Import Failed — No Records Persisted</span>
                 </div>
-                <p className="text-xs text-zinc-300">
+                <p className="text-xs text-[#CBCBD6]">
                   All {importResult.totalRequested} requested records failed to persist. Review the failure details below before retrying.
                 </p>
               </div>
             )}
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
-                <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider">Created</div>
-                <div className="text-xl font-bold text-emerald-300 font-mono mt-0.5 tabular-nums">
+              <div className="p-3 rounded-lg bg-[#111116] border border-[#C6FF33]/30">
+                <div className="text-[10px] font-mono text-[#C6FF33] uppercase tracking-wider font-semibold">Created</div>
+                <div className="text-xl font-bold text-[#C6FF33] font-mono mt-0.5 tabular-nums">
                   {importResult.importedCount}
                 </div>
-                <div className="text-[10px] text-zinc-500">New leads persisted</div>
+                <div className="text-[10px] text-[#8E8E9F]">New leads persisted</div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
-                <div className="text-[10px] font-mono text-zinc-300 uppercase tracking-wider">Updated</div>
+              <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08]">
+                <div className="text-[10px] font-mono text-white uppercase tracking-wider">Updated</div>
                 <div className="text-xl font-bold text-white font-mono mt-0.5 tabular-nums">
                   {importResult.updatedCount}
                 </div>
-                <div className="text-[10px] text-zinc-500">Existing records synced</div>
+                <div className="text-[10px] text-[#8E8E9F]">Existing records synced</div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
+              <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08]">
                 <div className="text-[10px] font-mono text-amber-400 uppercase tracking-wider">Skipped</div>
                 <div className="text-xl font-bold text-amber-300 font-mono mt-0.5 tabular-nums">
                   {totalSkippedDuplicatesCount}
                 </div>
                 <div
-                  className="text-[10px] text-zinc-500 truncate"
+                  className="text-[10px] text-[#8E8E9F] truncate"
                   title={
                     clientSkippedDuplicatesCount > 0 && importResult.skippedDuplicateCount > 0
                       ? `${clientSkippedDuplicatesCount} preview + ${importResult.skippedDuplicateCount} server duplicates`
@@ -872,19 +874,19 @@ export function LeadImportModal({
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#09090b] border border-white/[0.08]">
+              <div className="p-3 rounded-lg bg-[#111116] border border-white/[0.08]">
                 <div className="text-[10px] font-mono text-rose-400 uppercase tracking-wider">Failed</div>
                 <div className="text-xl font-bold text-rose-300 font-mono mt-0.5 tabular-nums">
                   {importResult.failedCount}
                 </div>
-                <div className="text-[10px] text-zinc-500">Rejections / errors</div>
+                <div className="text-[10px] text-[#8E8E9F]">Rejections / errors</div>
               </div>
             </div>
 
             {clientExcludedInvalidCount > 0 && (
-              <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.08] text-xs text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.08] text-xs text-[#8E8E9F] flex items-center justify-between">
                 <span>{clientExcludedInvalidCount} invalid {clientExcludedInvalidCount === 1 ? "row was" : "rows were"} excluded based on import settings.</span>
-                <span className="text-[10px] font-mono text-zinc-500">Excluded upfront</span>
+                <span className="text-[10px] font-mono text-[#565668]">Excluded upfront</span>
               </div>
             )}
 
@@ -907,7 +909,7 @@ export function LeadImportModal({
             <button
               type="button"
               onClick={() => setStep("upload")}
-              className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-colors cursor-pointer"
+              className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-[#CBCBD6] hover:text-white bg-[#111116] hover:bg-[#171720] border border-white/[0.08] transition-colors cursor-pointer"
             >
               ← Back
             </button>
@@ -921,7 +923,7 @@ export function LeadImportModal({
                 type="button"
                 onClick={onClose}
                 disabled={step === "importing"}
-                className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white bg-transparent hover:bg-white/[0.04] transition-colors cursor-pointer disabled:opacity-40"
+                className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-[#8E8E9F] hover:text-white bg-transparent hover:bg-white/[0.04] transition-colors cursor-pointer disabled:opacity-40"
               >
                 Cancel
               </button>
@@ -932,7 +934,7 @@ export function LeadImportModal({
                 type="button"
                 disabled={!fileName || rawRows.length === 0}
                 onClick={() => setStep("configure")}
-                className="h-8.5 px-4 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-8.5 px-4 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold shadow-[0_0_20px_-4px_rgba(125,57,235,0.4)] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Continue to Mapping →
               </button>
@@ -943,7 +945,7 @@ export function LeadImportModal({
                 type="button"
                 disabled={readyCandidates.length === 0 || !columnMapping.businessName}
                 onClick={handleStartImport}
-                className="h-8.5 px-4 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                className="h-8.5 px-4 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold shadow-[0_0_20px_-4px_rgba(125,57,235,0.4)] transition-all active:scale-[0.98] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
                 <span>Confirm &amp; Import ({readyCandidates.length})</span>
                 <span className="text-xs">→</span>
@@ -971,7 +973,7 @@ export function LeadImportModal({
                       onSuccess();
                       onClose();
                     }}
-                    className="h-8.5 px-4 rounded-lg bg-white hover:bg-zinc-100 text-black text-xs font-semibold shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+                    className="h-8.5 px-4 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white text-xs font-semibold shadow-[0_0_20px_-4px_rgba(125,57,235,0.4)] transition-all active:scale-[0.98] cursor-pointer"
                   >
                     Done &amp; View Leads ({importResult.importedCount + importResult.updatedCount}) →
                   </button>

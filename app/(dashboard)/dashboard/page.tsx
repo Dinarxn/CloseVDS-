@@ -297,22 +297,25 @@ export default function DashboardOverviewPage() {
         action={
           <div className="flex items-center gap-2">
             <Link href="/leads">
-              <button className="px-3 py-1.5 rounded-lg bg-[#0e0e14] hover:bg-[#14141e] border border-white/[0.08] hover:border-white/[0.18] text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer">
-                <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button className="px-3 py-1.5 rounded-lg bg-surface-card hover:bg-surface-card-hover border border-white/[0.08] hover:border-white/[0.18] text-xs font-medium text-[#CBCBD6] hover:text-white transition-all duration-150 flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]">
+                <svg className="w-3.5 h-3.5 text-[#8E8E9F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <span>Import Leads</span>
               </button>
             </Link>
             <Link href="/operations">
-              <button className="px-3 py-1.5 rounded-lg bg-[#0e0e14] hover:bg-[#14141e] border border-white/[0.08] hover:border-white/[0.18] text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400/90" />
+              <button className="px-3 py-1.5 rounded-lg bg-surface-card hover:bg-surface-card-hover border border-white/[0.08] hover:border-white/[0.18] text-xs font-medium text-[#CBCBD6] hover:text-white transition-all duration-150 flex items-center gap-2 cursor-pointer shadow-xs active:scale-[0.98]">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
                 <span>Open Operations</span>
               </button>
             </Link>
             <Link href="/calling">
-              <button className="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 border border-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <button className="px-3.5 py-1.5 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] active:bg-[#5D25B8] text-white border border-[#8F52F5] text-xs font-semibold transition-all duration-150 flex items-center gap-2 cursor-pointer shadow-[0_0_16px_rgba(125,57,235,0.35)] focus:outline-none focus:ring-2 focus:ring-[#7D39EB] focus:ring-offset-2 focus:ring-offset-black active:scale-[0.98]">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C6FF33] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C6FF33] shadow-[0_0_8px_#C6FF33]" />
+                </span>
                 <span>AI Calling</span>
               </button>
             </Link>
@@ -343,7 +346,7 @@ export default function DashboardOverviewPage() {
         isLoading={isLoading}
       />
 
-      {/* 4. Acquisition Pipeline (One single canonical visual pipeline) */}
+      {/* 4. Acquisition Pipeline (Horizontal canonical visual pipeline) */}
       <PipelineIntelligence
         stageCounts={stageCounts}
         totalLeads={totalLeads ?? 0}

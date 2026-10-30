@@ -38,8 +38,8 @@ export function ActionRequired({
       title: `${pendingApprovalCallsCount} Voice Call${pendingApprovalCallsCount > 1 ? "s" : ""} Awaiting Authorization`,
       description: "Human authorization required before the AI voice agent can initiate outbound contact.",
       badge: "High Priority",
-      badgeStyles: "bg-red-500/10 text-red-400 border-red-500/20",
-      iconBg: "bg-red-500/10 text-red-400 border-red-500/20",
+      badgeStyles: "bg-amber-500/10 text-amber-300 border-amber-500/30",
+      iconBg: "bg-amber-500/10 text-amber-400 border-amber-500/25",
       icon: (
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -56,8 +56,8 @@ export function ActionRequired({
       title: `${unqualifiedLeadsCount} Prospect${unqualifiedLeadsCount > 1 ? "s" : ""} Ready for Qualification`,
       description: "New prospects discovered. Run website intelligence analysis and ICP relevance scoring.",
       badge: "Pipeline",
-      badgeStyles: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-      iconBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+      badgeStyles: "bg-[#7D39EB]/15 text-[#B788FF] border-[#7D39EB]/35",
+      iconBg: "bg-[#7D39EB]/10 text-[#B788FF] border-[#7D39EB]/30",
       icon: (
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -74,7 +74,7 @@ export function ActionRequired({
       title: "Telephony Provider Not Configured",
       description: "Connect Twilio or Retell API credentials in telephony settings to activate outbound calling.",
       badge: "Setup",
-      badgeStyles: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+      badgeStyles: "bg-amber-500/10 text-amber-300 border-amber-500/25",
       iconBg: "bg-amber-500/10 text-amber-400 border-amber-500/20",
       icon: (
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,8 +92,8 @@ export function ActionRequired({
       title: "AI Voice Agent Profile Incomplete",
       description: "Define system instructions, verified knowledge guardrails, voice persona, and objection trees.",
       badge: "Setup",
-      badgeStyles: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-      iconBg: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+      badgeStyles: "bg-[#7D39EB]/15 text-[#B788FF] border-[#7D39EB]/35",
+      iconBg: "bg-[#7D39EB]/10 text-[#B788FF] border-[#7D39EB]/30",
       icon: (
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
@@ -110,8 +110,8 @@ export function ActionRequired({
     title: "closeBDS Discovery Sync Pending",
     description: "Automated prospect scraping and contact discovery engine ready for API link.",
     badge: "Integration",
-    badgeStyles: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-    iconBg: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+    badgeStyles: "bg-white/[0.06] text-[#CBCBD6] border-white/[0.12]",
+    iconBg: "bg-white/[0.04] text-[#CBCBD6] border-white/[0.10]",
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -122,16 +122,16 @@ export function ActionRequired({
   });
 
   return (
-    <div className="relative rounded-xl p-5 bg-[#09090f]/90 border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-4 backdrop-blur-sm">
-      {/* Top specular highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+    <div className="relative rounded-xl p-5 bg-surface-panel border border-white/[0.08] shadow-xs space-y-4 overflow-hidden">
+      {/* Specular Top Hairline */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-white/[0.07]">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#8E8E9F] font-semibold">
               Operational Focus
             </span>
             {actions.length > 0 && (
@@ -141,31 +141,31 @@ export function ActionRequired({
             )}
           </div>
           <h3 className="text-lg font-bold tracking-tight text-white">Action Required</h3>
-          <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+          <p className="text-xs text-[#8E8E9F] mt-0.5 leading-relaxed">
             Critical operational milestones and permission gates requiring operator intervention.
           </p>
         </div>
 
         <Link
           href="/operations"
-          className="group/link px-3.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] text-xs font-mono text-zinc-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
+          className="group/link px-3.5 py-1.5 rounded-lg bg-surface-card hover:bg-surface-card-hover border border-white/[0.08] hover:border-white/[0.18] text-xs font-mono text-[#CBCBD6] hover:text-white transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center focus:outline-none focus:ring-1 focus:ring-[#7D39EB]/40 shadow-xs"
         >
           <span>Open Operations Queue</span>
-          <span className="text-zinc-500 group-hover/link:text-white group-hover/link:translate-x-0.5 transition-transform">→</span>
+          <span className="text-[#565668] group-hover/link:text-white group-hover/link:translate-x-0.5 transition-transform">→</span>
         </Link>
       </div>
 
       {/* Action items */}
       <div className="space-y-2.5">
         {actions.length === 0 && !isLoading ? (
-          <div className="p-8 text-center bg-[#0d0d16]/60 border border-white/[0.06] rounded-xl space-y-2">
-            <div className="w-9 h-9 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
+          <div className="p-8 text-center bg-surface-card border border-white/[0.06] rounded-xl space-y-2">
+            <div className="w-9 h-9 mx-auto rounded-full bg-[#C6FF33]/10 border border-[#C6FF33]/25 flex items-center justify-center text-[#C6FF33]">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-zinc-200">Operational Queue Clear</p>
-            <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+            <p className="text-sm font-semibold text-white">Operational Queue Clear</p>
+            <p className="text-xs text-[#8E8E9F] max-w-sm mx-auto">
               All safety gates, pipeline stages, and voice authorizations are active and operational.
             </p>
           </div>
@@ -174,9 +174,9 @@ export function ActionRequired({
             <Link
               key={act.id}
               href={act.href}
-              className={`group relative p-3.5 sm:p-4 bg-[#0c0c14]/80 hover:bg-[#11111c] border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all duration-150 cursor-pointer block hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)] ${
+              className={`group relative p-3.5 sm:p-4 bg-surface-card hover:bg-surface-card-hover border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all duration-150 cursor-pointer block ${
                 act.badge === "High Priority"
-                  ? "border-red-500/30 hover:border-red-500/50 bg-gradient-to-r from-red-950/[0.12] via-transparent to-transparent"
+                  ? "border-amber-500/30 hover:border-amber-500/50 bg-gradient-to-r from-amber-950/[0.12] via-surface-card to-surface-card"
                   : "border-white/[0.07] hover:border-white/[0.18]"
               }`}
             >
@@ -190,20 +190,20 @@ export function ActionRequired({
                     <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border font-semibold tracking-wider ${act.badgeStyles}`}>
                       {act.badge}
                     </span>
-                    <h4 className="text-[13px] font-semibold text-white tracking-tight group-hover:text-zinc-100 transition-colors">
+                    <h4 className="text-[13px] font-semibold text-white tracking-tight group-hover:text-white transition-colors">
                       {act.title}
                     </h4>
                   </div>
-                  <p className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors leading-relaxed">
+                  <p className="text-xs text-[#8E8E9F] group-hover:text-[#CBCBD6] transition-colors leading-relaxed">
                     {act.description}
                   </p>
                 </div>
               </div>
 
-              {/* Real tactile button on the right */}
-              <div className="flex items-center gap-1.5 text-xs font-mono font-medium px-3.5 py-1.5 rounded-lg bg-white/[0.05] group-hover:bg-white text-zinc-300 group-hover:text-black border border-white/[0.10] group-hover:border-white transition-all shrink-0 self-end sm:self-center shadow-sm">
+              {/* Actionable navigation button with Violet hover */}
+              <div className="flex items-center gap-1.5 text-xs font-mono font-medium px-3.5 py-1.5 rounded-lg bg-white/[0.04] group-hover:bg-[#7D39EB] text-[#CBCBD6] group-hover:text-white border border-white/[0.10] group-hover:border-[#8F52F5] transition-all shrink-0 self-end sm:self-center shadow-xs">
                 <span>{act.actionText}</span>
-                <span className="text-zinc-500 group-hover:text-black group-hover:translate-x-0.5 transition-transform">→</span>
+                <span className="text-[#8E8E9F] group-hover:text-white group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </Link>
           ))

@@ -94,7 +94,7 @@ export default function CRMPage() {
         {/* Page Header */}
         <PageHeader
           title="Sales Pipeline"
-          description="Visual acquisition pipeline tracking prospects from discovery through qualification, outreach approval, follow-ups, and closed deals."
+          description="Track active opportunities, qualification stages, and deal conversions."
           breadcrumbs={[
             { label: "closeVDS", href: "/dashboard" },
             { label: "Sales Pipeline" },
@@ -105,10 +105,10 @@ export default function CRMPage() {
               size="sm"
               onClick={fetchDeals}
               disabled={isLoading}
-              className="h-8.5 px-3.5 text-xs bg-[#0d0d12] hover:bg-[#14141c] text-zinc-200 border-white/[0.08] hover:border-white/[0.16] shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
+              className="h-8.5 px-3.5 text-xs bg-surface-card hover:bg-surface-elevated text-zinc-200 hover:text-white border-white/[0.08] hover:border-[#7D39EB]/60 shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
             >
               <svg
-                className={`w-3.5 h-3.5 text-zinc-400 ${isLoading ? "animate-spin" : ""}`}
+                className={`w-3.5 h-3.5 text-[#8E8E9F] ${isLoading ? "animate-spin text-[#7D39EB]" : ""}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -127,71 +127,71 @@ export default function CRMPage() {
 
         {/* Pipeline Telemetry Metric Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Total Active Deals */}
-          <div className="relative overflow-hidden rounded-xl bg-[#0d0d12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.14] shadow-xs">
+          {/* Metric 1: Total Prospects */}
+          <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-4 transition-all duration-150 hover:border-white/[0.16] shadow-xs">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
-                Pipeline Volume
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8E8E9F] font-medium">
+                Total Prospects
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white/40" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-white font-mono tracking-tight tabular-nums">
                 {pipelineMetrics.totalDeals}
               </span>
-              <span className="text-[11px] text-zinc-400">total prospects</span>
+              <span className="text-[11px] text-[#8E8E9F]">active prospects</span>
             </div>
           </div>
 
-          {/* Total Estimated Pipeline Value */}
-          <div className="relative overflow-hidden rounded-xl bg-[#0d0d12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.14] shadow-xs">
+          {/* Metric 2: Pipeline Value */}
+          <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-4 transition-all duration-150 hover:border-white/[0.16] shadow-xs">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8E8E9F] font-medium">
                 Pipeline Value
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white/40" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-emerald-400 font-mono tracking-tight tabular-nums">
+              <span className="text-2xl font-bold text-white font-mono tracking-tight tabular-nums">
                 {formatCurrency(pipelineMetrics.totalValue)}
               </span>
-              <span className="text-[11px] text-zinc-400">weighted potential</span>
+              <span className="text-[11px] text-[#8E8E9F]">weighted potential</span>
             </div>
           </div>
 
-          {/* In-Flight Deals */}
-          <div className="relative overflow-hidden rounded-xl bg-[#0d0d12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.14] shadow-xs">
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+          {/* Metric 3: Active Deals (Violet #7D39EB Highlight) */}
+          <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-4 transition-all duration-150 hover:border-[#7D39EB]/40 shadow-xs">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#7D39EB]/30 to-transparent pointer-events-none" />
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
-                Active in Flight
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8E8E9F] font-medium">
+                Active Deals
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#7D39EB] shadow-[0_0_8px_rgba(125,57,235,0.7)]" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-white font-mono tracking-tight tabular-nums">
+              <span className="text-2xl font-bold text-[#7D39EB] font-mono tracking-tight tabular-nums">
                 {pipelineMetrics.activeInFlight}
               </span>
-              <span className="text-[11px] text-zinc-400">in qualification / touch</span>
+              <span className="text-[11px] text-[#8E8E9F]">in flight progression</span>
             </div>
           </div>
 
-          {/* Closed Won Revenue */}
-          <div className="relative overflow-hidden rounded-xl bg-[#0d0d12] border border-white/[0.07] p-4 transition-all duration-150 hover:border-white/[0.14] shadow-xs">
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+          {/* Metric 4: Closed Revenue (Lime #C6FF33 Highlight) */}
+          <div className="relative overflow-hidden rounded-xl bg-surface-card border border-white/[0.08] p-4 transition-all duration-150 hover:border-[#C6FF33]/40 shadow-xs">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C6FF33]/30 to-transparent pointer-events-none" />
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-medium">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8E8E9F] font-medium">
                 Closed Revenue
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shadow-[0_0_8px_rgba(198,255,51,0.7)]" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-white font-mono tracking-tight tabular-nums">
+              <span className="text-2xl font-bold text-[#C6FF33] font-mono tracking-tight tabular-nums">
                 {formatCurrency(pipelineMetrics.wonValue)}
               </span>
-              <span className="text-[11px] text-zinc-400 font-mono">
+              <span className="text-[11px] text-[#8E8E9F] font-mono">
                 ({pipelineMetrics.wonDealsCount} won)
               </span>
             </div>
@@ -203,9 +203,9 @@ export default function CRMPage() {
 
         {/* Mutation Feedback */}
         {mutationSuccess && (
-          <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3.5 text-xs text-emerald-300 flex items-center justify-between shadow-xs">
+          <div className="rounded-xl border border-[#C6FF33]/25 bg-[#C6FF33]/10 p-3.5 text-xs text-[#C6FF33] flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-[#C6FF33] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
               <span>{mutationSuccess}</span>
@@ -213,7 +213,7 @@ export default function CRMPage() {
             <button
               type="button"
               onClick={() => setMutationSuccess(null)}
-              className="text-xs text-emerald-400 hover:text-emerald-200 cursor-pointer"
+              className="text-xs text-[#C6FF33] hover:text-white cursor-pointer"
             >
               ✕
             </button>
@@ -236,10 +236,10 @@ export default function CRMPage() {
 
         {/* Pipeline Board / Loading State */}
         {isLoading ? (
-          <div className="relative p-14 text-center border border-white/[0.08] rounded-xl bg-[#0d0d12] shadow-xs overflow-hidden space-y-3">
+          <div className="relative p-14 text-center border border-white/[0.08] rounded-xl bg-surface-panel shadow-xs overflow-hidden space-y-3">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
-            <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+            <div className="w-5 h-5 border-2 border-[#7D39EB] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <p className="text-xs font-mono uppercase tracking-wider text-[#8E8E9F]">
               Synchronizing CRM sales pipeline...
             </p>
           </div>

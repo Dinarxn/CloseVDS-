@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { CrmDealItem, CrmStageConfig } from "@/types/crm";
+import React, { useState, useMemo } from "react";
+import { CrmDealItem, CrmStageConfig, CanonicalLeadStatus } from "@/types/crm";
 import { getAllowedNextStages } from "@/lib/mappers";
+import { CrmEmptyState } from "./crm-empty-state";
 
 export interface CrmStageColumnProps {
   stage: CrmStageConfig;
@@ -10,6 +11,30 @@ export interface CrmStageColumnProps {
   onSelectDeal?: (deal: CrmDealItem) => void;
   onQuickStageChange?: (deal: CrmDealItem, nextStatus: string) => Promise<void>;
 }
+
+// Canonical ordering rank to reliably calculate "Forward" vs "Backward" targets
+const STATUS_PROGRESSION_RANK: Record<string, number> = {
+  DISCOVERED: 1,
+  IMPORTED: 2,
+  NEW: 2,
+  RESEARCH_PENDING: 3,
+  RESEARCHED: 4,
+  QUALIFICATION_PENDING: 5,
+  QUALIFIED: 6,
+  CALL_READY: 7,
+  CONTACTED: 8,
+  IN_FOLLOWUP: 9,
+  REPLIED: 9,
+  INTERESTED: 10,
+  MEETING: 11,
+  MEETING_BOOKED: 11,
+  WON: 12,
+  CLOSED_WON: 12,
+  LOST: 99,
+  CLOSED_LOST: 99,
+  DISQUALIFIED: 99,
+  OPT_OUT: 100,
+};
 
 export function CrmStageColumn({
   stage,
@@ -35,8 +60,26 @@ export function CrmStageColumn({
     }
   };
 
-  // Calculate stage total value
-  const stageTotalValue = deals.reduce((sum, d) => sum + (d.valueEstimate || 0), 0);
+  const handleStepTransition = async (
+    e: React.MouseEvent,
+    deal: CrmDealItem,
+    targetStatus: string
+  ) => {
+    e.stopPropagation();
+    if (!targetStatus || !onQuickStageChange) return;
+
+    setMovingDealId(deal.id);
+    try {
+      await onQuickStageChange(deal, targetStatus);
+    } finally {
+      setMovingDealId(null);
+    }
+  };
+
+  // Calculate stage total valuation
+  const stageTotalValue = useMemo(() => {
+    return deals.reduce((sum, d) => sum + (d.valueEstimate || 0), 0);
+  }, [deals]);
 
   // Format currency
   const formatCurrency = (val: number) => {
@@ -46,13 +89,13 @@ export function CrmStageColumn({
     return `$${val.toLocaleString()}`;
   };
 
-  // Get visual status marker for stage
+  // Visual status marker for stage header
   const getStageMarkerClass = (stageId: string) => {
     switch (stageId) {
       case "discovered":
-        return "bg-zinc-400/20 border-zinc-400/50 text-zinc-300";
+        return "bg-white/20 border-white/50 text-[#CBCBD6]";
       case "qualified":
-        return "bg-emerald-500/20 border-emerald-400/60 text-emerald-300";
+        return "bg-[#7D39EB]/20 border-[#7D39EB]/60 text-[#7D39EB]";
       case "outreach_approved":
         return "bg-sky-500/20 border-sky-400/60 text-sky-300";
       case "contacted":
@@ -60,9 +103,9 @@ export function CrmStageColumn({
       case "in_followup":
         return "bg-amber-500/20 border-amber-400/60 text-amber-300";
       case "meeting_booked":
-        return "bg-purple-500/20 border-purple-400/60 text-purple-300";
+        return "bg-[#7D39EB]/30 border-[#7D39EB] text-white";
       case "closed_won":
-        return "bg-emerald-400/30 border-emerald-300 text-emerald-200";
+        return "bg-[#C6FF33]/25 border-[#C6FF33]/80 text-[#C6FF33]";
       case "closed_lost":
         return "bg-rose-500/20 border-rose-400/60 text-rose-300";
       default:
@@ -83,12 +126,12 @@ export function CrmStageColumn({
   };
 
   return (
-    <div className="flex-1 min-w-[285px] max-w-[340px] bg-[#0d0d12] border border-white/[0.08] rounded-xl flex flex-col max-h-[820px] shadow-xs relative overflow-hidden">
-      {/* Precision top hairline */}
+    <div className="flex-1 min-w-[285px] max-w-[340px] bg-surface-panel border border-white/[0.08] hover:border-white/[0.14] rounded-xl flex flex-col max-h-[840px] shadow-xs relative overflow-hidden transition-colors">
+      {/* Precision top specular hairline */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
 
       {/* Stage Header */}
-      <div className="p-3.5 border-b border-white/[0.06] bg-[#09090e] space-y-2">
+      <div className="p-3.5 border-b border-white/[0.06] bg-surface-card/60 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span
@@ -104,8 +147,10 @@ export function CrmStageColumn({
             <span
               className={`text-[10px] font-mono px-2 py-0.5 rounded border font-medium ${
                 deals.length > 0
-                  ? "bg-white/[0.08] text-white border-white/[0.14]"
-                  : "bg-white/[0.02] text-zinc-500 border-white/[0.06]"
+                  ? stage.id === "closed_won"
+                    ? "bg-[#C6FF33]/15 text-[#C6FF33] border-[#C6FF33]/30"
+                    : "bg-white/[0.08] text-white border-white/[0.14]"
+                  : "bg-white/[0.02] text-[#8E8E9F] border-white/[0.06]"
               }`}
             >
               {deals.length}
@@ -114,22 +159,27 @@ export function CrmStageColumn({
         </div>
 
         <div className="flex items-center justify-between text-[10px] font-mono pt-0.5">
-          <span className="text-zinc-500 truncate max-w-[170px]" title={stage.description}>
+          <span className="text-[#8E8E9F] truncate max-w-[170px]" title={stage.description}>
             {stage.description}
           </span>
-          <span className="text-zinc-400 tabular-nums font-semibold shrink-0">
+          <span
+            className={`tabular-nums font-semibold shrink-0 ${
+              stage.id === "closed_won" ? "text-[#C6FF33]" : "text-[#CBCBD6]"
+            }`}
+          >
             {formatCurrency(stageTotalValue)}
           </span>
         </div>
       </div>
 
       {/* Deals Container */}
-      <div className="p-3 flex-1 overflow-y-auto space-y-2.5">
+      <div className="p-3 flex-1 overflow-y-auto space-y-2.5 scrollbar-thin">
         {deals.length === 0 ? (
-          <div className="py-10 text-center border border-dashed border-white/[0.06] rounded-lg bg-white/[0.01] space-y-1">
-            <span className="text-[11px] font-mono text-zinc-400 block font-medium">No active deals</span>
-            <span className="text-[10px] text-zinc-500 block">Queue is currently clear</span>
-          </div>
+          <CrmEmptyState
+            compact
+            title="No active deals"
+            description="Queue is currently clear"
+          />
         ) : (
           deals.map((deal) => {
             const allowedNext = getAllowedNextStages(deal.rawStatus);
@@ -137,72 +187,102 @@ export function CrmStageColumn({
             const touchDate = formatCardDate(deal.lastTouchDate);
             const nextFollowUp = formatCardDate(deal.nextFollowUpDate);
 
+            // Calculate Forward and Backward targets
+            const currentRank = STATUS_PROGRESSION_RANK[String(deal.rawStatus).toUpperCase()] || 0;
+            const forwardCandidates = allowedNext.filter(
+              (st) => (STATUS_PROGRESSION_RANK[st] || 0) > currentRank && (STATUS_PROGRESSION_RANK[st] || 0) < 90
+            );
+            const backwardCandidates = allowedNext.filter(
+              (st) => (STATUS_PROGRESSION_RANK[st] || 0) < currentRank && (STATUS_PROGRESSION_RANK[st] || 0) > 0
+            );
+
+            // Default forward target (lowest forward candidate or first allowed)
+            const forwardTarget = forwardCandidates[0] || (allowedNext.includes("WON" as CanonicalLeadStatus) ? "WON" : allowedNext[0]);
+            // Default backward target (highest backward candidate)
+            const backwardTarget = backwardCandidates[backwardCandidates.length - 1];
+
+            const isHighQualification = (deal.qualificationScore ?? 0) >= 70;
+            const isClosedWon = deal.stage === "closed_won";
+
             return (
               <div
                 key={deal.id}
                 onClick={() => onSelectDeal?.(deal)}
-                className={`p-3.5 bg-[#121218] border rounded-xl transition-all duration-150 cursor-pointer space-y-2.5 text-xs shadow-xs relative group ${
+                className={`bg-surface-card border rounded-xl p-3.5 shadow-xs relative overflow-hidden transition-all duration-150 cursor-pointer space-y-2.5 text-xs group ${
                   isMoving
                     ? "opacity-50 border-white/30 pointer-events-none"
-                    : "border-white/[0.07] hover:border-white/[0.18] hover:bg-[#171720]"
+                    : "border-white/[0.08] hover:border-white/[0.18] hover:bg-surface-card-hover"
                 }`}
               >
-                {/* Subtle card top hairline */}
-                <div className="absolute top-0 left-3 right-3 h-[1px] bg-gradient-to-r from-transparent via-white/[0.08] to-transparent pointer-events-none group-hover:via-white/[0.16] transition-all" />
+                {/* Top specular reflection */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none group-hover:via-white/20 transition-all" />
 
-                {/* Header: Company & Raw status */}
+                {/* Header: Company & Current Stage / Raw Status Badge */}
                 <div className="flex items-start justify-between gap-2">
-                  <div className="font-semibold text-white tracking-tight truncate flex-1 text-[13px] group-hover:text-zinc-100">
+                  <div className="font-semibold text-white tracking-tight truncate flex-1 text-[13px] group-hover:text-white">
                     {deal.companyName}
                   </div>
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.08] uppercase shrink-0 font-medium">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] text-[#CBCBD6] border border-white/[0.08] uppercase shrink-0 font-medium">
                     {deal.rawStatus}
                   </span>
                 </div>
 
                 {/* Deal Value & Qualification Metrics */}
                 <div className="flex items-center justify-between gap-1.5">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 tabular-nums">
+                  <span
+                    className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded tabular-nums border ${
+                      isClosedWon
+                        ? "bg-[#C6FF33]/15 text-[#C6FF33] border-[#C6FF33]/30"
+                        : "bg-surface-elevated text-white border-white/[0.10]"
+                    }`}
+                  >
                     {deal.valueEstimate ? `$${deal.valueEstimate.toLocaleString()}` : "$3,500"}
                   </span>
 
                   <div className="flex items-center gap-1.5">
                     {deal.qualificationScore !== undefined && (
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/[0.03] text-zinc-300 border border-white/[0.07] font-medium">
+                      <span
+                        className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold tabular-nums border ${
+                          isHighQualification
+                            ? "bg-[#C6FF33]/15 text-[#C6FF33] border-[#C6FF33]/30"
+                            : "bg-white/[0.04] text-[#8E8E9F] border-white/[0.08]"
+                        }`}
+                        title={`Qualification Score: ${deal.qualificationScore}`}
+                      >
                         Score {deal.qualificationScore}
                       </span>
                     )}
                     {deal.leadSource && (
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/[0.02] text-zinc-500 border border-white/[0.05]">
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/[0.02] text-[#8E8E9F] border border-white/[0.05]">
                         {deal.leadSource}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Contact information */}
+                {/* Contact Information */}
                 {(deal.contactName || deal.contactEmail || deal.contactPhone) && (
-                  <div className="space-y-1 text-[11px] text-zinc-400 pt-0.5 border-t border-white/[0.04]">
+                  <div className="space-y-1 text-[11px] text-[#CBCBD6] pt-0.5 border-t border-white/[0.04]">
                     {deal.contactName && (
-                      <div className="font-medium text-zinc-200 truncate flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="font-medium text-white truncate flex items-center gap-1.5">
+                        <svg className="w-3 h-3 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span className="truncate">{deal.contactName}</span>
                       </div>
                     )}
                     {(deal.contactEmail || deal.contactPhone) && (
-                      <div className="text-[10px] text-zinc-400 font-mono truncate flex items-center gap-1.5">
+                      <div className="text-[10px] text-[#8E8E9F] font-mono truncate flex items-center gap-1.5">
                         {deal.contactEmail ? (
                           <>
-                            <svg className="w-3 h-3 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             <span className="truncate">{deal.contactEmail}</span>
                           </>
                         ) : (
                           <>
-                            <svg className="w-3 h-3 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                             <span className="truncate">{deal.contactPhone}</span>
@@ -214,9 +294,9 @@ export function CrmStageColumn({
                 )}
 
                 {/* Activity & Follow-Up Date Markers */}
-                <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 pt-1">
+                <div className="flex items-center justify-between text-[10px] font-mono text-[#8E8E9F] pt-1">
                   {nextFollowUp ? (
-                    <span className="flex items-center gap-1 text-amber-400/90">
+                    <span className="flex items-center gap-1 text-amber-400">
                       <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
@@ -234,8 +314,8 @@ export function CrmStageColumn({
                   )}
 
                   {deal.notesCount !== undefined && deal.notesCount > 0 && (
-                    <span className="flex items-center gap-1 text-zinc-400">
-                      <svg className="w-3 h-3 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <span className="flex items-center gap-1 text-[#CBCBD6]">
+                      <svg className="w-3 h-3 text-[#8E8E9F] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                       </svg>
                       <span>{deal.notesCount}</span>
@@ -243,26 +323,59 @@ export function CrmStageColumn({
                   )}
                 </div>
 
-                {/* Quick Stage Transition Dropdown */}
+                {/* Quick Stage Move Controls (Move Forward / Move Backward / Select) */}
                 {allowedNext.length > 0 && onQuickStageChange && (
                   <div
-                    className="pt-2 border-t border-white/[0.04] flex items-center justify-between gap-1.5"
+                    className="pt-2 border-t border-white/[0.06] flex items-center justify-between gap-1.5"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">
-                      Move:
-                    </span>
+                    <div className="flex items-center gap-1">
+                      {/* Move Backward Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => backwardTarget && handleStepTransition(e, deal, backwardTarget)}
+                        disabled={!backwardTarget || isMoving}
+                        title={backwardTarget ? `Move backward to ${backwardTarget}` : "No backward transition"}
+                        className={`h-6 px-1.5 rounded text-[10px] font-mono flex items-center gap-1 border transition-all cursor-pointer ${
+                          backwardTarget
+                            ? "bg-surface-elevated text-[#CBCBD6] hover:text-white border-white/[0.10] hover:border-white/[0.22]"
+                            : "bg-surface-input text-[#565668] border-white/[0.04] cursor-not-allowed opacity-50"
+                        }`}
+                      >
+                        <span>←</span>
+                        <span className="hidden sm:inline">Back</span>
+                      </button>
+
+                      {/* Move Forward Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => forwardTarget && handleStepTransition(e, deal, forwardTarget)}
+                        disabled={!forwardTarget || isMoving}
+                        title={forwardTarget ? `Advance forward to ${forwardTarget}` : "No forward transition"}
+                        className={`h-6 px-1.5 rounded text-[10px] font-mono flex items-center gap-1 border transition-all cursor-pointer ${
+                          forwardTarget
+                            ? "bg-[#7D39EB]/15 text-[#CBCBD6] hover:text-white hover:bg-[#7D39EB]/30 border-[#7D39EB]/30 hover:border-[#7D39EB]/60"
+                            : "bg-surface-input text-[#565668] border-white/[0.04] cursor-not-allowed opacity-50"
+                        }`}
+                      >
+                        <span className="hidden sm:inline">Advance</span>
+                        <span>→</span>
+                      </button>
+                    </div>
+
+                    {/* Granular stage jump selector */}
                     <select
                       value=""
                       onChange={(e) => handleStageSelect(e, deal)}
                       disabled={isMoving}
-                      className="h-6.5 px-2 bg-[#09090e] text-zinc-300 hover:text-white text-[10px] font-mono rounded-md border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
+                      title="Select stage to move to"
+                      className="h-6 px-1.5 bg-surface-elevated text-[#CBCBD6] hover:text-white text-[9px] font-mono rounded border border-white/[0.08] focus:outline-none focus:border-[#7D39EB] transition-colors cursor-pointer max-w-[105px]"
                     >
                       <option value="" disabled>
-                        Next stage →
+                        Jump to...
                       </option>
                       {allowedNext.map((st) => (
-                        <option key={st} value={st}>
+                        <option key={st} value={st} className="bg-surface-panel text-white">
                           {st}
                         </option>
                       ))}
@@ -271,7 +384,7 @@ export function CrmStageColumn({
                 )}
 
                 {deal.rawStatus === "OPT_OUT" && (
-                  <div className="pt-1.5 border-t border-rose-500/20 text-[9px] font-mono text-rose-400/90 flex items-center gap-1">
+                  <div className="pt-1.5 border-t border-rose-500/20 text-[9px] font-mono text-rose-400 flex items-center gap-1">
                     <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>

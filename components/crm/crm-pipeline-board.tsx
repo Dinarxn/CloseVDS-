@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { CRM_STAGES } from "./crm-constants";
 import { CrmStageColumn } from "./crm-stage-column";
 import { CrmEmptyState } from "./crm-empty-state";
+import { Button } from "@/components/ui/button";
 import { CrmDealItem, CrmStageId } from "@/types/crm";
 
 export interface CrmPipelineBoardProps {
@@ -23,7 +24,7 @@ export function CrmPipelineBoard({
 
   const filteredDeals = useMemo(() => {
     return deals.filter((d) => {
-      // Search term match
+      // Search term match across company, contact, email, phone, or raw status
       if (search.trim()) {
         const query = search.toLowerCase();
         const matchesQuery =
@@ -73,8 +74,8 @@ export function CrmPipelineBoard({
   return (
     <div className="space-y-4">
       {/* Precision Controls Toolbar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-[#0d0d12] border border-white/[0.08] p-3.5 rounded-xl shadow-xs relative overflow-hidden">
-        {/* Hairline highlight */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-surface-panel border border-white/[0.08] p-3.5 rounded-xl shadow-xs relative overflow-hidden">
+        {/* Specular hairline highlight */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
         <div className="flex items-center gap-3 flex-1 max-w-xl">
@@ -85,9 +86,9 @@ export function CrmPipelineBoard({
               placeholder="Search prospects by company, contact, email, or status..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-9 pl-9 pr-8 bg-[#09090e] text-zinc-100 text-xs rounded-lg border border-white/[0.08] placeholder:text-zinc-500 focus:outline-none focus:border-white/30 transition-colors shadow-xs"
+              className="w-full h-9 pl-9 pr-8 bg-surface-input text-white text-xs rounded-lg border border-white/[0.08] placeholder:text-[#8E8E9F] focus:outline-none focus:border-[#7D39EB] focus:ring-1 focus:ring-[#7D39EB]/40 transition-colors shadow-xs"
             />
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#8E8E9F]">
               <svg className="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2">
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.35-4.35" />
@@ -97,7 +98,7 @@ export function CrmPipelineBoard({
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-zinc-500 hover:text-zinc-300 text-xs"
+                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8E8E9F] hover:text-white text-xs cursor-pointer"
                 title="Clear search"
               >
                 ✕
@@ -109,56 +110,57 @@ export function CrmPipelineBoard({
           <select
             value={minScoreFilter}
             onChange={(e) => setMinScoreFilter(Number(e.target.value))}
-            className="h-9 px-2.5 bg-[#09090e] text-zinc-300 text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-white/30 transition-colors cursor-pointer shrink-0 font-mono"
+            className="h-9 px-2.5 bg-surface-input text-[#CBCBD6] hover:text-white text-xs rounded-lg border border-white/[0.08] focus:outline-none focus:border-[#7D39EB] focus:ring-1 focus:ring-[#7D39EB]/40 transition-colors cursor-pointer shrink-0 font-mono"
             title="Filter by qualification score"
           >
-            <option value={0}>All Scores</option>
-            <option value={70}>Score ≥ 70</option>
-            <option value={80}>Score ≥ 80</option>
-            <option value={90}>Score ≥ 90</option>
+            <option value={0} className="bg-surface-panel text-white">All Scores</option>
+            <option value={70} className="bg-surface-panel text-white">Score ≥ 70</option>
+            <option value={80} className="bg-surface-panel text-white">Score ≥ 80</option>
+            <option value={90} className="bg-surface-panel text-white">Score ≥ 90</option>
           </select>
         </div>
 
         {/* Stage Columns & Metrics Pill */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Stage Column Filter Buttons */}
-          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#09090e] border border-white/[0.06]">
+          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-surface-input border border-white/[0.06]">
             <button
               type="button"
               onClick={() => setSelectedStageFilter("ALL")}
               className={`text-[10px] font-mono uppercase px-2.5 py-1 rounded transition-colors cursor-pointer ${
                 selectedStageFilter === "ALL"
-                  ? "bg-white text-black font-semibold shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-[#7D39EB] text-white font-semibold shadow-xs"
+                  : "text-[#8E8E9F] hover:text-[#CBCBD6]"
               }`}
             >
               All Stages
             </button>
             <span className="text-zinc-600 font-mono text-[10px]">•</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded text-zinc-400">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded text-[#8E8E9F]">
               {CRM_STAGES.length} Stages
             </span>
           </div>
 
           {/* Deals & Value Telemetry Pill */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#09090e] border border-white/[0.06] font-mono text-xs">
-            <span className="text-zinc-400">
-              Deals: <strong className="text-white font-medium">{filteredDeals.length}</strong>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-input border border-white/[0.06] font-mono text-xs">
+            <span className="text-[#8E8E9F]">
+              Deals: <strong className="text-white font-medium tabular-nums">{filteredDeals.length}</strong>
             </span>
             <span className="text-zinc-700">|</span>
-            <span className="text-zinc-400">
-              Value: <strong className="text-emerald-400 font-semibold tabular-nums">{formatCurrency(totalVisibleValue)}</strong>
+            <span className="text-[#8E8E9F]">
+              Value: <strong className="text-[#C6FF33] font-semibold tabular-nums">{formatCurrency(totalVisibleValue)}</strong>
             </span>
           </div>
 
           {hasActiveFilters && (
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="xs"
               onClick={resetFilters}
-              className="text-[11px] font-mono text-zinc-400 hover:text-white px-2 py-1 rounded border border-white/[0.08] hover:border-white/[0.2] transition-colors"
+              className="text-[11px] font-mono text-[#CBCBD6] hover:text-white border-white/[0.08] hover:border-white/[0.2] transition-colors"
             >
               Reset Filters
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -174,7 +176,7 @@ export function CrmPipelineBoard({
       ) : (
         /* Horizontal Scrolling Kanban Canvas */
         <div className="overflow-x-auto pb-4 scrollbar-thin">
-          <div className="flex items-start space-x-3.5 min-w-[1400px]">
+          <div className="flex items-start gap-3.5 min-w-[1400px]">
             {CRM_STAGES.map((stage) => {
               const stageDeals = filteredDeals.filter((d) => d.stage === stage.id);
               return (

@@ -24,37 +24,38 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
   const hasLeads = recentLeads.length > 0;
 
   return (
-    <div className="relative rounded-xl p-5 bg-[#09090f]/90 border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-4 backdrop-blur-sm">
-      {/* Top specular highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+    <div className="relative rounded-xl p-5 bg-surface-panel border border-white/[0.08] shadow-xs space-y-4 overflow-hidden">
+      {/* Specular Top Hairline */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-white/[0.07]">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shadow-[0_0_8px_rgba(198,255,51,0.8)]" />
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#8E8E9F]">
               Lead Intake &amp; Workspace
             </span>
-            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
+            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-white/[0.04] text-[#CBCBD6] border border-white/[0.08]">
               Import-first workflow
             </span>
           </div>
           <h3 className="text-lg font-bold tracking-tight text-white">
-            Lead Intake &amp; Recent Imports
+            Lead Intake &amp; Recent Prospects
           </h3>
-          <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+          <p className="text-xs text-[#8E8E9F] mt-0.5 leading-relaxed">
             Bring your own lead list. Import CSV data or add leads manually; CloseVDS organizes, qualifies, and prepares your contacts for outreach.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
           <Link href="/settings">
-            <button className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer">
+            <button className="px-3 py-1.5 rounded-lg bg-surface-card hover:bg-surface-card-hover border border-white/[0.08] hover:border-white/[0.18] text-xs font-mono text-[#CBCBD6] hover:text-white transition-all cursor-pointer shadow-xs active:scale-[0.98]">
               Import Guide
             </button>
           </Link>
           <Link href="/leads">
-            <button className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-zinc-200 text-black border border-white text-xs font-semibold font-mono transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <button className="px-3.5 py-1.5 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white border border-[#8F52F5] text-xs font-semibold font-mono transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(125,57,235,0.3)] active:scale-[0.98]">
               <span>View Lead Pool</span>
               <span className="text-xs">→</span>
             </button>
@@ -64,27 +65,27 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
 
       {/* Source Telemetry Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-3.5 bg-[#0c0c14]/80 border border-white/[0.06] rounded-xl space-y-1">
-          <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold">
+        <div className="p-3.5 bg-surface-card border border-white/[0.06] rounded-xl space-y-1">
+          <span className="text-[10px] font-mono text-[#8E8E9F] uppercase tracking-widest font-semibold">
             Lead Intake
           </span>
-          <p className="text-xs font-semibold text-zinc-200 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]" />
+          <p className="text-xs font-semibold text-[#CBCBD6] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shadow-[0_0_8px_rgba(198,255,51,0.7)]" />
             Ready for your list
           </p>
         </div>
 
-        <div className="p-3.5 bg-[#0c0c14]/80 border border-white/[0.06] rounded-xl space-y-1">
-          <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold">
+        <div className="p-3.5 bg-surface-card border border-white/[0.06] rounded-xl space-y-1">
+          <span className="text-[10px] font-mono text-[#8E8E9F] uppercase tracking-widest font-semibold">
             Import Workflow
           </span>
-          <p className="text-xs font-semibold text-zinc-200 truncate">
+          <p className="text-xs font-semibold text-[#CBCBD6] truncate">
             CSV / Excel / Manual
           </p>
         </div>
 
-        <div className="p-3.5 bg-[#0c0c14]/80 border border-white/[0.06] rounded-xl space-y-1">
-          <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold">
+        <div className="p-3.5 bg-surface-card border border-white/[0.06] rounded-xl space-y-1">
+          <span className="text-[10px] font-mono text-[#8E8E9F] uppercase tracking-widest font-semibold">
             Current Lead Preview
           </span>
           <p className="text-xs font-semibold font-mono text-white tabular-nums">
@@ -94,24 +95,24 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
       </div>
 
       {/* Lead Pool Preview Table */}
-      <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-[#07070c]">
-        <div className="px-4 py-3 bg-[#0c0c14]/90 border-b border-white/[0.07] flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
-            Recent Leads
+      <div className="border border-white/[0.08] rounded-xl overflow-hidden bg-surface-card">
+        <div className="px-4 py-3 bg-surface-card border-b border-white/[0.07] flex items-center justify-between">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-[#8E8E9F] font-semibold">
+            Recent Prospects
           </span>
           <Link
             href="/leads"
-            className="group/link text-xs font-mono text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+            className="group/link text-xs font-mono text-[#8E8E9F] hover:text-white transition-colors flex items-center gap-1.5"
           >
             <span>Inspect all</span>
-            <span className="text-zinc-500 group-hover/link:text-white group-hover/link:translate-x-0.5 transition-transform">→</span>
+            <span className="text-[#565668] group-hover/link:text-white group-hover/link:translate-x-0.5 transition-transform">→</span>
           </Link>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-white/[0.06] text-zinc-400 uppercase tracking-wider font-mono text-[10px] bg-[#090910]">
+              <tr className="border-b border-white/[0.06] text-[#8E8E9F] uppercase tracking-wider font-mono text-[10px] bg-surface-panel">
                 <th className="py-2.5 px-4 font-semibold">Business &amp; Domain</th>
                 <th className="py-2.5 px-4 font-semibold">Location</th>
                 <th className="py-2.5 px-4 font-semibold">Research</th>
@@ -124,7 +125,7 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
             <tbody className="divide-y divide-white/[0.04] text-white">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-xs text-zinc-400 font-mono">
+                  <td colSpan={6} className="py-8 text-center text-xs text-[#8E8E9F] font-mono">
                     Loading prospect preview...
                   </td>
                 </tr>
@@ -132,21 +133,21 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
                 <tr>
                   <td colSpan={6} className="py-10 px-4 text-center">
                     <div className="space-y-2.5 max-w-md mx-auto">
-                      <div className="w-10 h-10 mx-auto rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-zinc-400">
+                      <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated border border-white/[0.08] flex items-center justify-center text-[#8E8E9F]">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                       </div>
-                      <p className="text-sm font-semibold text-zinc-200">
+                      <p className="text-sm font-semibold text-white">
                         No prospects in your Lead Pool
                       </p>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-[#8E8E9F] leading-relaxed">
                         Import a CSV/Excel list or add your first lead manually to begin acquisition.
                       </p>
                       <div className="pt-2">
                         <Link
                           href="/leads"
-                          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white text-zinc-200 hover:text-black border border-white/[0.10] hover:border-white text-xs font-mono font-medium transition-all shadow-sm"
+                          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#7D39EB] hover:bg-[#6C2FD1] text-white border border-[#8F52F5] text-xs font-mono font-medium transition-all shadow-[0_0_12px_rgba(125,57,235,0.3)]"
                         >
                           <span>Open Lead Pool</span>
                           <span>→</span>
@@ -164,52 +165,62 @@ export function LeadDiscoveryCard({ recentLeads = [], isLoading = false }: LeadD
                   return (
                     <tr key={lead.id} className="hover:bg-white/[0.03] transition-colors">
                       <td className="py-3 px-4">
-                        <Link href="/leads" className="font-semibold text-white hover:underline">
+                        <Link href="/leads" className="font-semibold text-white hover:text-[#B788FF] transition-colors">
                           {lead.businessName}
                         </Link>
                         {lead.domain && (
-                          <div className="text-[11px] text-zinc-400 font-mono">
+                          <div className="text-[11px] text-[#8E8E9F] font-mono">
                             {lead.domain}
                           </div>
                         )}
                       </td>
 
-                      <td className="py-3 px-4 text-zinc-300 font-mono text-[11px]">
+                      <td className="py-3 px-4 text-[#CBCBD6] font-mono text-[11px]">
                         {lead.city || lead.country
                           ? `${lead.city || ""}${lead.city && lead.country ? ", " : ""}${lead.country || ""}`
                           : "—"}
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className="text-[11px] font-mono text-zinc-400">
-                          {lead.leadScore ? "Audited" : "Pending"}
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#CBCBD6]">
+                          {lead.leadScore ? (
+                            <>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33]" />
+                              Audited
+                            </>
+                          ) : (
+                            <>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#565668]" />
+                              Pending
+                            </>
+                          )}
                         </span>
                       </td>
 
                       <td className="py-3 px-4 font-mono text-[11px]">
                         {score !== undefined && score !== null ? (
-                          <span className={score >= 70 ? "text-emerald-400 font-bold" : "text-zinc-300"}>
+                          <span className={score >= 70 ? "text-[#C6FF33] font-bold" : "text-[#CBCBD6]"}>
                             {score}/100
                           </span>
                         ) : (
-                          <span className="text-zinc-500">—</span>
+                          <span className="text-[#565668]">—</span>
                         )}
                       </td>
 
                       <td className="py-3 px-4">
                         {isQualified ? (
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#C6FF33]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shadow-[0_0_6px_rgba(198,255,51,0.8)]" />
                             Call Ready
                           </span>
                         ) : isContacted ? (
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#CBCBD6]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
                             Contacted
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#8E8E9F]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#565668]" />
                             Awaiting Qual
                           </span>
                         )}

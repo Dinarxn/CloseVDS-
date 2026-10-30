@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Lead, LeadStatus } from "@/types/leads";
 import { LeadStatusSelect } from "./lead-status-select";
 import { QualificationBadge } from "./lead-status-badge";
+import { LeadContactActions } from "./lead-contact-actions";
 import { mapLeadStatusToBackendStatus } from "@/lib/mappers";
 import { api, ApiClientError } from "@/lib/api-client";
 
@@ -30,7 +31,7 @@ export const PIPELINE_STAGES: PipelineStageConfig[] = [
     description: "Audited & scored above qualification threshold",
     statuses: ["qualified"],
     nextStatus: "outreach_ready",
-    accentBadge: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+    accentBadge: "bg-[#C6FF33]/10 text-[#C6FF33] border-[#C6FF33]/30",
   },
   {
     id: "call_ready",
@@ -38,7 +39,7 @@ export const PIPELINE_STAGES: PipelineStageConfig[] = [
     description: "Operator approved and queued for calling",
     statuses: ["outreach_ready"],
     nextStatus: "contacted",
-    accentBadge: "bg-sky-500/10 text-sky-300 border-sky-500/20",
+    accentBadge: "bg-[#7D39EB]/15 text-[#B78AF7] border-[#7D39EB]/35",
   },
   {
     id: "contacted",
@@ -62,14 +63,14 @@ export const PIPELINE_STAGES: PipelineStageConfig[] = [
     description: "Positive acquisition outcome scheduled",
     statuses: ["meeting_booked"],
     nextStatus: "closed_won",
-    accentBadge: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+    accentBadge: "bg-[#C6FF33]/12 text-[#C6FF33] border-[#C6FF33]/35",
   },
   {
     id: "closed",
     label: "Closed / Terminal",
     description: "Won deals, lost, disqualified, or opted out",
     statuses: ["closed_won", "closed_lost", "disqualified", "opted_out"],
-    accentBadge: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    accentBadge: "bg-white/[0.04] text-[#8E8E9F] border-white/[0.08]",
   },
 ];
 
@@ -140,16 +141,16 @@ export function LeadsPipelineView({
   return (
     <div className="space-y-3.5">
       {/* Scope & Pagination Context Surface */}
-      <div className="relative p-2.5 sm:p-3 bg-[#0d0d12] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
+      <div className="relative p-2.5 sm:p-3 bg-[#0A0A0E] border border-white/[0.08] rounded-xl shadow-xs backdrop-blur-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent pointer-events-none" />
 
         <div className="flex items-center gap-2 text-xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-          <span className="font-mono text-zinc-400">
+          <span className="w-2 h-2 rounded-full bg-[#C6FF33] shadow-[0_0_8px_#C6FF33] shrink-0" />
+          <span className="font-mono text-[#8E8E9F]">
             Pipeline Scope: <span className="text-white font-medium tabular-nums">{leadsCount} leads</span> loaded on page{" "}
             <span className="text-white font-medium tabular-nums">{page}</span> of{" "}
             <span className="text-white font-medium tabular-nums">{totalPages}</span>{" "}
-            {total > 0 && <span className="text-zinc-500 font-mono">(<span className="tabular-nums">{total}</span> total in workspace)</span>}
+            {total > 0 && <span className="text-[#565668] font-mono">(<span className="tabular-nums">{total}</span> total in workspace)</span>}
           </span>
         </div>
 
@@ -159,19 +160,19 @@ export function LeadsPipelineView({
               type="button"
               onClick={onPreviousPage}
               disabled={page <= 1 || isLoading}
-              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08]"
+              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-[#7D39EB]/20 text-[#CBCBD6] hover:text-white border-white/[0.08] hover:border-[#7D39EB]/40"
             >
               <span>←</span>
               <span>Prev Page</span>
             </button>
-            <span className="text-[11px] font-mono text-zinc-400 tabular-nums">
+            <span className="text-[11px] font-mono text-[#8E8E9F] tabular-nums">
               {page} / {totalPages}
             </span>
             <button
               type="button"
               onClick={onNextPage}
               disabled={page >= totalPages || isLoading}
-              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border-white/[0.08]"
+              className="h-7 px-2.5 rounded-lg border text-xs font-medium font-sans flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-white/[0.03] hover:bg-[#7D39EB]/20 text-[#CBCBD6] hover:text-white border-white/[0.08] hover:border-[#7D39EB]/40"
             >
               <span>Next Page</span>
               <span>→</span>
@@ -199,7 +200,7 @@ export function LeadsPipelineView({
           </div>
           <button
             onClick={() => setStageError(null)}
-            className="text-rose-400 hover:text-rose-200 text-xs p-1"
+            className="text-rose-400 hover:text-rose-200 text-xs p-1 cursor-pointer"
             aria-label="Dismiss message"
           >
             ✕
@@ -216,13 +217,13 @@ export function LeadsPipelineView({
             return (
               <div
                 key={stage.id}
-                className="flex-1 min-w-[270px] max-w-[320px] bg-[#0d0d12] border border-white/[0.08] rounded-xl flex flex-col max-h-[780px] shadow-xs relative overflow-hidden"
+                className="flex-1 min-w-[270px] max-w-[320px] bg-[#0A0A0E] border border-white/[0.08] rounded-xl flex flex-col max-h-[780px] shadow-xs relative overflow-hidden"
               >
                 {/* Specular hairline */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.12] to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent pointer-events-none" />
 
                 {/* Column Header */}
-                <div className="p-3.5 border-b border-white/[0.08] bg-[#09090b]/95 space-y-1">
+                <div className="p-3.5 border-b border-white/[0.08] bg-[#111116]/95 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
                       {stage.label}
@@ -230,14 +231,14 @@ export function LeadsPipelineView({
                     <span
                       className={`text-[10px] font-mono px-2 py-0.5 rounded border font-medium ${
                         stageLeads.length > 0
-                          ? "bg-white/[0.08] text-white border-white/[0.14]"
-                          : "bg-white/[0.02] text-zinc-500 border-white/[0.06]"
+                          ? "bg-[#7D39EB]/15 text-[#B78AF7] border-[#7D39EB]/35 font-bold"
+                          : "bg-white/[0.02] text-[#8E8E9F] border-white/[0.06]"
                       }`}
                     >
                       {stageLeads.length}
                     </span>
                   </div>
-                  <p className="text-[10px] text-zinc-400 line-clamp-1 leading-snug">
+                  <p className="text-[10px] text-[#8E8E9F] line-clamp-1 leading-snug">
                     {stage.description}
                   </p>
                 </div>
@@ -246,10 +247,10 @@ export function LeadsPipelineView({
                 <div className="p-2.5 flex-1 overflow-y-auto space-y-2.5">
                   {stageLeads.length === 0 ? (
                     <div className="py-8 text-center border border-dashed border-white/[0.06] rounded-lg bg-white/[0.01] space-y-1 px-3">
-                      <span className="text-[11px] font-mono text-zinc-400 block font-medium">
+                      <span className="text-[11px] font-mono text-[#8E8E9F] block font-medium">
                         No prospects in stage
                       </span>
-                      <span className="text-[10px] text-zinc-500 block leading-tight">
+                      <span className="text-[10px] text-[#565668] block leading-tight">
                         {stage.description}
                       </span>
                     </div>
@@ -261,20 +262,20 @@ export function LeadsPipelineView({
                         <div
                           key={lead.id}
                           onClick={() => onSelectLead(lead)}
-                          className="group relative p-3 bg-[#121218] hover:bg-[#171720] border border-white/[0.08] hover:border-white/[0.18] rounded-lg transition-all cursor-pointer space-y-2 text-xs shadow-xs"
+                          className="group relative p-3 bg-[#111116] hover:bg-[#171720] border border-white/[0.08] hover:border-[#7D39EB]/40 rounded-lg transition-all cursor-pointer space-y-2 text-xs shadow-xs"
                         >
                           {/* Card Header: Business name & Status Selector */}
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
-                              <h5 className="font-semibold text-white tracking-tight truncate group-hover:text-zinc-100 transition-colors">
+                              <h5 className="font-semibold text-white tracking-tight truncate group-hover:text-white transition-colors">
                                 {lead.companyName}
                               </h5>
                               {lead.website ? (
-                                <p className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
+                                <p className="text-[10px] font-mono text-[#8E8E9F] truncate mt-0.5">
                                   {lead.website}
                                 </p>
                               ) : lead.city ? (
-                                <p className="text-[10px] text-zinc-500 truncate mt-0.5">
+                                <p className="text-[10px] text-[#8E8E9F] truncate mt-0.5">
                                   {lead.city}
                                 </p>
                               ) : null}
@@ -291,26 +292,30 @@ export function LeadsPipelineView({
                             </div>
                           </div>
 
-                          {/* Contact & Location Details */}
-                          <div className="space-y-0.5 pt-1.5 border-t border-white/[0.04] text-[11px]">
-                            {lead.contactName ? (
-                              <div className="text-zinc-200 font-medium truncate">
-                                {lead.contactName}
-                                {lead.contactTitle && (
-                                  <span className="text-zinc-500 font-normal ml-1 text-[10px]">
-                                    ({lead.contactTitle})
-                                  </span>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="text-zinc-500 italic text-[10px]">No contact named</div>
-                            )}
+                          {/* Contact Details & Direct Contact Actions */}
+                          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/[0.04]">
+                            <div className="min-w-0 text-[11px]">
+                              {lead.contactName ? (
+                                <div className="text-white font-medium truncate">
+                                  {lead.contactName}
+                                </div>
+                              ) : (
+                                <div className="text-[#565668] italic text-[10px]">No contact named</div>
+                              )}
+                              {lead.phone && (
+                                <div className="text-[#8E8E9F] font-mono text-[10px] truncate">
+                                  {lead.phone}
+                                </div>
+                              )}
+                            </div>
 
-                            {lead.phone && (
-                              <div className="text-zinc-400 font-mono text-[10px] truncate">
-                                {lead.phone}
-                              </div>
-                            )}
+                            <LeadContactActions
+                              phone={lead.phone}
+                              email={lead.email}
+                              companyName={lead.companyName}
+                              size="sm"
+                              className="shrink-0"
+                            />
                           </div>
 
                           {/* Footer with Qualification & Quick Advance Action */}
@@ -328,7 +333,7 @@ export function LeadsPipelineView({
                                 disabled={isAdvancing}
                                 onClick={(e) => handleQuickAdvance(e, lead, stage.nextStatus!)}
                                 title={`Advance stage to ${stage.nextStatus}`}
-                                className="h-6 px-2 rounded text-[10px] font-mono uppercase tracking-wider bg-white/[0.04] hover:bg-white/[0.1] text-zinc-300 hover:text-white border border-white/[0.08] transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                                className="h-6 px-2 rounded text-[10px] font-mono uppercase tracking-wider bg-white/[0.04] hover:bg-[#7D39EB]/20 text-[#CBCBD6] hover:text-white border border-white/[0.08] hover:border-[#7D39EB]/40 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
                               >
                                 {isAdvancing ? (
                                   <span className="w-2 h-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
