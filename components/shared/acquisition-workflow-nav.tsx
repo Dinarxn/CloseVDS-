@@ -56,13 +56,16 @@ export function AcquisitionWorkflowNav() {
   return (
     <nav
       aria-label="Acquisition Workflow"
-      className="border-b border-white/[0.07] bg-surface-panel/85 backdrop-blur-xl py-1.5 px-4 md:px-6 relative z-20"
+      className="border-b border-white/[0.08] bg-surface-panel/90 backdrop-blur-xl py-2 px-4 md:px-6 relative z-20"
     >
+      {/* Specular top hairline reflection */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent pointer-events-none" />
+
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
         {/* Left Section Label */}
         <div className="flex items-center gap-2 mr-1 shrink-0 select-none">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shadow-[0_0_8px_rgba(198,255,51,0.5)] shrink-0" />
+          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold select-none">
             Acquisition Architecture
           </span>
         </div>
@@ -81,23 +84,23 @@ export function AcquisitionWorkflowNav() {
                   href={step.href}
                   className={`group flex items-center gap-2 px-2.5 py-1 rounded-md text-xs transition-all duration-150 shrink-0 cursor-pointer active:scale-95 ${
                     isActive
-                      ? "bg-white/[0.08] border border-white/[0.12] text-white font-medium shadow-xs"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent hover:border-white/[0.06]"
+                      ? "bg-[#7D39EB]/15 border border-[#7D39EB]/40 text-white font-medium shadow-xs"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent hover:border-white/[0.06] font-normal transition-colors"
                   }`}
                   title={`${step.name}: ${step.description}`}
                 >
                   <span
-                    className={`font-mono text-[9px] px-1.5 py-0.5 rounded transition-colors ${
+                    className={
                       isActive
-                        ? "bg-white/[0.12] text-white font-medium"
-                        : "bg-white/[0.04] text-zinc-500 group-hover:text-zinc-400"
-                    }`}
+                        ? "bg-[#7D39EB] text-white font-mono text-[9px] px-1.5 py-0.5 rounded font-semibold transition-colors"
+                        : "bg-white/[0.04] text-zinc-500 group-hover:text-zinc-400 font-mono text-[9px] px-1.5 py-0.5 rounded transition-colors"
+                    }
                   >
                     {step.stepNumber}
                   </span>
                   <span className="tracking-tight whitespace-nowrap">{step.name}</span>
                   {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] shrink-0" />
                   )}
                 </Link>
 
