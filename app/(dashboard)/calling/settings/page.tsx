@@ -1,40 +1,71 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useTransition } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import {
-  ProviderStatusCard,
+  ProviderIntegrationCenter,
   N8nKeysManager,
   N8nDeliveriesTable,
   CallingPolicyCard,
+  PhoneNumbersTable,
 } from "@/components/calling";
 import {
   ProviderStatusItem,
   N8nIntegrationKey,
   N8nWebhookDelivery,
   WorkspaceCallingPolicy,
+  TelephonyPhoneNumber,
+  VoiceAgentConfig,
 } from "@/types/calling";
 import { api, ApiClientError } from "@/lib/api-client";
 
+type SettingsTab = "telephony" | "providers" | "safety" | "n8n";
+
 export default function CallingSettingsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
+  const tabParam = searchParams.get("tab") as SettingsTab | null;
+  const [activeTab, setActiveTab] = useState<SettingsTab>(
+    tabParam && ["telephony", "providers", "safety", "n8n"].includes(tabParam)
+      ? tabParam
+      : "telephony"
+  );
+
   const [policy, setPolicy] = useState<WorkspaceCallingPolicy | null>(null);
-  const [providers, setProviders] = useState<ProviderStatusItem[]>([]);
+  const [, setProviders] = useState<ProviderStatusItem[]>([]);
   const [n8nKeys, setN8nKeys] = useState<N8nIntegrationKey[]>([]);
   const [deliveries, setDeliveries] = useState<N8nWebhookDelivery[]>([]);
+  const [phoneNumbers, setPhoneNumbers] = useState<TelephonyPhoneNumber[]>([]);
+  const [agents, setAgents] = useState<VoiceAgentConfig[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Sync tab with URL
+  const handleTabChange = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", tab);
+      router.replace(`/calling/settings?${params.toString()}`);
+    });
+  };
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const [policyRes, providersRes, keysRes, deliveriesRes] = await Promise.allSettled([
+      const [policyRes, providersRes, keysRes, deliveriesRes, numbersRes, agentsRes] = await Promise.allSettled([
         api.voice.getPolicy(),
         api.settings.getProviders(),
         api.n8n.listKeys(),
         api.n8n.listDeliveries(),
+        api.voice.listPhoneNumbers(),
+        api.voice.getAgentConfigs(),
       ]);
 
       if (policyRes.status === "fulfilled" && policyRes.value?.data) {
@@ -52,6 +83,14 @@ export default function CallingSettingsPage() {
       if (deliveriesRes.status === "fulfilled" && deliveriesRes.value?.data) {
         setDeliveries(deliveriesRes.value.data);
       }
+
+      if (numbersRes.status === "fulfilled" && numbersRes.value?.data) {
+        setPhoneNumbers(numbersRes.value.data);
+      }
+
+      if (agentsRes.status === "fulfilled" && agentsRes.value?.data) {
+        setAgents(agentsRes.value.data);
+      }
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
         setErrorMsg(err.message);
@@ -67,16 +106,51 @@ export default function CallingSettingsPage() {
     fetchData();
   }, [fetchData]);
 
+  // Tab definitions with dynamic counters
+  const activeKeysCount = n8nKeys.filter((k) => k.isActive).length;
+  const isSafetyActive = policy ? policy.isActive : true;
+
+  const TABS: { id: SettingsTab; label: string; badge: string; badgeColor: string }[] = [
+    {
+      id: "telephony",
+      label: "Telephony & Carrier Numbers",
+      badge: `${phoneNumbers.length} Lines`,
+      badgeColor: "bg-surface-elevated text-zinc-300 border-white/[0.08]",
+    },
+    {
+      id: "providers",
+      label: "Voice AI Providers",
+      badge: "3 Engines",
+      badgeColor: "bg-surface-elevated text-violet-300 border-violet-500/20",
+    },
+    {
+      id: "safety",
+      label: "Calling Safety & Policies",
+      badge: isSafetyActive ? "Protected" : "Kill Switch Active",
+      badgeColor: isSafetyActive
+        ? "bg-lime-500/10 text-[#C6FF33] border-lime-500/25"
+        : "bg-rose-500/10 text-rose-300 border-rose-500/25",
+    },
+    {
+      id: "n8n",
+      label: "n8n Workflow Automation",
+      badge: `${activeKeysCount} Active Keys`,
+      badgeColor: activeKeysCount > 0
+        ? "bg-lime-500/10 text-[#C6FF33] border-lime-500/25"
+        : "bg-surface-elevated text-zinc-400 border-white/[0.08]",
+    },
+  ];
+
   return (
     <PageContainer maxWidth="xl">
       <div className="space-y-6 max-w-5xl">
         <PageHeader
-          title="Telephony &amp; n8n Gateway Settings"
-          description="External voice providers status reporting, scoped n8n workflow credentials, and signed webhook deliveries audit."
+          title="Calling Settings &amp; Integration Hub"
+          description="Carrier line routing, multi-provider credentials vault, zero-bypass safety guardrails, and scoped n8n workflow credentials."
           breadcrumbs={[
             { label: "Workspace", href: "/dashboard" },
             { label: "AI Calling", href: "/calling" },
-            { label: "Telephony & Gateway Settings" },
+            { label: "Settings & Integration Hub" },
           ]}
         />
 
@@ -92,45 +166,85 @@ export default function CallingSettingsPage() {
           </div>
         )}
 
-        {/* 1. Calling Policy & Automation Controls */}
-        <section>
-          <CallingPolicyCard
-            policy={policy}
-            isLoading={isLoading}
-            onPolicyUpdated={fetchData}
-          />
-        </section>
+        {/* Tab Navigation Navigation Bar */}
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface-card border border-white/[0.08] overflow-x-auto shadow-xs">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
 
-        {/* 2. Telephony and AI Provider Status */}
-        <section className="space-y-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-              Infrastructure Telemetry
-            </span>
-            <span className="text-zinc-600 font-mono text-[10px]">•</span>
-            <h3 className="text-xs font-semibold text-white">External Providers Link Status</h3>
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handleTabChange(tab.id)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all shrink-0 font-sans cursor-pointer ${
+                  isActive
+                    ? "bg-surface-elevated text-white border border-white/[0.12] shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200 hover:bg-surface-panel/60"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isActive ? "bg-[#C6FF33]" : "bg-transparent"
+                  }`}
+                />
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${tab.badgeColor}`}
+                >
+                  {tab.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab 1: Telephony & Phone Numbers */}
+        {activeTab === "telephony" && (
+          <div className="space-y-4">
+            <PhoneNumbersTable
+              numbers={phoneNumbers}
+              agents={agents}
+              isLoading={isLoading}
+              onRefresh={fetchData}
+            />
           </div>
-          <ProviderStatusCard
-            providers={providers}
-            n8nActiveKeysCount={n8nKeys.filter((k) => k.isActive).length}
-            isLoading={isLoading}
-          />
-        </section>
+        )}
 
-        {/* 3. n8n Integration Credentials Manager */}
-        <section>
-          <N8nKeysManager
-            keys={n8nKeys}
-            isLoading={isLoading}
-            onKeyCreated={fetchData}
-            onKeyRevoked={fetchData}
-          />
-        </section>
+        {/* Tab 2: Voice AI Providers */}
+        {activeTab === "providers" && (
+          <div className="space-y-4">
+            <ProviderIntegrationCenter onRefresh={fetchData} />
+          </div>
+        )}
 
-        {/* 4. Outbound Webhook Deliveries Table */}
-        <section>
-          <N8nDeliveriesTable deliveries={deliveries} isLoading={isLoading} />
-        </section>
+        {/* Tab 3: Calling Safety & Policies */}
+        {activeTab === "safety" && (
+          <div className="space-y-4">
+            <CallingPolicyCard
+              policy={policy}
+              isLoading={isLoading}
+              onPolicyUpdated={fetchData}
+            />
+          </div>
+        )}
+
+        {/* Tab 4: n8n Workflow Automation Hub */}
+        {activeTab === "n8n" && (
+          <div className="space-y-6">
+            <N8nKeysManager
+              keys={n8nKeys}
+              isLoading={isLoading}
+              onKeyCreated={fetchData}
+              onKeyRevoked={fetchData}
+            />
+
+            <N8nDeliveriesTable
+              deliveries={deliveries}
+              isLoading={isLoading}
+              onRefresh={fetchData}
+            />
+          </div>
+        )}
       </div>
     </PageContainer>
   );

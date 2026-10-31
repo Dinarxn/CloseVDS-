@@ -1,6 +1,7 @@
 export * from './call-status-badge';
 export * from './call-outcome-badge';
 export * from './provider-status-card';
+export * from './provider-integration-center';
 export * from './safety-status-card';
 export * from './calling-kpi-grid';
 export * from './call-preparation-modal';
@@ -19,3 +20,5 @@ export * from './n8n-deliveries-table';
 export * from './approval-queue-widget';
 export * from './call-reject-modal';
 export * from './calling-policy-card';
+export * from './phone-numbers-table';
+export * from './voice-agent-studio';

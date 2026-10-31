@@ -14,12 +14,19 @@ export interface CallPreparationModalProps {
   initialCampaignId?: string;
   initialLeadId?: string;
   initialContactId?: string;
+  initialAgentConfigId?: string;
   onCallCreated?: (callId: string) => void;
 }
 
 interface CampaignOption {
   id: string;
   name: string;
+}
+
+interface AgentOption {
+  id: string;
+  name: string;
+  callObjective?: string;
 }
 
 interface LeadOption {
@@ -37,14 +44,17 @@ export function CallPreparationModal({
   initialCampaignId = "",
   initialLeadId = "",
   initialContactId = "",
+  initialAgentConfigId = "",
   onCallCreated,
 }: CallPreparationModalProps) {
   const [campaignId, setCampaignId] = useState(initialCampaignId);
   const [leadId, setLeadId] = useState(initialLeadId);
   const [contactId, setContactId] = useState(initialContactId);
+  const [agentConfigId, setAgentConfigId] = useState(initialAgentConfigId);
 
   const [campaigns, setCampaigns] = useState<CampaignOption[]>([]);
   const [leads, setLeads] = useState<LeadOption[]>([]);
+  const [agentConfigs, setAgentConfigs] = useState<AgentOption[]>([]);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
 
   const [isPreparing, setIsPreparing] = useState(false);
@@ -58,7 +68,8 @@ export function CallPreparationModal({
     if (initialCampaignId) setCampaignId(initialCampaignId);
     if (initialLeadId) setLeadId(initialLeadId);
     if (initialContactId) setContactId(initialContactId);
-  }, [initialCampaignId, initialLeadId, initialContactId]);
+    if (initialAgentConfigId) setAgentConfigId(initialAgentConfigId);
+  }, [initialCampaignId, initialLeadId, initialContactId, initialAgentConfigId]);
 
   // Load campaigns and leads on open
   useEffect(() => {
@@ -73,9 +84,10 @@ export function CallPreparationModal({
       setIsLoadingOptions(true);
       setErrorMsg(null);
       try {
-        const [cRes, lRes] = await Promise.allSettled([
+        const [cRes, lRes, aRes] = await Promise.allSettled([
           api.campaigns.list({ limit: 50 }),
           api.leads.list({ limit: 100 }),
+          api.voice.getAgentConfigs(),
         ]);
 
         if (cRes.status === "fulfilled") {
@@ -85,6 +97,18 @@ export function CallPreparationModal({
             : [];
           setCampaigns(items);
           setCampaignId((curr) => curr || items[0]?.id || "");
+        }
+
+        if (aRes.status === "fulfilled" && aRes.value?.data) {
+          const agents: AgentOption[] = Array.isArray(aRes.value.data)
+            ? aRes.value.data.map((a: AgentOption) => ({
+                id: a.id,
+                name: a.name,
+                callObjective: a.callObjective,
+              }))
+            : [];
+          setAgentConfigs(agents);
+          setAgentConfigId((curr) => curr || agents[0]?.id || "");
         }
 
         if (lRes.status === "fulfilled") {
@@ -135,6 +159,7 @@ export function CallPreparationModal({
         leadId,
         contactId,
         campaignId: campaignId || undefined,
+        agentConfigId: agentConfigId || undefined,
       });
 
       if (res.data) {
@@ -162,6 +187,8 @@ export function CallPreparationModal({
         leadId,
         contactId,
         campaignId: campaignId || undefined,
+        agentConfigId: agentConfigId || undefined,
+        humanApprovalRequired: true,
       });
 
       if (res.data) {
@@ -240,6 +267,25 @@ export function CallPreparationModal({
                 ...campaigns.map((c) => ({ value: c.id, label: c.name })),
               ]}
               helperText="Associates call with campaign intelligence offer"
+            />
+          )}
+
+          {agentConfigs.length > 0 && (
+            <Select
+              id="prep-agent"
+              label="Voice Agent Persona"
+              value={agentConfigId}
+              disabled={isLoadingOptions || isPreparing}
+              placeholder="Select Voice Agent"
+              onChange={(e) => {
+                setAgentConfigId(e.target.value);
+                setPrepResult(null);
+              }}
+              options={agentConfigs.map((a) => ({
+                value: a.id,
+                label: `${a.name}${a.callObjective ? ` (${a.callObjective.substring(0, 32)}...)` : ""}`,
+              }))}
+              helperText="Determines voice identity, approved talking points, and conversational guardrails"
             />
           )}
 
@@ -347,6 +393,71 @@ export function CallPreparationModal({
                   {prepResult.safetyCheck.blockedReason || "Call failed one or more mandatory safety gates."}
                 </Alert>
               )}
+
+              {/* Target Prospect & Timezone Banner */}
+              <div className="p-3.5 rounded-xl bg-surface-panel border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block font-semibold mb-0.5">
+                    Target Prospect &amp; Timezone
+                  </span>
+                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>{prepResult.lead?.businessName || selectedLead?.businessName || "Verified Prospect"}</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-elevated border border-white/[0.08] text-zinc-300">
+                      {selectedLead?.status || "QUALIFIED"}
+                    </span>
+                  </div>
+                  <div className="text-zinc-400 font-mono text-[11px] mt-0.5">
+                    {prepResult.contact?.fullName || "Decision Maker"} • {prepResult.normalizedPhone}
+                  </div>
+                </div>
+
+                <div className="sm:text-right shrink-0">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block font-semibold mb-0.5">
+                    Resolved Timezone
+                  </span>
+                  <span className="text-xs font-mono font-medium text-[#C6FF33] px-2 py-0.5 rounded bg-lime-500/10 border border-lime-500/25">
+                    {prepResult.recipientTimezone || "America/New_York"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Pre-Flight Checklist Grid */}
+              <div className="space-y-2">
+                <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 font-semibold flex items-center justify-between">
+                  <span>Pre-Flight Safety Matrix (18-Gate Compliance Audit)</span>
+                  <span className="text-[10px] font-mono text-zinc-400">
+                    {prepResult.safetyCheck.evaluatedGates.filter(g => g.passed).length}/
+                    {prepResult.safetyCheck.evaluatedGates.length} Invariants Passed
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  {prepResult.safetyCheck.evaluatedGates.slice(0, 8).map((gate) => (
+                    <div
+                      key={gate.gateNumber}
+                      className="p-2.5 rounded-lg bg-surface-panel border border-white/[0.06] flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-medium text-white truncate block">
+                          {gate.gateName}
+                        </span>
+                        <span className="text-[10px] text-zinc-500 font-mono">
+                          Gate {gate.gateNumber}
+                        </span>
+                      </div>
+                      <span
+                        className={`text-[9px] font-mono px-2 py-0.5 rounded-full uppercase shrink-0 font-semibold ${
+                          gate.passed
+                            ? "bg-lime-500/10 text-[#C6FF33] border border-lime-500/25"
+                            : "bg-rose-500/10 text-rose-300 border border-rose-500/25"
+                        }`}
+                      >
+                        {gate.passed ? "Passed" : "Blocked"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Visually Partitioned Grounded Context */}
               <div className="space-y-2.5">
@@ -460,6 +571,17 @@ export function CallPreparationModal({
                     Competitor pricing, proprietary tech stack details, internal executive contacts, unverified revenue numbers. The AI agent is strictly prohibited from asserting these items as facts.
                   </p>
                 </div>
+              </div>
+
+              {/* Human Approval Sign-Off Invariant Notice */}
+              <div className="p-3.5 rounded-xl bg-violet-950/20 border border-violet-500/30 text-xs space-y-1">
+                <div className="flex items-center gap-2 text-violet-300 font-semibold text-xs">
+                  <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+                  <span>Mandatory Human Approval Gate (Invariant)</span>
+                </div>
+                <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
+                  Autonomous dialing is strictly prohibited. Submitting will create this call in <span className="font-mono text-amber-300 font-semibold">APPROVAL_REQUIRED</span> status, requiring explicit human operator review before carrier dispatch.
+                </p>
               </div>
 
               {/* Creation Boundary */}

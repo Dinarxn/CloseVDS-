@@ -137,6 +137,8 @@ export interface CallTranscriptTurn {
   text: string;
   confidence?: number | null;
   timestampMs?: number | null;
+  sentiment?: 'positive' | 'neutral' | 'skeptical' | 'negative' | null;
+  latencyMs?: number | null;
   createdAt: string;
 }
 
@@ -198,6 +200,46 @@ export interface CallPreparationResult {
   normalizedPhone: string;
   groundedContext: GroundedContextSection;
   requiresApproval: boolean;
+  recipientTimezone?: string;
+  lead?: {
+    id: string;
+    businessName: string;
+    domain?: string | null;
+    status?: string;
+  };
+  contact?: {
+    id: string;
+    fullName: string;
+    title?: string | null;
+    phone?: string | null;
+  };
+  agentConfig?: {
+    id: string;
+    name: string;
+    callObjective?: string;
+  } | null;
+}
+
+export type CallMilestoneStep =
+  | 'PREPARED'
+  | 'APPROVED'
+  | 'QUEUED'
+  | 'INITIATING'
+  | 'INITIATED'
+  | 'RINGING'
+  | 'CONNECTED'
+  | 'TRANSCRIBING'
+  | 'ENDED';
+
+export interface CallTimelineMilestone {
+  step: CallMilestoneStep;
+  label: string;
+  status: 'COMPLETED' | 'ACTIVE' | 'IN_PROGRESS' | 'PENDING' | 'FAILED' | 'SKIPPED';
+  timestamp?: string | Date | null;
+  durationSeconds?: number;
+  actor?: string;
+  description?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CallDispatchResult {
@@ -206,6 +248,7 @@ export interface CallDispatchResult {
   providerCallId?: string;
   startedAt?: string;
   blockedReason?: string;
+  idempotencyToken?: string;
 }
 
 export interface CallWithRelations {
@@ -363,3 +406,293 @@ export interface UpdateCallingPolicyInput {
   providerRestrictions?: string[];
   isActive?: boolean;
 }
+
+// ==============================================================================
+// SHARED INTEGRATION CONTRACTS & MULTI-PROVIDER ARCHITECTURE (R1)
+// ==============================================================================
+
+/**
+ * Strict normalized call status shared across all telephony and voice AI providers.
+ */
+export type NormalizedCallStatus =
+  | 'queued'
+  | 'initiated'
+  | 'ringing'
+  | 'in-progress'
+  | 'completed'
+  | 'failed'
+  | 'busy'
+  | 'no-answer'
+  | 'canceled';
+
+/**
+ * Bidirectional mapping between Prisma CallStatus and NormalizedCallStatus.
+ */
+export function normalizeCallStatus(status: CallStatus | string): NormalizedCallStatus {
+  const s = String(status).toUpperCase();
+  switch (s) {
+    case 'QUEUED':
+    case 'SAFETY_CHECKING':
+    case 'APPROVAL_REQUIRED':
+    case 'APPROVED':
+      return 'queued';
+    case 'INITIATING':
+      return 'initiated';
+    case 'RINGING':
+      return 'ringing';
+    case 'IN_PROGRESS':
+      return 'in-progress';
+    case 'COMPLETED':
+      return 'completed';
+    case 'FAILED':
+    case 'BLOCKED':
+      return 'failed';
+    case 'BUSY':
+      return 'busy';
+    case 'NO_ANSWER':
+    case 'VOICEMAIL':
+      return 'no-answer';
+    case 'CANCELLED':
+    case 'OPTED_OUT':
+      return 'canceled';
+    default:
+      return 'failed';
+  }
+}
+
+export function toPrismaCallStatus(normalized: NormalizedCallStatus | string): CallStatus {
+  const n = String(normalized).toLowerCase();
+  switch (n) {
+    case 'queued':
+      return 'QUEUED';
+    case 'initiated':
+      return 'INITIATING';
+    case 'ringing':
+      return 'RINGING';
+    case 'in-progress':
+      return 'IN_PROGRESS';
+    case 'completed':
+      return 'COMPLETED';
+    case 'failed':
+      return 'FAILED';
+    case 'busy':
+      return 'BUSY';
+    case 'no-answer':
+      return 'NO_ANSWER';
+    case 'canceled':
+      return 'CANCELLED';
+    default:
+      return 'FAILED';
+  }
+}
+
+/**
+ * Granular capability flags exposed by any calling or voice provider adapter.
+ */
+export interface ProviderCapabilities {
+  supportsInbound: boolean;
+  supportsOutbound: boolean;
+  supportsCustomVoices: boolean;
+  supportsTransfer: boolean;
+  supportsRecording: boolean;
+  supportsTranscripts: boolean;
+  supportsRealtimeTranscription: boolean;
+  supportedCodecs: string[];
+}
+
+/**
+ * Provider connection states for frontend status visualization.
+ */
+export type ProviderConnectionState =
+  | 'NOT_CONFIGURED'
+  | 'CONNECTING'
+  | 'CONNECTED'
+  | 'CONNECTION_FAILED'
+  | 'DEGRADED'
+  | 'DISCONNECTED';
+
+/**
+ * Live provider verification status: strictly distinguishes verified credentials from unverified mocks.
+ */
+export type ProviderVerificationState = 'UNVERIFIED' | 'VERIFIED' | 'TEST_MODE';
+
+// ------------------------------------------------------------------------------
+// TELEPHONY LAYER CONTRACTS (Twilio & Carriers)
+// ------------------------------------------------------------------------------
+
+export type TelephonyProviderId = 'twilio' | 'mock-telephony';
+
+export interface PhoneNumberCapabilities {
+  voice: boolean;
+  sms: boolean;
+  mms: boolean;
+  e164: boolean;
+  tollFree: boolean;
+}
+
+export interface TelephonyPhoneNumber {
+  id: string;
+  workspaceId: string;
+  phoneNumber: string; // E.164 format (e.g. +15125550199)
+  friendlyName: string;
+  provider: TelephonyProviderId;
+  capabilities: PhoneNumberCapabilities;
+  status: 'ACTIVE' | 'INACTIVE' | 'PENDING_VERIFICATION' | 'RELEASED';
+  assignedAgentId?: string | null;
+  assignedAgentName?: string | null;
+  inboundWebhookUrl?: string | null;
+  outboundCallerIdEnabled: boolean;
+  purchasedWithoutAutoBuy?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InboundRoutingConfig {
+  phoneNumber: string;
+  targetAgentId?: string;
+  forwardToNumber?: string;
+  webhookUrl?: string;
+  recordingEnabled: boolean;
+}
+
+export interface OutboundRoutingConfig {
+  callerId: string;
+  maxDurationSeconds?: number;
+  statusCallbackUrl?: string;
+  recordingConsent: boolean;
+}
+
+export interface NormalizedTelephonyEvent {
+  eventId: string;
+  provider: TelephonyProviderId;
+  providerCallId: string;
+  eventType: CallEventType;
+  normalizedStatus: NormalizedCallStatus;
+  durationSeconds?: number;
+  occurredAt: string;
+  rawPayload?: Record<string, unknown>;
+}
+
+export interface MaskedTwilioCredentials {
+  accountSid: string; // e.g. "AC...9876"
+  authTokenMasked: string; // e.g. "••••••••1234"
+  apiKeyMasked?: string;
+  primaryPhoneNumber?: string;
+  isConfigured: boolean;
+  verificationStatus: ProviderVerificationState;
+}
+
+// ------------------------------------------------------------------------------
+// VOICE AI LAYER CONTRACTS (Retell AI, Vapi & Mock Engine)
+// ------------------------------------------------------------------------------
+
+export type VoiceAIProviderId = 'retell' | 'vapi' | 'mock-voice-ai';
+
+export interface VoiceAIModel {
+  id: string;
+  provider: VoiceAIProviderId;
+  name: string;
+  description?: string;
+  contextWindow?: number;
+  recommendedFor?: string;
+}
+
+export interface VoiceAIVoice {
+  id: string;
+  provider: VoiceAIProviderId;
+  name: string;
+  gender: 'male' | 'female' | 'neutral';
+  accent?: string;
+  sampleUrl?: string;
+  supportedLanguages?: string[];
+}
+
+export interface VoiceAIAssistantConfig {
+  assistantId?: string;
+  provider: VoiceAIProviderId;
+  name: string;
+  model: string;
+  voice: string;
+  systemPrompt: string;
+  firstMessage: string;
+  temperature?: number;
+  talkingPoints?: string[];
+  objections?: Record<string, string>;
+  qualificationQuestions?: string[];
+}
+
+export interface VoiceAIAssistantSyncResult {
+  assistantId: string;
+  provider: VoiceAIProviderId;
+  syncedAt: string;
+  version?: string;
+  status: 'SYNCED' | 'FAILED' | 'PENDING';
+}
+
+export interface VoiceAIDispatchPayload {
+  callId: string;
+  leadId: string;
+  contactId: string;
+  recipientPhone: string;
+  assistantId: string;
+  dynamicVariables?: Record<string, string>;
+  recordingEnabled?: boolean;
+}
+
+export interface VoiceAICallDispatchResult {
+  providerCallId: string;
+  provider: VoiceAIProviderId;
+  status: NormalizedCallStatus;
+  startedAt: string;
+}
+
+export interface NormalizedVoiceAIEvent {
+  eventId: string;
+  provider: VoiceAIProviderId;
+  providerCallId: string;
+  eventType: string;
+  normalizedStatus: NormalizedCallStatus;
+  transcriptTurns?: CallTranscriptTurn[];
+  recordingUrl?: string;
+  durationSeconds?: number;
+  occurredAt: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface CallRecordingMetadata {
+  callId: string;
+  recordingUrl?: string;
+  recordingSid?: string;
+  durationSeconds?: number;
+  channels?: number;
+  status: 'PROCESSING' | 'AVAILABLE' | 'FAILED' | 'NOT_RECORDED';
+  authorizedPlaybackUrl?: string;
+}
+
+export interface MaskedRetellCredentials {
+  apiKeyMasked: string; // e.g. "key_...4321"
+  isConfigured: boolean;
+  verificationStatus: ProviderVerificationState;
+}
+
+export interface MaskedVapiCredentials {
+  apiKeyMasked: string; // e.g. "sk_...8765"
+  orgIdMasked?: string;
+  isConfigured: boolean;
+  verificationStatus: ProviderVerificationState;
+}
+
+export interface ProviderIntegrationCard {
+  providerId: string;
+  name: string;
+  category: 'TELEPHONY' | 'VOICE_AI';
+  connectionState: ProviderConnectionState;
+  verificationState: ProviderVerificationState;
+  capabilities: ProviderCapabilities;
+  maskedCredentials?: Record<string, string>;
+  lastHealthCheck?: string;
+  statusMessage?: string;
+}
+
+// Re-export Voice Agent Studio Types
+export * from './voice-agent';

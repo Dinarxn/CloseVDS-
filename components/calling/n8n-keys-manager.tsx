@@ -18,10 +18,11 @@ export interface N8nKeysManagerProps {
 }
 
 const AVAILABLE_SCOPES = [
-  { id: "voice:read", label: "voice:read", desc: "Inspect call queue, transcripts, and session outcomes" },
-  { id: "voice:prepare", label: "voice:prepare", desc: "Execute dry-run safety and context synthesis" },
-  { id: "voice:request", label: "voice:request", desc: "Queue calls for human reviewer approval" },
-  { id: "crm:write", label: "crm:write", desc: "Synchronize CRM deals, stages, and activities" },
+  { id: "calls:read", label: "calls:read", desc: "Inspect call queue, transcripts, telemetry, and session outcomes" },
+  { id: "calls:write", label: "calls:write", desc: "Execute dry-run pre-flight safety evaluation and context synthesis" },
+  { id: "calls:dispatch", label: "calls:dispatch", desc: "Stage calls into Human Approval Queue (Strict Zero-Bypass Invariant)" },
+  { id: "webhooks:deliver", label: "webhooks:deliver", desc: "Receive signed HMAC-SHA256 webhook delivery streams for workflow triggers" },
+  { id: "crm:write", label: "crm:write", desc: "Synchronize CRM deals, stages, contact notes, and activities" },
 ];
 
 export function N8nKeysManager({
@@ -34,9 +35,10 @@ export function N8nKeysManager({
   const [name, setName] = useState("");
   const [webhookUrl, setWebhookUrl] = useState("");
   const [selectedScopes, setSelectedScopes] = useState<string[]>([
-    "voice:read",
-    "voice:prepare",
-    "voice:request",
+    "calls:read",
+    "calls:write",
+    "calls:dispatch",
+    "webhooks:deliver",
   ]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -151,6 +153,21 @@ export function N8nKeysManager({
           >
             + Generate n8n Key
           </Button>
+        </div>
+
+        {/* Critical Safety Invariant Callout */}
+        <div className="mx-4 sm:mx-5 mt-4 p-3.5 rounded-xl bg-[#140b0e] border border-amber-500/20 text-xs flex items-start gap-3 shadow-xs">
+          <svg className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div className="space-y-0.5">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-amber-300 font-semibold block">
+              Critical Safety Invariant: Zero-Bypass Human Approval
+            </span>
+            <p className="text-zinc-300 leading-relaxed font-sans">
+              All inbound n8n workflow triggers and call requests are strictly subjected to the CloseVDS Safety Gate Engine (calling windows, DNC list suppression, concurrency locks, and daily volume limits). Automated scripts can only stage calls for human review and can NEVER bypass human sign-off.
+            </p>
+          </div>
         </div>
 
         {/* Content Table */}

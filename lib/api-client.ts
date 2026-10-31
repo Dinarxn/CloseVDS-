@@ -290,7 +290,24 @@ import type {
   UpdateCallingPolicyInput,
   CallOutcome,
   CallTranscriptTurn,
+  TelephonyPhoneNumber,
+  PhoneNumberCapabilities,
+  InboundRoutingConfig,
+  MaskedTwilioCredentials,
+  ProviderConnectionState,
+  CallTimelineMilestone,
+  ProviderIntegrationCard,
 } from '@/types/calling';
+import type {
+  VoiceAgentStudioConfig,
+  CreateVoiceAgentStudioInput,
+  UpdateVoiceAgentStudioInput,
+  VoiceAgentReadinessReport,
+  VoiceModelOption,
+  VoiceOption,
+  VoiceAgentProviderType,
+  VoiceAgentLifecycleStatus,
+} from '@/types/voice-agent';
 import type {
   LeadAiWorkflowResult,
   CreateLeadInput,
@@ -349,6 +366,12 @@ export const api = {
       apiRequest<{ success: boolean; data: WorkspaceCallingPolicy; message: string }>(
         '/voice/policy',
         { method: 'PUT', body: JSON.stringify(body) }
+      ),
+
+    toggleKillSwitch: (body: { active: boolean; reason?: string; scope?: 'workspace' | 'global' }) =>
+      apiRequest<{ success: boolean; data: { active: boolean; scope: string; reason?: string }; message: string }>(
+        '/voice/policy/kill-switch',
+        { method: 'POST', body: JSON.stringify(body) }
       ),
 
     getCampaign: (campaignId: string) =>
@@ -421,6 +444,9 @@ export const api = {
     getCall: (id: string) =>
       apiRequest<{ success: boolean; data: CallWithRelations }>(`/voice/calls/${id}`),
 
+    getTimeline: (id: string) =>
+      apiRequest<{ success: boolean; data: CallTimelineMilestone[] }>(`/voice/calls/${id}/timeline`),
+
     approveCall: (id: string) =>
       apiRequest<{ success: boolean; data: CallWithRelations; message: string }>(
         `/voice/calls/${id}/approve`,
@@ -482,6 +508,184 @@ export const api = {
         qs ? `/analytics/voice?${qs}` : '/analytics/voice'
       );
     },
+
+    getTelephonySettings: () =>
+      apiRequest<{
+        success: boolean;
+        data: MaskedTwilioCredentials & {
+          connectionStatus: ProviderConnectionState;
+          message: string;
+          accountDetails?: Record<string, unknown>;
+        };
+      }>('/voice/telephony/settings'),
+
+    updateTelephonySettings: (body: { accountSid: string; authToken: string; primaryPhoneNumber?: string }) =>
+      apiRequest<{ success: boolean; data: MaskedTwilioCredentials; message: string }>(
+        '/voice/telephony/settings',
+        { method: 'POST', body: JSON.stringify(body) }
+      ),
+
+    testTelephonyConnection: (body?: { accountSid?: string; authToken?: string }) =>
+      apiRequest<{
+        success: boolean;
+        data: {
+          connected: boolean;
+          status: ProviderConnectionState;
+          message: string;
+          accountDetails?: Record<string, unknown>;
+        };
+        message: string;
+      }>('/voice/telephony/test-connection', {
+        method: 'POST',
+        body: JSON.stringify(body || {}),
+      }),
+
+    listPhoneNumbers: () =>
+      apiRequest<{ success: boolean; data: TelephonyPhoneNumber[] }>('/voice/phone-numbers'),
+
+    importPhoneNumber: (body: { phoneNumber: string; friendlyName?: string; assignedAgentId?: string | null }) =>
+      apiRequest<{ success: boolean; data: TelephonyPhoneNumber; message: string }>(
+        '/voice/phone-numbers/import',
+        { method: 'POST', body: JSON.stringify(body) }
+      ),
+
+    validatePhoneNumber: (phoneNumber: string) =>
+      apiRequest<{ success: boolean; data: PhoneNumberCapabilities; message: string }>(
+        '/voice/phone-numbers/validate',
+        { method: 'POST', body: JSON.stringify({ phoneNumber }) }
+      ),
+
+    configurePhoneNumberRouting: (id: string, body: Partial<InboundRoutingConfig>) =>
+      apiRequest<{ success: boolean; data: TelephonyPhoneNumber; message: string }>(
+        `/voice/phone-numbers/${id}/routing`,
+        { method: 'PUT', body: JSON.stringify(body) }
+      ),
+
+    releasePhoneNumber: (id: string) =>
+      apiRequest<{ success: boolean; data: { released: boolean; message: string }; message: string }>(
+        `/voice/phone-numbers/${id}`,
+        { method: 'DELETE' }
+      ),
+
+    // 11-Step Voice Agent Studio & Lifecycle (Milestone 4 / R4)
+    listStudioAgents: () =>
+      apiRequest<{ success: boolean; data: VoiceAgentStudioConfig[] }>('/voice/agents/studio'),
+
+    getStudioAgent: (id: string) =>
+      apiRequest<{ success: boolean; data: VoiceAgentStudioConfig }>(`/voice/agents/studio/${id}`),
+
+    createStudioAgent: (body: CreateVoiceAgentStudioInput) =>
+      apiRequest<{ success: boolean; data: VoiceAgentStudioConfig; message: string }>(
+        '/voice/agents/studio',
+        { method: 'POST', body: JSON.stringify(body) }
+      ),
+
+    updateStudioAgent: (id: string, body: UpdateVoiceAgentStudioInput) =>
+      apiRequest<{ success: boolean; data: VoiceAgentStudioConfig; message: string }>(
+        `/voice/agents/studio/${id}`,
+        { method: 'PUT', body: JSON.stringify(body) }
+      ),
+
+    getStudioAgentReadiness: (id: string) =>
+      apiRequest<{ success: boolean; data: VoiceAgentReadinessReport }>(
+        `/voice/agents/studio/${id}/readiness`
+      ),
+
+    testStudioAgent: (
+      id: string,
+      body?: { testPhoneNumber?: string; diagnosticPayload?: Record<string, unknown> }
+    ) =>
+      apiRequest<{
+        success: boolean;
+        data: {
+          success: boolean;
+          callId: string;
+          status: VoiceAgentLifecycleStatus;
+          simulatedDurationMs: number;
+          diagnosticLogs: string[];
+          testedAt: string;
+        };
+        message: string;
+      }>(`/voice/agents/studio/${id}/test`, {
+        method: 'POST',
+        body: JSON.stringify(body || {}),
+      }),
+
+    transitionStudioStatus: (id: string, status: VoiceAgentLifecycleStatus) =>
+      apiRequest<{
+        success: boolean;
+        data: VoiceAgentStudioConfig;
+        readinessReport?: VoiceAgentReadinessReport;
+        message: string;
+      }>(`/voice/agents/studio/${id}/transition-status`, {
+        method: 'POST',
+        body: JSON.stringify({ status }),
+      }),
+
+    activateStudioAgent: (id: string) =>
+      apiRequest<{
+        success: boolean;
+        data: VoiceAgentStudioConfig;
+        readinessReport?: VoiceAgentReadinessReport;
+        message: string;
+      }>(`/voice/agents/studio/${id}/activate`, {
+        method: 'POST',
+      }),
+
+    pauseStudioAgent: (id: string) =>
+      apiRequest<{
+        success: boolean;
+        data: VoiceAgentStudioConfig;
+        message: string;
+      }>(`/voice/agents/studio/${id}/pause`, {
+        method: 'POST',
+      }),
+
+    getStudioModels: (provider?: VoiceAgentProviderType) =>
+      apiRequest<{ success: boolean; data: VoiceModelOption[] }>(
+        provider ? `/voice/agents/studio/models?provider=${provider}` : '/voice/agents/studio/models'
+      ),
+
+    getStudioVoices: (provider?: VoiceAgentProviderType) =>
+      apiRequest<{ success: boolean; data: VoiceOption[] }>(
+        provider ? `/voice/agents/studio/voices?provider=${provider}` : '/voice/agents/studio/voices'
+      ),
+
+    validateNumberCompatibility: (body: { phoneNumberId: string; agentId?: string }) =>
+      apiRequest<{
+        success: boolean;
+        data: {
+          compatible: boolean;
+          reason?: string;
+          phoneNumber?: string;
+        };
+      }>('/voice/agents/studio/validate-number', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    getVoiceAIProviders: () =>
+      apiRequest<{ success: boolean; data: ProviderIntegrationCard[] }>('/voice/voice-ai/providers'),
+
+    testVoiceAIConnection: (body: { providerId: string; credentials?: Record<string, unknown> }) =>
+      apiRequest<{
+        success: boolean;
+        data: {
+          connected: boolean;
+          status: ProviderConnectionState;
+          message: string;
+        };
+        message: string;
+      }>('/voice/voice-ai/test-connection', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    updateVoiceAICredentials: (body: { providerId: string; credentials: Record<string, string | undefined> }) =>
+      apiRequest<{ success: boolean; data: ProviderIntegrationCard; message: string }>(
+        '/voice/voice-ai/credentials',
+        { method: 'POST', body: JSON.stringify(body) }
+      ),
   },
 
   n8n: {
@@ -503,6 +707,12 @@ export const api = {
     listDeliveries: () =>
       apiRequest<{ success: boolean; data: N8nWebhookDelivery[] }>(
         '/integrations/n8n/deliveries'
+      ),
+
+    retryDelivery: (id: string) =>
+      apiRequest<{ success: boolean; data: N8nWebhookDelivery; message: string }>(
+        `/integrations/n8n/deliveries/${id}/retry`,
+        { method: 'POST' }
       ),
   },
 

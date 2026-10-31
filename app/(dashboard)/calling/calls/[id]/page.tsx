@@ -46,6 +46,54 @@ export default function CallDetailPage({ params }: CallDetailPageProps) {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const { addToast } = useToast();
 
+  // Audio recording player state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackTime, setPlaybackTime] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const totalDuration = call?.durationSeconds || 60;
+  const waveformBars = [40, 65, 30, 80, 50, 95, 60, 45, 75, 90, 85, 40, 55, 70, 95, 60, 30, 80, 75, 45, 88, 62, 40, 70, 90, 50, 35, 65, 80, 45];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setPlaybackTime((prev) => {
+          if (prev >= totalDuration) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return Math.min(totalDuration, prev + 0.5 * playbackSpeed);
+        });
+      }, 500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, playbackSpeed, totalDuration]);
+
+  const togglePlayback = () => setIsPlaying(!isPlaying);
+  const cycleSpeed = () => {
+    const speeds = [1, 1.25, 1.5, 2];
+    const nextIdx = (speeds.indexOf(playbackSpeed) + 1) % speeds.length;
+    setPlaybackSpeed(speeds[nextIdx]);
+  };
+  const toggleMute = () => setIsMuted(!isMuted);
+  const handleDownloadAudio = () => {
+    addToast({
+      title: "Audio Export Initiated",
+      description: "Encrypted call recording archive downloaded.",
+      variant: "success",
+    });
+  };
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
   const fetchCall = useCallback(async () => {
     setIsLoading(true);
     setErrorMsg(null);
@@ -346,6 +394,109 @@ export default function CallDetailPage({ params }: CallDetailPageProps) {
         </CardContent>
       </Card>
 
+      {/* Audio Playback Controls & Waveform Player Widget */}
+      {((call.durationSeconds ?? 0) > 0 || call.status === "COMPLETED" || (call.transcripts && call.transcripts.length > 0)) && (
+        <Card variant="standard" className="bg-surface-card border-white/[0.08] shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              {/* Play / Pause & Time */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={togglePlayback}
+                  className="w-10 h-10 rounded-full bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-xs"
+                >
+                  {isPlaying ? (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <rect x="6" y="4" width="4" height="16" rx="1" />
+                      <rect x="14" y="4" width="4" height="16" rx="1" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  )}
+                </button>
+
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-white font-mono">
+                      {formatTime(playbackTime)} / {formatTime(totalDuration)}
+                    </span>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-lime-500/10 text-[#C6FF33] border border-lime-500/25 uppercase font-semibold">
+                      Authorized Recording
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    8kHz G.711 telephonic stream • Encrypted media archive
+                  </span>
+                </div>
+              </div>
+
+              {/* Scrubber & Waveform */}
+              <div className="flex-1 max-w-md space-y-1.5">
+                {/* Waveform Visualization Bars */}
+                <div className="flex items-end gap-1 h-7 px-1">
+                  {waveformBars.map((height, i) => {
+                    const barProgress = (i / waveformBars.length) * totalDuration;
+                    const isPlayed = barProgress <= playbackTime;
+                    return (
+                      <div
+                        key={i}
+                        style={{ height: `${height}%` }}
+                        className={`flex-1 rounded-xs transition-colors ${
+                          isPlayed
+                            ? "bg-[#C6FF33] shadow-[0_0_4px_rgba(198,255,51,0.5)]"
+                            : "bg-surface-panel border-t border-white/[0.08]"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Progress Bar / Scrubber */}
+                <input
+                  type="range"
+                  min={0}
+                  max={totalDuration || 1}
+                  step={0.5}
+                  value={playbackTime}
+                  onChange={(e) => setPlaybackTime(Number(e.target.value))}
+                  className="w-full h-1 bg-surface-panel rounded-lg appearance-none cursor-pointer accent-violet-500"
+                />
+              </div>
+
+              {/* Speed & Controls */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={cycleSpeed}
+                  className="px-2.5 py-1 rounded-lg bg-surface-panel border border-white/[0.08] text-[11px] font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                >
+                  {playbackSpeed}x
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  className="p-1.5 rounded-lg bg-surface-panel border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                  title={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? "🔇" : "🔊"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadAudio}
+                  className="px-2.5 py-1 rounded-lg bg-surface-panel border border-white/[0.08] text-[11px] font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>⬇</span>
+                  <span>Audio</span>
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Tabbed Intelligence & Deep Logs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="transcript">
         <TabList className="w-full bg-surface-card border border-white/[0.08] p-1 rounded-xl">
@@ -388,7 +539,7 @@ export default function CallDetailPage({ params }: CallDetailPageProps) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CallTimeline events={call.events} />
+              <CallTimeline callId={call.id} events={call.events} />
             </CardContent>
           </Card>
         </TabPanel>

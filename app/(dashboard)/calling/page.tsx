@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   CallingKpiGrid,
   ApprovalQueueWidget,
-  ProviderStatusCard,
+  ProviderIntegrationCenter,
   SafetyStatusCard,
   CallsTable,
   CallPreparationModal,
@@ -19,8 +19,6 @@ import {
 import {
   CallWithRelations,
   VoiceAnalyticsData,
-  ProviderStatusItem,
-  N8nIntegrationKey,
   WorkspaceCallingPolicy,
 } from "@/types/calling";
 import { api, ApiClientError } from "@/lib/api-client";
@@ -30,8 +28,7 @@ export default function CallingDashboardPage() {
   const [calls, setCalls] = useState<CallWithRelations[]>([]);
   const [analytics, setAnalytics] = useState<VoiceAnalyticsData | null>(null);
   const [policy, setPolicy] = useState<WorkspaceCallingPolicy | null>(null);
-  const [providers, setProviders] = useState<ProviderStatusItem[]>([]);
-  const [n8nKeys, setN8nKeys] = useState<N8nIntegrationKey[]>([]);
+  const [telephonyConfigured, setTelephonyConfigured] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -48,12 +45,11 @@ export default function CallingDashboardPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const [callsRes, analyticsRes, policyRes, providersRes, n8nRes] = await Promise.allSettled([
+      const [callsRes, analyticsRes, policyRes, telephonyRes] = await Promise.allSettled([
         api.voice.listCalls({ limit: 15 }),
         api.voice.getVoiceAnalytics(),
         api.voice.getPolicy(),
-        api.settings.getProviders(),
-        api.n8n.listKeys(),
+        api.voice.getTelephonySettings(),
       ]);
 
       if (callsRes.status === "fulfilled" && callsRes.value?.data) {
@@ -68,12 +64,8 @@ export default function CallingDashboardPage() {
         setPolicy(policyRes.value.data);
       }
 
-      if (providersRes.status === "fulfilled" && providersRes.value?.providers) {
-        setProviders(providersRes.value.providers);
-      }
-
-      if (n8nRes.status === "fulfilled" && n8nRes.value?.data) {
-        setN8nKeys(n8nRes.value.data);
+      if (telephonyRes.status === "fulfilled" && telephonyRes.value?.data) {
+        setTelephonyConfigured(Boolean(telephonyRes.value.data.isConfigured));
       }
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {
@@ -149,16 +141,13 @@ export default function CallingDashboardPage() {
   // Derived subsets
   const pendingCalls = calls.filter((c) => c.status === "APPROVAL_REQUIRED");
   const queuedCount = calls.filter((c) => c.status === "QUEUED").length;
-  const twilioConfigured = Boolean(
-    providers.find((p) => p.provider.toLowerCase().includes("twilio"))?.isConfigured
-  );
 
   return (
     <PageContainer maxWidth="xl" className="space-y-6">
       {/* Header with command center action hierarchy */}
       <PageHeader
         title="AI Calling Agent"
-        description="Autonomous voice outreach supervision, human approval queue, and grounded context evaluation."
+        description="Autonomous voice outreach supervision, human approval queue, and multi-provider voice telemetry."
         breadcrumbs={[
           { label: "Workspace", href: "/dashboard" },
           { label: "AI Calling Overview" },
@@ -174,7 +163,7 @@ export default function CallingDashboardPage() {
                 <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <span>Call Queue &amp; History</span>
+                <span>Call History</span>
               </Button>
             </Link>
             <Link href="/calling/agents">
@@ -216,6 +205,82 @@ export default function CallingDashboardPage() {
         </div>
       )}
 
+      {/* Quick Action Launcher Bar (Obsidian Desktop Palette) */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button
+          type="button"
+          onClick={() => setIsPrepModalOpen(true)}
+          className="p-3.5 rounded-xl bg-surface-card border border-violet-500/30 hover:border-violet-500/60 hover:bg-violet-950/20 text-left transition-all group shadow-xs cursor-pointer"
+        >
+          <div className="flex items-center justify-between gap-1 mb-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-violet-400 font-semibold">
+              Action 01
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF33] animate-pulse" />
+          </div>
+          <div className="text-xs font-semibold text-white group-hover:text-violet-200 transition-colors">
+            Start / Prepare Call
+          </div>
+          <p className="text-[10px] text-zinc-400 mt-0.5 font-sans">
+            Validate lead, policy, and DNC gates
+          </p>
+        </button>
+
+        <Link
+          href="/calling/agents/new"
+          className="p-3.5 rounded-xl bg-surface-card border border-white/[0.08] hover:border-white/[0.16] hover:bg-surface-elevated text-left transition-all group shadow-xs block"
+        >
+          <div className="flex items-center justify-between gap-1 mb-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+              Action 02
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#7D39EB]" />
+          </div>
+          <div className="text-xs font-semibold text-white group-hover:text-violet-200 transition-colors">
+            Agent Studio Wizard
+          </div>
+          <p className="text-[10px] text-zinc-400 mt-0.5 font-sans">
+            Build 11-step persona &amp; voices
+          </p>
+        </Link>
+
+        <Link
+          href="/calling/settings?tab=safety"
+          className="p-3.5 rounded-xl bg-surface-card border border-white/[0.08] hover:border-white/[0.16] hover:bg-surface-elevated text-left transition-all group shadow-xs block"
+        >
+          <div className="flex items-center justify-between gap-1 mb-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+              Action 03
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-lime-400" />
+          </div>
+          <div className="text-xs font-semibold text-white group-hover:text-violet-200 transition-colors">
+            Safety Controls &amp; Caps
+          </div>
+          <p className="text-[10px] text-zinc-400 mt-0.5 font-sans">
+            Hours, DNC, and Kill Switch
+          </p>
+        </Link>
+
+        <Link
+          href="/calling/settings?tab=telephony"
+          className="p-3.5 rounded-xl bg-surface-card border border-white/[0.08] hover:border-white/[0.16] hover:bg-surface-elevated text-left transition-all group shadow-xs block"
+        >
+          <div className="flex items-center justify-between gap-1 mb-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+              Action 04
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+          </div>
+          <div className="text-xs font-semibold text-white group-hover:text-violet-200 transition-colors">
+            Carrier Phone Numbers
+          </div>
+          <p className="text-[10px] text-zinc-400 mt-0.5 font-sans">
+            Import lines &amp; agent routing
+          </p>
+        </Link>
+      </div>
+
       {/* Operational Calling KPIs */}
       <CallingKpiGrid
         analytics={analytics}
@@ -233,20 +298,18 @@ export default function CallingDashboardPage() {
         onCheckSafety={(call) => setSafetyModalCallId(call.id)}
       />
 
-      {/* Dual Status Cards: Providers & Safety Guardrails */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <ProviderStatusCard
-          providers={providers}
-          n8nActiveKeysCount={n8nKeys.filter((k) => k.isActive).length}
-          isLoading={isLoading}
-        />
+      {/* Provider Integration Center (Twilio, Retell, Vapi) */}
+      <ProviderIntegrationCenter onRefresh={fetchData} />
+
+      {/* Safety Guardrails Overview */}
+      <div className="grid grid-cols-1 gap-4">
         <SafetyStatusCard
           killSwitchActive={policy ? !policy.isActive : false}
           humanApprovalRequired={policy ? policy.humanApprovalRequired : true}
           suppressedPhoneCount={analytics?.optOutCount || 0}
           dailyCap={policy ? policy.dailyCallLimit : 25}
           callingWindow={policy ? `${policy.callingWindowStart} - ${policy.callingWindowEnd}` : "09:00 - 17:00"}
-          providerConfigured={twilioConfigured}
+          providerConfigured={telephonyConfigured}
         />
       </div>
 
@@ -296,7 +359,7 @@ export default function CallingDashboardPage() {
       <CallDispatchModal
         isOpen={Boolean(dispatchModalCall)}
         call={dispatchModalCall}
-        providerConfigured={twilioConfigured}
+        providerConfigured={telephonyConfigured}
         onClose={() => setDispatchModalCall(null)}
         onDispatched={() => {
           fetchData();

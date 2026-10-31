@@ -6,11 +6,11 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { VoiceAgentCard } from "@/components/calling";
-import { VoiceAgentConfig } from "@/types/calling";
+import { VoiceAgentStudioConfig } from "@/types/voice-agent";
 import { api, ApiClientError } from "@/lib/api-client";
 
 export default function VoiceAgentsPage() {
-  const [agents, setAgents] = useState<VoiceAgentConfig[]>([]);
+  const [agents, setAgents] = useState<VoiceAgentStudioConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -18,15 +18,23 @@ export default function VoiceAgentsPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const res = await api.voice.getAgentConfigs();
+      const res = await api.voice.listStudioAgents();
       if (res?.data) {
         setAgents(res.data);
       }
-    } catch (err: unknown) {
-      if (err instanceof ApiClientError) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg("Failed to load Voice Agent configurations.");
+    } catch {
+      // Graceful fallback to legacy getAgentConfigs
+      try {
+        const legacyRes = await api.voice.getAgentConfigs();
+        if (legacyRes?.data) {
+          setAgents(legacyRes.data as unknown as VoiceAgentStudioConfig[]);
+        }
+      } catch (err: unknown) {
+        if (err instanceof ApiClientError) {
+          setErrorMsg(err.message);
+        } else {
+          setErrorMsg("Failed to load Voice Agent configurations.");
+        }
       }
     } finally {
       setIsLoading(false);
@@ -43,8 +51,8 @@ export default function VoiceAgentsPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
           <PageHeader
-            title="AI Voice Agents"
-            description="Manage conversational personas, qualification criteria, approved talking points, and anti-hallucination rules."
+            title="AI Voice Agents &amp; Studio"
+            description="Manage conversational personas, 11-step studio configurations, qualification criteria, and activation readiness gating."
             breadcrumbs={[
               { label: "Workspace", href: "/dashboard" },
               { label: "AI Calling", href: "/calling" },
@@ -57,12 +65,12 @@ export default function VoiceAgentsPage() {
               <Button
                 variant="primary"
                 size="sm"
-                className="h-8.5 px-3.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs"
+                className="h-8.5 px-3.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-xs flex items-center gap-1.5"
               >
-                <svg className="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Create Voice Agent
+                Launch Voice Agent Studio
               </Button>
             </Link>
           </div>
@@ -84,11 +92,11 @@ export default function VoiceAgentsPage() {
                 </span>
                 <span className="text-zinc-600 font-mono text-[10px]">•</span>
                 <span className="text-xs font-medium text-amber-200">
-                  Factual Grounding Guardrails Enforced
+                  Strict Pre-Activation Readiness Gate Enforced
                 </span>
               </div>
               <p className="text-xs text-amber-200/75 leading-relaxed max-w-4xl font-sans">
-                AI-generated content must remain grounded in verified lead data and approved acquisition intelligence. The calling agent will not invent facts, unverified capabilities, or unauthorized discounts.
+                Voice agents cannot be activated merely via UI button click. Activation requires verified provider connectivity, objective prompt exceeding 50 characters, assigned carrier line with verified voice capabilities, and successful test call execution.
               </p>
             </div>
           </div>
@@ -132,7 +140,7 @@ export default function VoiceAgentsPage() {
                 No voice agents configured
               </h4>
               <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed font-sans">
-                Create your first AI voice agent persona with customized objectives, qualification questions, and prohibited claims.
+                Launch the guided 11-step Voice Agent Studio to build, test, and activate your first conversational AI persona.
               </p>
             </div>
             <div className="pt-2">
@@ -141,7 +149,7 @@ export default function VoiceAgentsPage() {
                   <svg className="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
-                  Create First Voice Agent
+                  Launch Voice Agent Studio
                 </Button>
               </Link>
             </div>
