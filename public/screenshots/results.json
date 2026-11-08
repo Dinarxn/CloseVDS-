@@ -1,0 +1,170 @@
+[
+  {
+    "name": "01-root-landing",
+    "path": "/",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/01-root-landing.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "02-login",
+    "path": "/login",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/02-login.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "03-register",
+    "path": "/register",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/03-register.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "04-forgot-password",
+    "path": "/forgot-password",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/04-forgot-password.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "05-reset-password",
+    "path": "/reset-password",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/05-reset-password.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "06-dashboard",
+    "path": "/dashboard",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/06-dashboard.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "07-leads",
+    "path": "/leads",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/07-leads.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "08-crm",
+    "path": "/crm",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/08-crm.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "09-operations",
+    "path": "/operations",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/09-operations.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "10-outreach",
+    "path": "/outreach",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/10-outreach.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "11-calling-overview",
+    "path": "/calling",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/11-calling-overview.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "12-calling-calls",
+    "path": "/calling/calls",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/12-calling-calls.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "13-calling-call-detail",
+    "path": "/calling/calls/call-mock-01",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/13-calling-call-detail.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "14-calling-agents",
+    "path": "/calling/agents",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/14-calling-agents.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "15-calling-agents-new",
+    "path": "/calling/agents/new",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/15-calling-agents-new.png",
+    "interactionLog": "Loaded cleanly; layout verified. Tested 11-step wizard view rendered."
+  },
+  {
+    "name": "16-calling-agent-detail",
+    "path": "/calling/agents/agent-1",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/16-calling-agent-detail.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "17-calling-agent-edit",
+    "path": "/calling/agents/agent-1/edit",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/17-calling-agent-edit.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "18-calling-settings",
+    "path": "/calling/settings",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/18-calling-settings.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "19-analytics",
+    "path": "/analytics",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/19-analytics.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "20-settings",
+    "path": "/settings",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/20-settings.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  },
+  {
+    "name": "21-foundation-demo",
+    "path": "/foundation-demo",
+    "status": 200,
+    "hasHorizontalScroll": false,
+    "screenshot": "public/screenshots/21-foundation-demo.png",
+    "interactionLog": "Loaded cleanly; layout verified."
+  }
+]

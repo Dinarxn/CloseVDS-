@@ -16,13 +16,13 @@ export const ACQUISITION_WORKFLOW_STEPS: WorkflowStep[] = [
     name: "Discover",
     href: "/dashboard",
     stepNumber: "01",
-    description: "closeBDS Prospect Discovery",
+    description: "Executive Overview & Prospect Discovery",
   },
   {
     name: "Lead Pool",
     href: "/leads",
     stepNumber: "02",
-    description: "Central Acquisition Pool",
+    description: "Central Acquisition & Audit Pool",
   },
   {
     name: "Operations",
@@ -31,22 +31,28 @@ export const ACQUISITION_WORKFLOW_STEPS: WorkflowStep[] = [
     description: "Work Queue & Approvals",
   },
   {
+    name: "Outreach",
+    href: "/outreach",
+    stepNumber: "04",
+    description: "4-Gate Multi-Channel Messaging",
+  },
+  {
     name: "AI Calling",
     href: "/calling",
-    stepNumber: "04",
-    description: "Grounded Voice Agents",
+    stepNumber: "05",
+    description: "Grounded Multi-Provider Voice",
   },
   {
     name: "CRM Pipeline",
     href: "/crm",
-    stepNumber: "05",
-    description: "Deals & Conversions",
+    stepNumber: "06",
+    description: "Deals & Stage Progression",
   },
   {
     name: "Analytics",
     href: "/analytics",
-    stepNumber: "06",
-    description: "Performance Telemetry",
+    stepNumber: "07",
+    description: "Acquisition & Calling Telemetry",
   },
 ];
 
